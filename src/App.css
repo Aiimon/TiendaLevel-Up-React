@@ -6,13 +6,16 @@
   --text-2: #D3D3D3;
 }
 
-html, body {
+html, body #root{
+  height: 100%;
+  margin: 0;
+  padding: 0;
   background: var(--bg);
   color: var(--text);
   font-family: 'Roboto', system-ui, -apple-system, Segoe UI, sans-serif;
 }
 
-.brand {
+.brand, .section-title {
   font-family: 'Orbitron', 'Roboto', sans-serif;
   letter-spacing: 0.5px;
 }
@@ -23,6 +26,7 @@ html, body {
 
 a {
   color: var(--accent-blue);
+  text-decoration: none;
 }
 
 .btn-accent {
@@ -30,6 +34,7 @@ a {
   border: none;
   color: #000;
   font-weight: 700;
+  transition: all 0.3s ease;
 }
 
 .btn-accent:hover {
@@ -37,14 +42,39 @@ a {
 }
 
 .card {
-  background: #0b0b0b;
-  border: 1px solid rgba(255,255,255,0.06);
+  background: #0d0d0d;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card img {
-  width: 100%;
-  height: 250px;
-  object-fit: cover;
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 20px rgba(30,144,255,0.25);
+}
+
+.card-img-container {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  background: #0b0b0b;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.card-img-container img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.card-img-container img:hover {
+  transform: scale(1.05);
 }
 
 .badge-neon {
@@ -72,23 +102,20 @@ a {
 /* --- Banner estilo presentación --- */
 .banner-auth {
   display: flex;
+  width: 100%;
   min-height: 100vh;
 }
 
-/* Cada lado ocupa 50% en escritorio */
-.banner-left, 
-.banner-right {
+.banner-left, .banner-right {
   flex: 1;
   padding: 2rem;
 }
 
-/* Banner izquierdo */
 .banner-left {
   background: radial-gradient(circle at top left, var(--accent-blue), transparent 70%),
               linear-gradient(#050505, #000);
   font-size: 1.3rem;
   border-right: 1px solid rgba(255,255,255,0.08);
-
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -114,7 +141,6 @@ a {
   color: var(--accent-blue);
 }
 
-/* Banner derecho */
 .banner-right {
   display: flex;
   align-items: center;
@@ -128,6 +154,33 @@ a {
   border-radius: 1rem;
 }
 
+/* --- Modales centrados --- */
+.modal-backdrop.show {
+  background-color: rgba(0,0,0,0.75);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+
+.dark-card {
+  background: #0d0d0d;
+  color: var(--text);
+}
+
+/* Inputs oscuros */
+.dark-input {
+  background: #111;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+}
+
 /* --- Responsividad --- */
 @media (max-width: 768px) {
   .banner-auth {
@@ -137,31 +190,45 @@ a {
   .banner-left, 
   .banner-right {
     width: 100%;
-    border-right: none; /* quitar división en móvil */
+    border-right: none;
     padding: 1.5rem;
+  }
+
+  .card-img-container {
+    height: 180px;
   }
 }
 
+@media (min-width: 768px) {
+  .card-img-container {
+    height: 220px;
+  }
+}
 
-/* Contenedor de la imagen del producto */
+@media (min-width: 1200px) {
+  .card-img-container {
+    height: 260px;
+  }
+}
+
+/* Contenedor de imagen de producto */
 .imagen-contenedor {
   width: 100%;
-  max-width: 600px;  /* Ajusta según tu diseño */
+  max-width: 600px;
   margin: 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  background: #0b0b0b; /* Fondo oscuro para PNG transparente */
+  background: #0b0b0b;
   border-radius: 0.5rem;
   padding: 1rem;
 }
 
-/* Imagen dentro del contenedor */
 .imagen-contenedor img {
   width: 100%;
-  height: auto;        /* Mantiene proporción */
-  object-fit: contain;  /* Ajusta sin recortar */
+  height: auto;
+  object-fit: contain;
   display: block;
 }
 
@@ -183,7 +250,7 @@ a {
   transform: scale(1.02);
 }
 
-/*Buscador avanzado*/
+/* Buscador avanzado */
 #buscador {
   position: fixed;
   top: 80px;
@@ -214,7 +281,7 @@ a {
   display: block;
 }
 
-/*Detalles del producto - tabla*/
+/* Tabla de detalles de producto */
 .custom-table,
 .custom-table th,
 .custom-table td,
@@ -237,6 +304,7 @@ a {
   transform: scale(1.01);
 }
 
+/* Carrito lateral */
 .carrito-sidebar {
   position: fixed;
   top: 0;
@@ -263,51 +331,6 @@ a {
   padding: 1rem;
 }
 
-/* Asegura que las cards tengan altura uniforme */
-.card {
-  background: #0d0d0d;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 20px rgba(30,144,255,0.25);
-}
-
-.card-img-container {
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 15px;
-  background: rgba(255,255,255,0.02);
-}
-
-.card-img-container img {
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: contain;
-}
-
-
-/* Tablet */
-@media (min-width: 768px) {
-  .card-img-container {
-    height: 220px;
-  }
-}
-
-/* Escritorio */
-@media (min-width: 1200px) {
-  .card-img-container {
-    height: 260px;
-  }
-}
-
-/* --- Carrito --- */
 .cart-item {
   display: flex;
   align-items: center;
@@ -316,9 +339,9 @@ a {
 }
 
 .cart-item img {
-  width: 80px;        /* ancho inicial */
-  height: auto;       /* mantiene proporción */
-  object-fit: cover;  /* ajusta sin deformar */
+  width: 80px;
+  height: auto;
+  object-fit: cover;
   border-radius: 0.5rem;
 }
 
@@ -337,7 +360,7 @@ a {
   min-width: 32px;
 }
 
-/* Botón compartir personalizado */
+/* Botón compartir */
 .btn-compartir {
   background-color: var(--accent-green) !important;
   color: #000 !important;
@@ -357,24 +380,24 @@ a {
   box-shadow: 0 0 10px var(--accent-green);
 }
 
+/* Blog cards */
 .blog-card-img {
-  padding: 5px; /* margen interno */
-  height: 250px; /* altura fija del contenedor de la imagen */
-  overflow: hidden; /* recorta lo que sobresalga */
+  padding: 5px;
+  height: 250px;
+  overflow: hidden;
 }
 
 .blog-card-img img {
   width: 100%;
-  height: 95%; /* fuerza la imagen a ocupar todo el contenedor */
-  object-fit: cover; /* mantiene proporción y recorta el exceso */
-  border-radius: 10px; /* esquinas redondeadas */
+  height: 95%;
+  object-fit: cover;
+  border-radius: 10px;
   display: block;
 }
 
-
-/* Botón Ver en rojo */
+/* Botón Ver */
 .btn-ver {
-  background-color: #FF3B3B; /* rojo intenso */
+  background-color: #FF3B3B;
   color: #fff;
   font-weight: 600;
   border: none;
@@ -386,7 +409,7 @@ a {
 .btn-ver:hover,
 .btn-ver:focus,
 .btn-ver:active {
-  background-color: #FF1A1A; /* rojo más intenso al pasar mouse */
+  background-color: #FF1A1A;
   color: #fff;
   box-shadow: 0 0 8px #FF3B3B;
   filter: brightness(1.15);

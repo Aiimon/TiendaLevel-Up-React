@@ -2,9 +2,9 @@ import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../App.css";
-import logo from "../assets/logo.png";
+import logo from "../assets/img/logo.png";
 
-export default function Auth() {
+function Auth() {
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
 
@@ -155,3 +155,5 @@ export default function Auth() {
     </section>
   );
 }
+
+export default Auth
