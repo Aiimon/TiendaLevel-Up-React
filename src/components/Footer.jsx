@@ -1,4 +1,4 @@
-export default function Footer() {
+function Footer() {
   return (
     <footer className="py-4 border-top border-secondary-subtle">
       <div className="container small text-secondary d-flex flex-wrap gap-3 justify-content-between">
@@ -9,3 +9,4 @@ export default function Footer() {
     </footer>
   );
 }
+export default Footer;
