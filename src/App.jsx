@@ -4,6 +4,7 @@ import './App.css'
 import './index.css'
 import Navbar from "./components/Navbar";
 import CarritoSidebar from "./components/CarritoSidebar";
+import BotonWsp from "./components/BotonWsp";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Productos from "./pages/Productos";
@@ -11,6 +12,7 @@ import Nosotros from "./pages/Nosotros";
 import Blog from "./pages/Blog";
 import Eventos from "./pages/Eventos";
 import Soporte from "./pages/Soporte";
+import Detalles from "./pages/Detalles";
 
 
 function Layout() {
@@ -42,6 +44,9 @@ function Layout() {
         break;
       case "/soporte":
         document.title = "Level-Up · Soporte"; 
+        break;
+      case "/detalles":
+        document.title = "Level-Up · Detalles"; 
         break;
       default:
         document.title = "Level-Up";
@@ -75,8 +80,11 @@ function Layout() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/eventos" element={<Eventos />} />
         <Route path="/soporte" element={<Soporte />} />
+        <Route path="/detalles" element={<Detalles />} />
       </Routes>
+      <BotonWsp/>
     </>
+    
   );
 }
 
