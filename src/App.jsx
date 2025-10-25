@@ -1,11 +1,12 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import './App.css'
-import './index.css'
+import './App.css';
+import './index.css';
 import Navbar from "./components/Navbar";
 import CarritoSidebar from "./components/CarritoSidebar";
 import BotonWsp from "./components/BotonWsp";
 import Home from "./pages/Home";
+import HomeAdmin from "./pages/HomeAdmin";
 import Auth from "./pages/Auth";
 import Categoria from "./pages/Categoria";
 import Nosotros from "./pages/Nosotros";
@@ -13,6 +14,8 @@ import Blog from "./pages/Blog";
 import Eventos from "./pages/Eventos";
 import Soporte from "./pages/Soporte";
 import Detalles from "./pages/Detalles";
+
+import ProteccionAdmin from "./components/ProteccionAdmin";
 
 import productosD from "./data/productos.json";
 
@@ -49,7 +52,7 @@ function Layout() {
     );
   };
 
-
+  // Cambiar títulos según ruta
   useEffect(() => {
     if (!location.pathname.startsWith("/detalles/")) {
       switch (location.pathname) {
@@ -87,7 +90,11 @@ function Layout() {
   return (
     <>
       {shouldShowNavbar && (
-  <Navbar cantidad={cantidad} abrirCarrito={() => setCarritoOpen(true)} />
+        <Navbar 
+          cantidad={cantidad} 
+          abrirCarrito={() => setCarritoOpen(true)} 
+          usuario={usuario} 
+        />
       )}
 
       <CarritoSidebar
@@ -124,8 +131,19 @@ function Layout() {
             />
           }
         />
+
+        {/* Ruta protegida para administradores */}
+        <Route
+          path="/admin"
+          element={
+            <ProteccionAdmin usuario={usuario}>
+              <HomeAdmin />
+            </ProteccionAdmin>
+          }
+        />
       </Routes>
-    {shouldShowBotonWsp && <BotonWsp />}
+
+      {shouldShowBotonWsp && <BotonWsp />}
     </>
   );
 }
