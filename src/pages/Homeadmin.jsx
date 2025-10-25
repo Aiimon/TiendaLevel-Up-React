@@ -1,7 +1,5 @@
-
-
 import Sidebar from "../components/SidebarAdmin"; 
-import Footer from "../../../src/components/Footer";
+import Footer from "../components/Footer";
 
 function Homeadmin() {
     // La página Homeadmin simplemente renderiza el layout completo.
