@@ -13,7 +13,7 @@ import Blog from "./pages/Blog";
 import Eventos from "./pages/Eventos";
 import Soporte from "./pages/Soporte";
 import Detalles from "./pages/Detalles";
-
+import HomeAdmin from "./pages/Homeadmin";
 import productosD from "./data/productos.json";
 
 function Layout() {
@@ -61,6 +61,9 @@ function Layout() {
           break;
         case "/auth": 
           document.title = "Level-Up · Acceso"; 
+          break;
+        case "/Homeadmin": 
+          document.title = "Level-Up · Admin"; 
           break;
         case "/nosotros": 
           document.title = "Level-Up · Nosotros"; 
@@ -114,6 +117,7 @@ function Layout() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/eventos" element={<Eventos />} />
         <Route path="/soporte" element={<Soporte />} />
+        <Route path="/homeadmin" element={<HomeAdmin />} />
         <Route
           path="/detalles/:id"
           element={

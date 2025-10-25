@@ -1,5 +1,6 @@
+import React from 'react';
 import { NavLink, Link } from 'react-router-dom'; // <--- 1. IMPORTAR LINK
-import productosD from "../../../src/data/productos.json";
+import productosD from "../data/productos.json";
 
 
 // --- Componente Sidebar ---
