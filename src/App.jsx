@@ -6,7 +6,7 @@ import Navbar from "./components/Navbar";
 import CarritoSidebar from "./components/CarritoSidebar";
 import BotonWsp from "./components/BotonWsp";
 import Home from "./pages/Home";
-import HomeAdmin from "./pages/HomeAdmin";
+import HomeAdmin from "./pages/Homeadmin";
 import Auth from "./pages/Auth";
 import Categoria from "./pages/Categoria";
 import Nosotros from "./pages/Nosotros";
@@ -14,8 +14,6 @@ import Blog from "./pages/Blog";
 import Eventos from "./pages/Eventos";
 import Soporte from "./pages/Soporte";
 import Detalles from "./pages/Detalles";
-
-import ProteccionAdmin from "./components/ProteccionAdmin";
 
 import productosD from "./data/productos.json";
 
@@ -131,16 +129,7 @@ function Layout() {
             />
           }
         />
-
-        {/* Ruta protegida para administradores */}
-        <Route
-          path="/admin"
-          element={
-            <ProteccionAdmin usuario={usuario}>
-              <HomeAdmin />
-            </ProteccionAdmin>
-          }
-        />
+        <Route path="/admin" element={<HomeAdmin />} />
       </Routes>
 
       {shouldShowBotonWsp && <BotonWsp />}
