@@ -15,6 +15,7 @@ import Soporte from "./pages/Soporte";
 import Detalles from "./pages/Detalles";
 import HomeAdmin from "./pages/Homeadmin";
 import productosD from "./data/productos.json";
+import Productosadmin from "./pages/Productosadmin";
 
 function Layout() {
   const location = useLocation();
@@ -77,6 +78,9 @@ function Layout() {
         case "/soporte": 
           document.title = "Level-Up · Soporte"; 
           break;
+        case "/productosadmin":
+          document.title = "Level-Up · Productos";
+          break;
         default: 
           document.title = "Level-Up";
       }
@@ -111,6 +115,7 @@ function Layout() {
             />
           }
         />
+        
         <Route path="/categoria" element={<Categoria productos={productos} />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/nosotros" element={<Nosotros />} />
@@ -118,6 +123,7 @@ function Layout() {
         <Route path="/eventos" element={<Eventos />} />
         <Route path="/soporte" element={<Soporte />} />
         <Route path="/homeadmin" element={<HomeAdmin />} />
+        <Route path="/productosadmin" element={<Productosadmin />} />
         <Route
           path="/detalles/:id"
           element={

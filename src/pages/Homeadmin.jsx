@@ -1,13 +1,17 @@
-
+// src/pages/Homeadmin.jsx
 
 import React from 'react';
-import Sidebar from "../components/SidebarAdmin"; 
-import Footer from '../components/Footer';
+import SidebarAdmin from "../components/SidebarAdmin"; 
+import DashboardContent from "../components/DashboardContent"; 
+import Footer from "../components/Footer";
 
 function Homeadmin() {
     return (
+        // Usamos SidebarAdmin como Layout y pasamos DashboardContent como children
         <>
-            <Sidebar /> 
+            <SidebarAdmin>
+                <DashboardContent />
+            </SidebarAdmin>
             <Footer />
         </>
     );
