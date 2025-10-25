@@ -2,11 +2,14 @@
 
 import React from 'react';
 import Sidebar from "../components/SidebarAdmin"; 
+import Footer from '../components/Footer';
 
 function Homeadmin() {
     return (
-        // Renderiza la estructura completa del Dashboard
-        <Sidebar /> 
+        <>
+            <Sidebar /> 
+            <Footer />
+        </>
     );
 }
 
