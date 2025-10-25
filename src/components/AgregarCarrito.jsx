@@ -5,21 +5,26 @@ export default function AgregarCarrito({ stockInicial, onAgregar, usuario, preci
   const [stock, setStock] = useState(stockInicial);
 
   const handleAgregar = () => {
-    onAgregar(cantidad);
+    onAgregar(cantidad); // Llama al padre con la cantidad
     setStock(prev => prev - cantidad);
     setCantidad(1);
   };
 
   return (
     <div className="mb-3">
+      {/* Stock disponible */}
       <p className={stock > 0 ? "text-success" : "text-danger"}>
         {stock > 0
           ? `${stock} unidad${stock !== 1 ? "es" : ""} disponible${stock !== 1 ? "s" : ""}`
           : "Agotado"}
       </p>
-      <p>
+
+      {/* Precio con descuento */}
+      <p className={usuario?.esDuoc ? "text-danger" : "text-success"}>
         {usuario?.esDuoc ? "¡Descuento aplicado!" : "Precio normal"} - ${ (precio ?? 0).toLocaleString() }
       </p>
+
+      {/* Cantidad a agregar */}
       <div className="d-flex align-items-center gap-2 mb-3">
         <label className="mb-0">Cantidad:</label>
         <input
@@ -33,6 +38,8 @@ export default function AgregarCarrito({ stockInicial, onAgregar, usuario, preci
           disabled={stock === 0}
         />
       </div>
+
+      {/* Botón agregar */}
       <button
         className="btn btn-accent w-100"
         onClick={handleAgregar}

@@ -1,9 +1,24 @@
 import { Link } from "react-router-dom";
 
-export default function ProductoCard({ producto, usuario = { esDuoc: false }, onAgregarCarrito, imagenesMap }) {
-  const { id, nombre, categoria, precio, stock, rating, imagen } = producto;
-  const precioFinal = usuario.esDuoc ? precio * 0.8 : precio;
+export default function ProductoCard({
+  producto,
+  usuario = {}, // <-- valor por defecto para evitar null
+  onAgregarCarrito,
+  imagenesMap
+}) {
+  const { id, nombre, categoria, precio, stock, rating, imagen, descuento = 0 } = producto;
 
+  // Protección si usuario es null
+  const esDuoc = usuario?.esDuoc || false;
+
+  // Calculamos precio final considerando descuento y DUOC
+  let precioConDescuento = precio;
+  if (descuento > 0) {
+    precioConDescuento = precio - Math.round((precio * descuento) / 100);
+  }
+  const precioFinal = esDuoc ? Math.round(precioConDescuento * 0.8) : precioConDescuento;
+
+  // Obtenemos la imagen
   const nombreArchivo = imagen.split("/").pop();
   const imgSrc = imagenesMap[nombreArchivo];
 
@@ -22,12 +37,15 @@ export default function ProductoCard({ producto, usuario = { esDuoc: false }, on
 
         {/* Precio */}
         <p className="price mb-2">
-          {usuario.esDuoc ? (
+          {descuento > 0 || esDuoc ? (
             <>
               <span className="text-secondary text-decoration-line-through">
                 ${precio.toLocaleString()}
               </span>{" "}
               <span className="text-danger">${precioFinal.toLocaleString()}</span>
+              {descuento > 0 && (
+                <span className="badge bg-danger ms-2">-{descuento}%</span>
+              )}
             </>
           ) : (
             <>${precio.toLocaleString()}</>
@@ -36,7 +54,9 @@ export default function ProductoCard({ producto, usuario = { esDuoc: false }, on
 
         {/* Stock */}
         <p className={`stock mb-2 ${stock === 0 ? "text-danger" : "text-success"}`}>
-          {stock} unidad{stock !== 1 ? "es" : ""} disponible{stock !== 1 ? "s" : ""}
+          {stock > 0
+            ? `${stock} unidad${stock !== 1 ? "es" : ""} disponible${stock !== 1 ? "s" : ""}`
+            : "Agotado"}
         </p>
 
         {/* Rating */}
@@ -46,7 +66,7 @@ export default function ProductoCard({ producto, usuario = { esDuoc: false }, on
         <div className="d-flex gap-2 mt-auto">
           <button
             className="btn btn-accent flex-grow-1"
-            onClick={() => onAgregarCarrito(id, 1)}
+            onClick={onAgregarCarrito}
             disabled={stock === 0}
           >
             <i className="bi bi-cart3 me-1"></i>

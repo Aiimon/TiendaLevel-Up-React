@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom"; // <- IMPORT
+import { useLocation } from "react-router-dom";
 import ProductoCard from "../components/ProductoCard";
 import BuscadorAvanzado from "../components/BuscadorAvanzado";
 import Footer from "../components/Footer";
 import productosD from "../data/productos.json";
 
+// Import de imágenes
 import Wooting60HE from "../assets/img/Wooting60HE.png";
 import AuricularesHyperXCloudII from "../assets/img/AuricularesHyperXCloudII.png";
 import MouseLogitech from "../assets/img/MouseLogitech.png";
@@ -16,17 +17,6 @@ import PcAsusROG from "../assets/img/PcAsusROG.png";
 import SillaSecretlab from "../assets/img/sillaSecretlab.png";
 import MousepadRazer from "../assets/img/MousepadRazer.png";
 import PoleraLevelUP from "../assets/img/PoleraLevelUP.png";
-import RazerBlackWindowV3 from "../assets/img/razerBlackwidowV3MiniPhantom.png";
-import MicrofonoBlue from "../assets/img/microfonoBlueYetiX.png";
-import Dixit from "../assets/img/dixitJuegoMesa.png";
-import Nintendo from "../assets/img/nintendoSwitchOLED.png";
-import SillaCougar from "../assets/img/sillaCougarArmor.png";
-import RazerDeathV2 from "../assets/img/razerDeathAdderV2.png";
-import MousepadPower from "../assets/img/mousepadPowerplay.png";
-import PcMsiTrident from "../assets/img/pcMsiTrident3.png";
-import PoleraPressStart from "../assets/img/poleraPressStart.png";
-import WebCamStream from "../assets/img/webcamStreamcam.png";
-
 
 const imagenesMap = {
   "Wooting60HE.png": Wooting60HE,
@@ -40,20 +30,10 @@ const imagenesMap = {
   "sillaSecretlab.png": SillaSecretlab,
   "MousepadRazer.png": MousepadRazer,
   "PoleraLevelUP.png": PoleraLevelUP,
-  "razerBlackwidowV3MiniPhantom.png" : RazerBlackWindowV3,
-  "microfonoBlueYetiX.png" : MicrofonoBlue,
-  "dixitJuegoMesa.png" : Dixit,
-  "nintendoSwitchOLED.png" : Nintendo,
-  "sillaCougarArmor.png" : SillaCougar,
-  "razerDeathAdderV2.png" : RazerDeathV2,
-  "mousepadPowerplay.png" : MousepadPower,
-  "pcMsiTrident3.png" : PcMsiTrident,
-  "poleraPressStart.png" : PoleraPressStart,
-  "webcamStreamcam.png" : WebCamStream,
 };
 
-function Productos({ usuario, onAgregarCarrito }) {
-  const location = useLocation(); // <- LEEMOS LA URL
+function Categoria({ usuario, onAgregarCarrito }) {
+  const location = useLocation();
   const params = new URLSearchParams(location.search);
   const categoriaUrl = params.get("categoria") || "Todas";
 
@@ -61,6 +41,7 @@ function Productos({ usuario, onAgregarCarrito }) {
   const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [categorias, setCategorias] = useState([]);
 
+  // Inicializar productos y stock desde localStorage
   useEffect(() => {
     const iniciales = productosD.productos.map((p) => ({
       ...p,
@@ -68,19 +49,23 @@ function Productos({ usuario, onAgregarCarrito }) {
     }));
     setProductos(iniciales);
     setCategorias(["Todas", ...productosD.categorias]);
+  }, []);
 
-    // Filtrar por categoría de URL al cargar
-    const filtrados = categoriaUrl === "Todas"
-      ? iniciales
-      : iniciales.filter(p => p.categoria === categoriaUrl);
+  // Filtrar productos cuando cambie categoría o productos
+  useEffect(() => {
+    const filtrados =
+      categoriaUrl === "Todas"
+        ? productos
+        : productos.filter((p) => p.categoria === categoriaUrl);
     setProductosFiltrados(filtrados);
-  }, [categoriaUrl]);
+  }, [productos, categoriaUrl]);
 
-  const actualizarStock = (idProducto) => {
+  // Función para actualizar stock en productos y localStorage
+  const actualizarStock = (idProducto, cantidad = 1) => {
     setProductos((prev) =>
       prev.map((p) => {
-        if (p.id === idProducto && p.stock > 0) {
-          const nuevoStock = p.stock - 1;
+        if (p.id === idProducto && p.stock >= cantidad) {
+          const nuevoStock = p.stock - cantidad;
           localStorage.setItem(`stock_${p.id}`, nuevoStock);
           return { ...p, stock: nuevoStock };
         }
@@ -89,54 +74,57 @@ function Productos({ usuario, onAgregarCarrito }) {
     );
   };
 
-  const filtrarProductos = (filtro) => {
-    const { q, cat, min, max } = filtro;
-    const filtrados = productos.filter((p) => {
-      const matchQ = p.nombre.toLowerCase().includes(q.toLowerCase());
-      const matchCat = cat === "Todas" || p.categoria === cat;
-      const matchPrecio = p.precio >= min && p.precio <= max;
-      return matchQ && matchCat && matchPrecio;
-    });
-    setProductosFiltrados(filtrados);
-  };
+    const handleAgregar = (producto) => {
+      if (producto.stock <= 0) return;
+      onAgregarCarrito(producto.id, 1); // ID y cantidad
+      actualizarStock(producto.id, 1);   // Reduce stock en tiempo real
+    };
 
   return (
     <>
-    <div className="container py-4">
-      <BuscadorAvanzado categorias={categorias} onFilter={filtrarProductos} />
+      <div className="container py-4">
+        <BuscadorAvanzado
+          categorias={categorias}
+          onFilter={(filtro) => {
+            const { q, cat, min, max } = filtro;
+            const filtrados = productos.filter((p) => {
+              const matchQ = p.nombre.toLowerCase().includes(q.toLowerCase());
+              const matchCat = cat === "Todas" || p.categoria === cat;
+              const matchPrecio = p.precio >= min && p.precio <= max;
+              return matchQ && matchCat && matchPrecio;
+            });
+            setProductosFiltrados(filtrados);
+          }}
+        />
 
-      <div className="d-flex justify-content-between align-items-center mb-3 mt-4">
-        <h2 className="section-title mb-0">{categoriaUrl === "Todas" ? "Catálogo" : categoriaUrl}</h2>
-        <small className="text-secondary">
-          Autenticidad garantizada • Origen y distribuidores detallados
-        </small>
+        <div className="d-flex justify-content-between align-items-center mb-3 mt-4">
+          <h2 className="section-title mb-0">
+            {categoriaUrl === "Todas" ? "Catálogo" : categoriaUrl}
+          </h2>
+        </div>
+
+        {productosFiltrados.length === 0 ? (
+          <div className="text-center text-danger mt-3">
+            <p>No se encontraron productos.</p>
+          </div>
+        ) : (
+          <div className="row g-4 mt-2">
+            {productosFiltrados.map((prod) => (
+              <div className="col-md-4" key={prod.id}>
+                <ProductoCard
+                  producto={prod}
+                  usuario={usuario}
+                  imagenesMap={imagenesMap}
+                  onAgregarCarrito={() => handleAgregar(prod)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-
-      {productosFiltrados.length === 0 ? (
-        <div className="text-center text-danger mt-3">
-          <p>No se encontraron productos.</p>
-        </div>
-      ) : (
-        <div className="row g-4 mt-2">
-          {productosFiltrados.map((prod) => (
-            <div className="col-md-4" key={prod.id}>
-              <ProductoCard
-                producto={prod}
-                usuario={usuario}
-                imagenesMap={imagenesMap}
-                onAgregarCarrito={() => {
-                  onAgregarCarrito(prod);
-                  actualizarStock(prod.id);
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-    <Footer />
+      <Footer />
     </>
   );
 }
 
-export default Productos;
+export default Categoria;

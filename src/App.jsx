@@ -22,71 +22,61 @@ function Layout() {
   const location = useLocation();
 
   const [carritoOpen, setCarritoOpen] = useState(false);
-  const [cantidad, setCantidad] = useState(0);
   const [productos, setProductos] = useState([]);
   const [usuario, setUsuario] = useState(null);
 
+  // Cargar usuario desde localStorage
   useEffect(() => {
     const usuarioLS = JSON.parse(localStorage.getItem("usuario"));
     if (usuarioLS) setUsuario(usuarioLS);
   }, []);
 
-  // Inicializar productos con stock desde localStorage
+  // Cargar productos y carrito desde localStorage
   useEffect(() => {
-    const iniciales = productosD.productos.map(p => ({
-      ...p,
-      stock: Number(localStorage.getItem(`stock_${p.id}`)) || p.stock
-    }));
+    const carritoLS = JSON.parse(localStorage.getItem("carrito")) || [];
+    const iniciales = productosD.productos.map(p => {
+      const itemCarrito = carritoLS.find(c => c.id === p.id);
+      const cantidad = itemCarrito ? itemCarrito.cantidad : 0;
+      const stockLS = Number(localStorage.getItem(`stock_${p.id}`)) || p.stock;
+      return { ...p, stock: stockLS, cantidad };
+    });
     setProductos(iniciales);
   }, []);
 
-  // Función para agregar al carrito
-  const handleAgregarCarrito = (idProducto, cant) => {
-    setCantidad(prev => prev + cant);
-    // actualizar el stock 
-    setProductos(prev =>
-      prev.map(p =>
-        p.id === idProducto ? { ...p, stock: p.stock - cant } : p
-      )
-    );
+  // Función para agregar productos al carrito
+  const handleAgregarCarrito = (idProducto, cant = 1) => {
+    setProductos(prev => {
+      const nuevos = prev.map(p => {
+        if (p.id === idProducto && p.stock >= cant) {
+          const nuevoStock = p.stock - cant;
+          localStorage.setItem(`stock_${p.id}`, nuevoStock);
+          return { ...p, cantidad: (p.cantidad || 0) + cant, stock: nuevoStock };
+        }
+        return p;
+      });
+      // Guardar carrito completo en localStorage
+      const carritoActual = nuevos.filter(p => p.cantidad > 0);
+      localStorage.setItem("carrito", JSON.stringify(carritoActual));
+      return nuevos;
+    });
+    setCarritoOpen(true);
   };
 
-
+  // Cambiar título dinámicamente según ruta
   useEffect(() => {
     if (!location.pathname.startsWith("/detalles/")) {
       switch (location.pathname) {
-        case "/": 
-          document.title = "Level-Up · Inicio";
-          break;
-        case "/categoria": 
-          document.title = "Level-Up · Categoria"; 
-          break;
-        case "/ofertas":
-          document.title = "Level-Up · Ofertas";
-          break;
-        case "/auth": 
-          document.title = "Level-Up · Acceso"; 
-          break;
-        case "/Homeadmin": 
-          document.title = "Level-Up · Admin"; 
-          break;
-        case "/nosotros": 
-          document.title = "Level-Up · Nosotros"; 
-          break;
-        case "/blog": 
-          document.title = "Level-Up · Blog"; 
-          break;
-        case "/eventos": 
-          document.title = "Level-Up · Eventos"; 
-          break;
-        case "/soporte": 
-          document.title = "Level-Up · Soporte"; 
-          break;
-        case "/productosadmin":
-          document.title = "Level-Up · Productos";
-          break;
-        default: 
-          document.title = "Level-Up";
+        case "/": document.title = "Level-Up · Inicio"; break;
+        case "/categoria": document.title = "Level-Up · Categoria"; break;
+        case "/ofertas": document.title = "Level-Up · Ofertas"; break;
+        case "/auth": document.title = "Level-Up · Acceso"; break;
+        case "/homeadmin": document.title = "Level-Up · Admin"; break;
+        case "/nosotros": document.title = "Level-Up · Nosotros"; break;
+        case "/blog": document.title = "Level-Up · Blog"; break;
+        case "/eventos": document.title = "Level-Up · Eventos"; break;
+        case "/soporte": document.title = "Level-Up · Soporte"; break;
+        case "/productosadmin": document.title = "Level-Up · Productos"; break;
+        default: document.title = "Level-Up";
       }
     }
   }, [location.pathname]);
@@ -98,13 +88,17 @@ function Layout() {
   return (
     <>
       {shouldShowNavbar && (
-  <Navbar cantidad={cantidad} abrirCarrito={() => setCarritoOpen(true)} />
+        <Navbar
+          cantidad={productos.reduce((acc, p) => acc + (p.cantidad || 0), 0)}
+          abrirCarrito={() => setCarritoOpen(true)}
+          usuario={usuario?.nombre || usuario}
+        />
       )}
 
       <CarritoSidebar
         abierto={carritoOpen}
         cerrar={() => setCarritoOpen(false)}
-        cantidad={cantidad}
+        carrito={productos.filter(p => p.cantidad > 0)}
       />
 
       <Routes>
@@ -112,16 +106,34 @@ function Layout() {
           path="/"
           element={
             <Home
-              setCantidad={setCantidad}
-              cantidad={cantidad}
+              productos={productos}
+              usuario={usuario}
+              onAgregarCarrito={handleAgregarCarrito}
               carritoOpen={carritoOpen}
               setCarritoOpen={setCarritoOpen}
             />
           }
         />
-        
-        <Route path="/categoria" element={<Categoria productos={productos} />} />
-        <Route path="/ofertas" element={<Ofertas />}></Route>
+        <Route
+          path="/categoria"
+          element={
+            <Categoria
+              productos={productos}
+              usuario={usuario}
+              onAgregarCarrito={handleAgregarCarrito}
+            />
+          }
+        />
+        <Route
+          path="/ofertas"
+          element={
+            <Ofertas
+              productos={productos}
+              usuario={usuario}
+              onAgregarCarrito={handleAgregarCarrito}
+            />
+          }
+        />
         <Route path="/auth" element={<Auth />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/blog" element={<Blog />} />
@@ -140,7 +152,8 @@ function Layout() {
           }
         />
       </Routes>
-    {shouldShowBotonWsp && <BotonWsp />}
+
+      {shouldShowBotonWsp && <BotonWsp />}
     </>
   );
 }

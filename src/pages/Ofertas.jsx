@@ -15,23 +15,23 @@ import PoleraPressStart from "../assets/img/poleraPressStart.png";
 import WebCamStream from "../assets/img/webcamStreamcam.png";
 
 const imagenesMap = {
-  "razerBlackwidowV3MiniPhantom.png" : RazerBlackWindowV3,
-  "microfonoBlueYetiX.png" : MicrofonoBlue,
-  "dixitJuegoMesa.png" : Dixit,
-  "nintendoSwitchOLED.png" : Nintendo,
-  "sillaCougarArmor.png" : SillaCougar,
-  "razerDeathAdderV2.png" : RazerDeathV2,
-  "mousepadPowerplay.png" : MousepadPower,
-  "pcMsiTrident3.png" : PcMsiTrident,
-  "poleraPressStart.png" : PoleraPressStart,
-  "webcamStreamcam.png" : WebCamStream,
+  "razerBlackwidowV3MiniPhantom.png": RazerBlackWindowV3,
+  "microfonoBlueYetiX.png": MicrofonoBlue,
+  "dixitJuegoMesa.png": Dixit,
+  "nintendoSwitchOLED.png": Nintendo,
+  "sillaCougarArmor.png": SillaCougar,
+  "razerDeathAdderV2.png": RazerDeathV2,
+  "mousepadPowerplay.png": MousepadPower,
+  "pcMsiTrident3.png": PcMsiTrident,
+  "poleraPressStart.png": PoleraPressStart,
+  "webcamStreamcam.png": WebCamStream,
 };
 
 function Ofertas({ usuario, onAgregarCarrito }) {
   const [productos, setProductos] = useState([]);
 
+  // Inicializar productos en oferta con stock desde localStorage
   useEffect(() => {
-    // Filtrar solo los productos en oferta
     const productosConOfertas = productosD.productos
       .map((p) => ({
         ...p,
@@ -42,11 +42,12 @@ function Ofertas({ usuario, onAgregarCarrito }) {
     setProductos(productosConOfertas);
   }, []);
 
-  const actualizarStock = (idProducto) => {
+  // Función para actualizar stock
+  const actualizarStock = (idProducto, cantidad = 1) => {
     setProductos((prev) =>
       prev.map((p) => {
-        if (p.id === idProducto && p.stock > 0) {
-          const nuevoStock = p.stock - 1;
+        if (p.id === idProducto && p.stock >= cantidad) {
+          const nuevoStock = p.stock - cantidad;
           localStorage.setItem(`stock_${p.id}`, nuevoStock);
           return { ...p, stock: nuevoStock };
         }
@@ -54,6 +55,12 @@ function Ofertas({ usuario, onAgregarCarrito }) {
       })
     );
   };
+
+    const handleAgregar = (producto) => {
+    if (producto.stock <= 0) return;
+    onAgregarCarrito(producto.id, 1); // ID y cantidad
+    actualizarStock(producto.id, 1);   // Reduce stock en tiempo real
+    };
 
   return (
     <>
@@ -74,13 +81,10 @@ function Ofertas({ usuario, onAgregarCarrito }) {
             {productos.map((prod) => (
               <div className="col-md-4" key={prod.id}>
                 <ProductoCard
-                  producto={prod}
-                  usuario={usuario}
-                  imagenesMap={imagenesMap}
-                  onAgregarCarrito={() => {
-                    onAgregarCarrito(prod);
-                    actualizarStock(prod.id);
-                  }}
+                    producto={prod}
+                    usuario={usuario}
+                    imagenesMap={imagenesMap}
+                    onAgregarCarrito={() => handleAgregar(prod)}
                 />
               </div>
             ))}
