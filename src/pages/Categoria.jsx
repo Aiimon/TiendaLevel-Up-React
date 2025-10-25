@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom"; // <- IMPORT
 import ProductoCard from "../components/ProductoCard";
 import BuscadorAvanzado from "../components/BuscadorAvanzado";
+import Footer from "../components/Footer";
 import productosD from "../data/productos.json";
 
 import Wooting60HE from "../assets/img/Wooting60HE.png";
@@ -15,6 +16,17 @@ import PcAsusROG from "../assets/img/PcAsusROG.png";
 import SillaSecretlab from "../assets/img/sillaSecretlab.png";
 import MousepadRazer from "../assets/img/MousepadRazer.png";
 import PoleraLevelUP from "../assets/img/PoleraLevelUP.png";
+import RazerBlackWindowV3 from "../assets/img/razerBlackwidowV3MiniPhantom.png";
+import MicrofonoBlue from "../assets/img/microfonoBlueYetiX.png";
+import Dixit from "../assets/img/dixitJuegoMesa.png";
+import Nintendo from "../assets/img/nintendoSwitchOLED.png";
+import SillaCougar from "../assets/img/sillaCougarArmor.png";
+import RazerDeathV2 from "../assets/img/razerDeathAdderV2.png";
+import MousepadPower from "../assets/img/mousepadPowerplay.png";
+import PcMsiTrident from "../assets/img/pcMsiTrident3.png";
+import PoleraPressStart from "../assets/img/poleraPressStart.png";
+import WebCamStream from "../assets/img/webcamStreamcam.png";
+
 
 const imagenesMap = {
   "Wooting60HE.png": Wooting60HE,
@@ -28,6 +40,16 @@ const imagenesMap = {
   "sillaSecretlab.png": SillaSecretlab,
   "MousepadRazer.png": MousepadRazer,
   "PoleraLevelUP.png": PoleraLevelUP,
+  "razerBlackwidowV3MiniPhantom.png" : RazerBlackWindowV3,
+  "microfonoBlueYetiX.png" : MicrofonoBlue,
+  "dixitJuegoMesa.png" : Dixit,
+  "nintendoSwitchOLED.png" : Nintendo,
+  "sillaCougarArmor.png" : SillaCougar,
+  "razerDeathAdderV2.png" : RazerDeathV2,
+  "mousepadPowerplay.png" : MousepadPower,
+  "pcMsiTrident3.png" : PcMsiTrident,
+  "poleraPressStart.png" : PoleraPressStart,
+  "webcamStreamcam.png" : WebCamStream,
 };
 
 function Productos({ usuario, onAgregarCarrito }) {
@@ -79,6 +101,7 @@ function Productos({ usuario, onAgregarCarrito }) {
   };
 
   return (
+    <>
     <div className="container py-4">
       <BuscadorAvanzado categorias={categorias} onFilter={filtrarProductos} />
 
@@ -111,6 +134,8 @@ function Productos({ usuario, onAgregarCarrito }) {
         </div>
       )}
     </div>
+    <Footer />
+    </>
   );
 }
 

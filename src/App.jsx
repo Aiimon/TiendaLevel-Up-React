@@ -8,6 +8,7 @@ import BotonWsp from "./components/BotonWsp";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Categoria from "./pages/Categoria";
+import Ofertas from "./pages/Ofertas";
 import Nosotros from "./pages/Nosotros";
 import Blog from "./pages/Blog";
 import Eventos from "./pages/Eventos";
@@ -59,6 +60,9 @@ function Layout() {
           break;
         case "/categoria": 
           document.title = "Level-Up · Categoria"; 
+          break;
+        case "/ofertas":
+          document.title = "Level-Up · Ofertas";
           break;
         case "/auth": 
           document.title = "Level-Up · Acceso"; 
@@ -117,6 +121,7 @@ function Layout() {
         />
         
         <Route path="/categoria" element={<Categoria productos={productos} />} />
+        <Route path="/ofertas" element={<Ofertas />}></Route>
         <Route path="/auth" element={<Auth />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/blog" element={<Blog />} />

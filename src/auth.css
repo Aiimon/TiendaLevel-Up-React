@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap');
+
+/* Variables globales */
+:root {
+  --bg: #000000;
+  --accent-blue: #1E90FF;
+  --accent-green: #39FF14;
+  --text: #FFFFFF;
+  --text-2: #D3D3D3;
+}
+
+/* Reset y fuente */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Roboto', system-ui, -apple-system, Segoe UI, sans-serif !important;
+}
+
+/* Fuentes especiales */
+.brand, .section-title {
+  font-family: 'Orbitron', 'Roboto', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+/* Enlaces */
+a {
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+
+/* Neon text */
+.neon {
+  text-shadow: 0 0 6px var(--accent-blue), 0 0 12px rgba(30,144,255,0.4);
+}
+
+/* Banner Auth */
+.banner-auth {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.banner-left, .banner-right {
+  flex: 1;
+  padding: 2rem;
+}
+
+.banner-left {
+  background: radial-gradient(circle at top left, var(--accent-blue), transparent 70%),
+              linear-gradient(#050505, #000);
+  font-size: 1.3rem;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.banner-left img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 1.5rem;
+}
+
+.banner-left h1 {
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.duoc-msg {
+  display: inline-block;
+  margin-top: 1rem;
+  font-weight: 600;
+  color: var(--accent-blue);
+}
+
+.banner-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-box {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  border-radius: 1rem;
+  background: #0d0d0d;
+  color: var(--text);
+}
+
+/* Botones */
+.btn-accent {
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+  border: none;
+  color: #000;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.btn-accent:hover {
+  filter: brightness(1.1);
+}
+
+.btn-outline-light {
+  color: #fff;
+  border-color: rgba(255,255,255,0.3);
+}
+
+.btn-outline-light:hover {
+  background-color: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+/* Modales */
+.modal-backdrop.show {
+  background-color: rgba(0,0,0,0.75) !important; /* Más oscuro */
+}
+
+.modal-content.dark-card {
+  background-color: #0d0d0d !important; /* Fondo sólido */
+  color: var(--text) !important;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+}
+
+/* Inputs oscuros dentro de modales */
+.dark-input {
+  background: #111;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+}
+
+/* Estilos generales para form labels */
+.form-label {
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Modal header */
+.modal-header {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.modal-title {
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Botón cerrar */
+.btn-close-white {
+  filter: invert(1);
+}
+
+/* Ajustes responsive */
+@media (max-width: 768px) {
+  .banner-auth {
+    flex-direction: column;
+  }
+  .banner-left {
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+}

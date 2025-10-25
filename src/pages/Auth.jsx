@@ -1,27 +1,22 @@
 import { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
-import "../App.css";
 import logo from "../assets/img/logo.png";
+import RegistroForm from "../components/RegistroForm";
+import LoginForm from "../components/LoginForm";
+import "../auth.css";
 
 function Auth() {
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    console.log("Registro enviado");
-  };
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    console.log("Inicio de sesión enviado");
-  };
-
   return (
     <section className="banner-auth">
       <div className="banner-left d-flex flex-column justify-content-center align-items-center text-center">
-        <img src={logo} alt="Logo Level-Up Gamer" className="mb-4" style={{ maxWidth: "500px" }} />
+        <img
+          src={logo}
+          alt="Logo Level-Up Gamer"
+          className="mb-4"
+          style={{ maxWidth: "500px" }}
+        />
         <h1 className="neon">Sube de nivel tu setup</h1>
         <p>
           Consolas, PC, periféricos y más.<br />
@@ -53,6 +48,7 @@ function Auth() {
         </div>
       </div>
 
+      {/* Modal Registro */}
       {showRegister && (
         <div className="modal-backdrop fade show">
           <div className="modal d-block" tabIndex="-1" role="dialog">
@@ -69,53 +65,7 @@ function Auth() {
                   ></button>
                 </div>
                 <div className="modal-body">
-                  <form onSubmit={handleRegister} className="row g-3 needs-validation">
-                    <div className="col-md-6">
-                      <label className="form-label">Nombre</label>
-                      <input type="text" className="form-control dark-input" required />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Apellido</label>
-                      <input type="text" className="form-control dark-input" required />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">RUT</label>
-                      <input type="text" className="form-control dark-input" placeholder="123456789" required />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Correo electrónico</label>
-                      <input type="email" className="form-control dark-input" required />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Región</label>
-                      <select className="form-select dark-input" required>
-                        <option disabled selected>Selecciona Región</option>
-                      </select>
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Comuna</label>
-                      <select className="form-select dark-input" required>
-                        <option disabled selected>Selecciona Comuna</option>
-                      </select>
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Teléfono</label>
-                      <input type="tel" className="form-control dark-input" placeholder="Ej: 987654321" required />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Contraseña</label>
-                      <input type="password" className="form-control dark-input" required />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Fecha de nacimiento</label>
-                      <input type="date" className="form-control dark-input" required />
-                    </div>
-                    <div className="col-12">
-                      <button type="submit" className="btn btn-accent w-100">
-                        <i className="bi bi-check-circle-fill me-2"></i>Registrarme
-                      </button>
-                    </div>
-                  </form>
+                  <RegistroForm onClose={() => setShowRegister(false)} />
                 </div>
               </div>
             </div>
@@ -123,6 +73,7 @@ function Auth() {
         </div>
       )}
 
+      {/* Modal Login */}
       {showLogin && (
         <div className="modal-backdrop fade show">
           <div className="modal d-block" tabIndex="-1">
@@ -139,13 +90,7 @@ function Auth() {
                   ></button>
                 </div>
                 <div className="modal-body">
-                  <form onSubmit={handleLogin}>
-                    <input type="email" className="form-control dark-input mb-3" placeholder="Correo electrónico" required />
-                    <input type="password" className="form-control dark-input mb-3" placeholder="Contraseña" required />
-                    <button type="submit" className="btn btn-accent w-100">
-                      <i className="bi bi-door-open-fill me-2"></i>Entrar
-                    </button>
-                  </form>
+                  <LoginForm onClose={() => setShowLogin(false)} />
                 </div>
               </div>
             </div>
@@ -156,4 +101,4 @@ function Auth() {
   );
 }
 
-export default Auth
+export default Auth;

@@ -134,7 +134,11 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                 </div>
               )}
             </li>
-
+              <li className="nav-item">
+              <Link className="nav-link neon-link" to="/ofertas">
+                🔥 Ofertas
+              </Link>
+            </li>
             <li className="nav-item">
               <Link className="nav-link" to="/blog">Blog</Link>
             </li>
