@@ -32,7 +32,7 @@ const imagenesMap = {
   "PoleraLevelUP.png": PoleraLevelUP,
 };
 
-function Categoria({ usuario, onAgregarCarrito }) {
+function Categoria({ productos: productosApp, usuario, onAgregarCarrito }) {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const categoriaUrl = params.get("categoria") || "Todas";
@@ -41,26 +41,26 @@ function Categoria({ usuario, onAgregarCarrito }) {
   const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [categorias, setCategorias] = useState([]);
 
-  // Inicializar productos y stock desde localStorage
+  // Inicializar productos y filtrar por categoría
   useEffect(() => {
-    const iniciales = productosD.productos.map((p) => ({
+    const iniciales = productosApp.map((p) => ({
       ...p,
-      stock: Number(localStorage.getItem(`stock_${p.id}`)) || p.stock,
+      stock: localStorage.getItem(`stock_${p.id}`) !== null
+        ? Number(localStorage.getItem(`stock_${p.id}`))
+        : p.stock,
     }));
+
     setProductos(iniciales);
     setCategorias(["Todas", ...productosD.categorias]);
-  }, []);
 
-  // Filtrar productos cuando cambie categoría o productos
-  useEffect(() => {
     const filtrados =
       categoriaUrl === "Todas"
-        ? productos
-        : productos.filter((p) => p.categoria === categoriaUrl);
+        ? iniciales
+        : iniciales.filter((p) => p.categoria === categoriaUrl);
     setProductosFiltrados(filtrados);
-  }, [productos, categoriaUrl]);
+  }, [categoriaUrl, productosApp]);
 
-  // Función para actualizar stock en productos y localStorage
+  // Función para actualizar stock local
   const actualizarStock = (idProducto, cantidad = 1) => {
     setProductos((prev) =>
       prev.map((p) => {
@@ -72,13 +72,23 @@ function Categoria({ usuario, onAgregarCarrito }) {
         return p;
       })
     );
+
+    setProductosFiltrados((prev) =>
+      prev.map((p) => {
+        if (p.id === idProducto && p.stock >= cantidad) {
+          const nuevoStock = p.stock - cantidad;
+          return { ...p, stock: nuevoStock };
+        }
+        return p;
+      })
+    );
   };
 
-    const handleAgregar = (producto) => {
-      if (producto.stock <= 0) return;
-      onAgregarCarrito(producto.id, 1); // ID y cantidad
-      actualizarStock(producto.id, 1);   // Reduce stock en tiempo real
-    };
+  const handleAgregar = (producto) => {
+    if (producto.stock <= 0) return;
+    onAgregarCarrito(producto.id, 1); // Avanza el carrito en App.jsx
+    actualizarStock(producto.id, 1);   // Reduce stock en tiempo real
+  };
 
   return (
     <>

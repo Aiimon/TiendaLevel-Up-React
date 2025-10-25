@@ -252,16 +252,12 @@
     "stock": 12,
     "stockCritico": 5,
     "detalles": {
-      "Marca": "Razer",
-      "Modelo": "BlackWidow V3 Mini Phantom Edition",
-      "Switches": "Razer Yellow (lineales y silenciosos)",
-      "Distribución": "Inglés (EN)",
-      "Iluminación": "Razer Chroma RGB",
-      "Conexión": "Inalámbrica HyperSpeed / Bluetooth / USB-C",
-      "Batería": "Hasta 200 horas",
-      "Color": "Negro",
-      "Tamaño": "65%",
-      "Reposamuñecas": "No incluido"
+        "Marca": "Razer",
+        "Switches": "Razer Yellow (lineales y silenciosos)",
+        "Tecnología": "Switches mecánicos lineales",
+        "Actuación ajustable": "No aplicable",
+        "Rapid Trigger": "Sí",
+        "Conexión": "Inalámbrica HyperSpeed / Bluetooth / USB-C"
       }
     },
     {

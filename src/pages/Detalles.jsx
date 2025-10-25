@@ -13,11 +13,19 @@ export default function Detalles({ productos, usuario, onAgregarCarrito }) {
     { nombre: "Juan", texto: "Excelente producto", rating: 5, fecha: new Date() }
   ]);
 
-  const [stock, setStock] = useState(producto?.stock || 0);
+  // Inicializamos el stock desde localStorage
+  const [stock, setStock] = useState(() => {
+    const stockLS = localStorage.getItem(`stock_${producto?.id}`);
+    return stockLS !== null ? Number(stockLS) : producto?.stock || 0;
+  });
 
+  // Cada vez que cambia el producto, actualizar el stock desde localStorage
   useEffect(() => {
-    if (producto) setStock(producto.stock);
-  }, [productos, id, producto]);
+    if (producto) {
+      const stockLS = localStorage.getItem(`stock_${producto.id}`);
+      setStock(stockLS !== null ? Number(stockLS) : producto.stock);
+    }
+  }, [producto]);
 
   if (!producto) return <p>Producto no encontrado</p>;
 
@@ -29,17 +37,24 @@ export default function Detalles({ productos, usuario, onAgregarCarrito }) {
   if (descuento > 0) precioFinal = Math.round(precioFinal * (1 - descuento / 100));
   if (usuario?.esDuoc) precioFinal = Math.round(precioFinal * 0.8);
 
+  // Manejar agregar al carrito y actualizar stock localStorage
   const handleAgregar = () => {
     if (stock <= 0) return;
+
     onAgregarCarrito(producto.id, 1);
-    setStock(prev => Math.max(prev - 1, 0));
+
+    setStock(prev => {
+      const nuevoStock = Math.max(prev - 1, 0);
+      localStorage.setItem(`stock_${producto.id}`, nuevoStock);
+      return nuevoStock;
+    });
   };
 
   const handleAgregarResenia = (resenia) => {
     setResenias(prev => [...prev, { ...resenia, fecha: new Date() }]);
   };
 
-  // Importar imágenes
+  // Importar imágenes dinámicamente
   const imagenes = import.meta.glob('../assets/img/*', { eager: true, as: 'url' });
   const nombreArchivo = producto.imagen.split("/").pop();
   const srcImg = imagenes[`../assets/img/${nombreArchivo}`];

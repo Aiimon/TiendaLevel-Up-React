@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import ProductoCard from "../components/ProductoCard";
 import Footer from "../components/Footer";
-import productosD from "../data/productos.json";
 
 import RazerBlackWindowV3 from "../assets/img/razerBlackwidowV3MiniPhantom.png";
 import MicrofonoBlue from "../assets/img/microfonoBlueYetiX.png";
@@ -15,39 +14,39 @@ import PoleraPressStart from "../assets/img/poleraPressStart.png";
 import WebCamStream from "../assets/img/webcamStreamcam.png";
 
 const imagenesMap = {
-  "razerBlackwidowV3MiniPhantom.png": RazerBlackWindowV3,
-  "microfonoBlueYetiX.png": MicrofonoBlue,
-  "dixitJuegoMesa.png": Dixit,
-  "nintendoSwitchOLED.png": Nintendo,
-  "sillaCougarArmor.png": SillaCougar,
-  "razerDeathAdderV2.png": RazerDeathV2,
-  "mousepadPowerplay.png": MousepadPower,
-  "pcMsiTrident3.png": PcMsiTrident,
-  "poleraPressStart.png": PoleraPressStart,
-  "webcamStreamcam.png": WebCamStream,
+  "razerBlackwidowV3MiniPhantom.png" : RazerBlackWindowV3,
+  "microfonoBlueYetiX.png" : MicrofonoBlue,
+  "dixitJuegoMesa.png" : Dixit,
+  "nintendoSwitchOLED.png" : Nintendo,
+  "sillaCougarArmor.png" : SillaCougar,
+  "razerDeathAdderV2.png" : RazerDeathV2,
+  "mousepadPowerplay.png" : MousepadPower,
+  "pcMsiTrident3.png" : PcMsiTrident,
+  "poleraPressStart.png" : PoleraPressStart,
+  "webcamStreamcam.png" : WebCamStream,
 };
 
-function Ofertas({ usuario, onAgregarCarrito }) {
+function Ofertas({ productos: productosApp, usuario, onAgregarCarrito }) {
   const [productos, setProductos] = useState([]);
 
-  // Inicializar productos en oferta con stock desde localStorage
   useEffect(() => {
-    const productosConOfertas = productosD.productos
-      .map((p) => ({
-        ...p,
-        stock: Number(localStorage.getItem(`stock_${p.id}`)) || p.stock,
-      }))
-      .filter((p) => p.oferta === true || p.descuento > 0);
-
+    const productosConOfertas = productosApp
+      .filter((p) => p.oferta === true || p.descuento > 0)
+      .map((p) => {
+        const stockLS = localStorage.getItem(`stock_${p.id}`);
+        return {
+          ...p,
+          stock: stockLS !== null ? Number(stockLS) : p.stock,
+        };
+      });
     setProductos(productosConOfertas);
-  }, []);
+  }, [productosApp]);
 
-  // Función para actualizar stock
-  const actualizarStock = (idProducto, cantidad = 1) => {
+  const actualizarStock = (idProducto) => {
     setProductos((prev) =>
       prev.map((p) => {
-        if (p.id === idProducto && p.stock >= cantidad) {
-          const nuevoStock = p.stock - cantidad;
+        if (p.id === idProducto && p.stock > 0) {
+          const nuevoStock = p.stock - 1;
           localStorage.setItem(`stock_${p.id}`, nuevoStock);
           return { ...p, stock: nuevoStock };
         }
@@ -55,12 +54,6 @@ function Ofertas({ usuario, onAgregarCarrito }) {
       })
     );
   };
-
-    const handleAgregar = (producto) => {
-    if (producto.stock <= 0) return;
-    onAgregarCarrito(producto.id, 1); // ID y cantidad
-    actualizarStock(producto.id, 1);   // Reduce stock en tiempo real
-    };
 
   return (
     <>
@@ -81,10 +74,14 @@ function Ofertas({ usuario, onAgregarCarrito }) {
             {productos.map((prod) => (
               <div className="col-md-4" key={prod.id}>
                 <ProductoCard
-                    producto={prod}
-                    usuario={usuario}
-                    imagenesMap={imagenesMap}
-                    onAgregarCarrito={() => handleAgregar(prod)}
+                  producto={prod}
+                  usuario={usuario}
+                  imagenesMap={imagenesMap}
+                  onAgregarCarrito={() => {
+                    if (prod.stock <= 0) return;
+                    onAgregarCarrito(prod.id, 1);
+                    actualizarStock(prod.id);
+                  }}
                 />
               </div>
             ))}
