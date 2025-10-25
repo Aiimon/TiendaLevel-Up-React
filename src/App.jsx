@@ -50,7 +50,6 @@ function Layout() {
     );
   };
 
-  // Cambiar títulos según ruta
   useEffect(() => {
     if (!location.pathname.startsWith("/detalles/")) {
       switch (location.pathname) {
@@ -129,7 +128,7 @@ function Layout() {
             />
           }
         />
-        <Route path="/admin" element={<HomeAdmin />} />
+        <Route path="/homeadmin" element={<HomeAdmin />} />
       </Routes>
 
       {shouldShowBotonWsp && <BotonWsp />}
