@@ -1,5 +1,5 @@
 import Hero from "../components/Hero";
-import Cards from "../components/Card";
+import Card from "../components/Card";
 import Carrito from "../components/Carrito";
 import Footer from "../components/Footer";
 import productosD from "../data/productos.json";
@@ -42,7 +42,7 @@ function Home({ carritoOpen, setCarritoOpen, cantidad, setCantidad }) {
         btn2={{ link: "/auth", clase: "btn-outline-light", icon: "bi-stars", text: "Únete" }}
       />
 
-      <Cards
+      <Card
       productosDestacados={productosDestacados}
       imagenesMap={imagenesMap}
       setCantidad={setCantidad}

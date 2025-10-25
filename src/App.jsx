@@ -14,77 +14,119 @@ import Eventos from "./pages/Eventos";
 import Soporte from "./pages/Soporte";
 import Detalles from "./pages/Detalles";
 
+import productosD from "./data/productos.json";
 
 function Layout() {
   const location = useLocation();
 
   const [carritoOpen, setCarritoOpen] = useState(false);
   const [cantidad, setCantidad] = useState(0);
+  const [productos, setProductos] = useState([]);
+  const [usuario, setUsuario] = useState(null);
 
-  // Cambia el título de la página según la ruta
   useEffect(() => {
-    switch (location.pathname) {
-      case "/":
-        document.title = "Level-Up · Inicio"; 
-        break;
-      case "/productos":
-        document.title = "Level-Up · Productos"; 
-        break;
-      case "/auth":
-        document.title = "Level-Up · Acceso"; 
-        break;
-      case "/nosotros":
-        document.title = "Level-Up · Nosotros"; 
-        break;
-      case "/blog":
-        document.title = "Level-Up · Blog"; 
-        break;
-      case "/eventos":
-        document.title = "Level-Up · Eventos"; 
-        break;
-      case "/soporte":
-        document.title = "Level-Up · Soporte"; 
-        break;
-      case "/detalles":
-        document.title = "Level-Up · Detalles"; 
-        break;
-      default:
-        document.title = "Level-Up";
+    const usuarioLS = JSON.parse(localStorage.getItem("usuario"));
+    if (usuarioLS) setUsuario(usuarioLS);
+  }, []);
+
+  // Inicializar productos con stock desde localStorage
+  useEffect(() => {
+    const iniciales = productosD.productos.map(p => ({
+      ...p,
+      stock: Number(localStorage.getItem(`stock_${p.id}`)) || p.stock
+    }));
+    setProductos(iniciales);
+  }, []);
+
+  // Función para agregar al carrito
+  const handleAgregarCarrito = (idProducto, cant) => {
+    setCantidad(prev => prev + cant);
+    // actualizar el stock 
+    setProductos(prev =>
+      prev.map(p =>
+        p.id === idProducto ? { ...p, stock: p.stock - cant } : p
+      )
+    );
+  };
+
+
+  useEffect(() => {
+    if (!location.pathname.startsWith("/detalles/")) {
+      switch (location.pathname) {
+        case "/": 
+          document.title = "Level-Up · Inicio";
+          break;
+        case "/productos": 
+          document.title = "Level-Up · Productos"; 
+          break;
+        case "/auth": 
+          document.title = "Level-Up · Acceso"; 
+          break;
+        case "/nosotros": 
+          document.title = "Level-Up · Nosotros"; 
+          break;
+        case "/blog": 
+          document.title = "Level-Up · Blog"; 
+          break;
+        case "/eventos": 
+          document.title = "Level-Up · Eventos"; 
+          break;
+        case "/soporte": 
+          document.title = "Level-Up · Soporte"; 
+          break;
+        default: 
+          document.title = "Level-Up";
+      }
     }
   }, [location.pathname]);
 
-  // Rutas donde no se muestra el navbar
   const hideNavbarRoutes = ["/auth"];
   const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
+  const shouldShowBotonWsp = !hideNavbarRoutes.includes(location.pathname);
 
   return (
     <>
       {shouldShowNavbar && (
-        <Navbar
-          cantidad={cantidad}
-          abrirCarrito={() => setCarritoOpen(true)}
-        />
+  <Navbar cantidad={cantidad} abrirCarrito={() => setCarritoOpen(true)} />
       )}
 
-      {/* Carrito siempre visible, aunque esté cerrado */}
       <CarritoSidebar
         abierto={carritoOpen}
         cerrar={() => setCarritoOpen(false)}
         cantidad={cantidad}
       />
+
       <Routes>
-        <Route path="/" element={<Home setCantidad={setCantidad} cantidad={cantidad} carritoOpen={carritoOpen} setCarritoOpen={setCarritoOpen} />} />
-        <Route path="/productos" element={<Productos />} />
+        <Route
+          path="/"
+          element={
+            <Home
+              setCantidad={setCantidad}
+              cantidad={cantidad}
+              carritoOpen={carritoOpen}
+              setCarritoOpen={setCarritoOpen}
+            />
+          }
+        />
+        <Route path="/productos" element={<Productos productos={productos} />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/eventos" element={<Eventos />} />
         <Route path="/soporte" element={<Soporte />} />
-        <Route path="/detalles" element={<Detalles />} />
+        <Route
+          path="/detalles/:id"
+          element={
+            <Detalles
+              productos={productos}
+              usuario={usuario}
+              onAgregarCarrito={handleAgregarCarrito}
+            />
+          }
+        />
       </Routes>
-      <BotonWsp/>
+    {shouldShowBotonWsp && <BotonWsp />}
     </>
-    
   );
 }
 

@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function ProductoCard({ producto, usuario = { esDuoc: false }, onAgregarCarrito, imagenesMap }) {
   const { id, nombre, categoria, precio, stock, rating, imagen } = producto;
   const precioFinal = usuario.esDuoc ? precio * 0.8 : precio;
@@ -52,9 +54,9 @@ export default function ProductoCard({ producto, usuario = { esDuoc: false }, on
             {stock === 0 ? "Agotado" : "Agregar"}
           </button>
 
-          <a href={`/Detalles`} className="btn btn-outline-light flex-grow-1">
+          <Link to={`/detalles/${id}`} className="btn btn-outline-light flex-grow-1">
             <i className="bi bi-eye me-1"></i> Ver detalles
-          </a>
+          </Link>
         </div>
       </div>
     </div>

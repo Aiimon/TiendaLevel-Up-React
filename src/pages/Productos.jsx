@@ -3,7 +3,6 @@ import ProductoCard from "../components/ProductoCard";
 import BuscadorAvanzado from "../components/BuscadorAvanzado";
 import productosD from "../data/productos.json";
 
-// Importa todas las imágenes
 import Wooting60HE from "../assets/img/Wooting60HE.png";
 import AuricularesHyperXCloudII from "../assets/img/AuricularesHyperXCloudII.png";
 import MouseLogitech from "../assets/img/MouseLogitech.png";
@@ -27,22 +26,41 @@ const imagenesMap = {
   "PcAsusROG.png": PcAsusROG,
   "sillaSecretlab.png": SillaSecretlab,
   "MousepadRazer.png": MousepadRazer,
-  "PoleraLevelUP.png": PoleraLevelUP
+  "PoleraLevelUP.png": PoleraLevelUP,
 };
 
-export default function Productos({ usuario, onAgregarCarrito }) {
+function Productos({ usuario, onAgregarCarrito }) {
+  const [productos, setProductos] = useState([]);
   const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
-    const productos = productosD.productos;
-    setProductosFiltrados(productos);
+    const iniciales = productosD.productos.map((p) => ({
+      ...p,
+      stock: Number(localStorage.getItem(`stock_${p.id}`)) || p.stock,
+    }));
+    setProductos(iniciales);
+    setProductosFiltrados(iniciales);
     setCategorias(["Todas", ...productosD.categorias]);
   }, []);
 
+  // Actualiza el stock local y en localStorage
+  const actualizarStock = (idProducto) => {
+    setProductos((prev) =>
+      prev.map((p) => {
+        if (p.id === idProducto && p.stock > 0) {
+          const nuevoStock = p.stock - 1;
+          localStorage.setItem(`stock_${p.id}`, nuevoStock);
+          return { ...p, stock: nuevoStock };
+        }
+        return p;
+      })
+    );
+  };
+
   const filtrarProductos = (filtro) => {
     const { q, cat, min, max } = filtro;
-    const filtrados = productosD.productos.filter((p) => {
+    const filtrados = productos.filter((p) => {
       const matchQ = p.nombre.toLowerCase().includes(q.toLowerCase());
       const matchCat = cat === "Todas" || p.categoria === cat;
       const matchPrecio = p.precio >= min && p.precio <= max;
@@ -51,13 +69,11 @@ export default function Productos({ usuario, onAgregarCarrito }) {
     setProductosFiltrados(filtrados);
   };
 
-
   return (
     <div className="container py-4">
       {/* Buscador */}
       <BuscadorAvanzado categorias={categorias} onFilter={filtrarProductos} />
 
-      {/* Encabezado general del catálogo */}
       <div className="d-flex justify-content-between align-items-center mb-3 mt-4">
         <h2 className="section-title mb-0">Catálogo</h2>
         <small className="text-secondary">
@@ -65,7 +81,6 @@ export default function Productos({ usuario, onAgregarCarrito }) {
         </small>
       </div>
 
-      {/* Productos */}
       {productosFiltrados.length === 0 ? (
         <div className="text-center text-danger mt-3">
           <p>No se encontraron productos.</p>
@@ -77,8 +92,11 @@ export default function Productos({ usuario, onAgregarCarrito }) {
               <ProductoCard
                 producto={prod}
                 usuario={usuario}
-                onAgregarCarrito={onAgregarCarrito}
                 imagenesMap={imagenesMap}
+                onAgregarCarrito={() => {
+                  onAgregarCarrito(prod);
+                  actualizarStock(prod.id);
+                }}
               />
             </div>
           ))}
@@ -87,3 +105,5 @@ export default function Productos({ usuario, onAgregarCarrito }) {
     </div>
   );
 }
+
+export default Productos;
