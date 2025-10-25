@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import ReseñaForm from "../components/ReseñaForm";
+import ReseñaForm from "../components/ReseñaniaForm";
 
 export default function Detalles({ producto, usuario, onAgregarCarrito }) {
   // Hooks siempre arriba

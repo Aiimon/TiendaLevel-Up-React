@@ -1,4 +1,4 @@
-function Cards({ productosDestacados, imagenesMap, setCantidad, descripciones }) {
+function Card({ productosDestacados, imagenesMap, setCantidad, descripciones }) {
   const handleComprar = () => {
     setCantidad(prev => prev + 1);
   };
@@ -54,4 +54,4 @@ function Cards({ productosDestacados, imagenesMap, setCantidad, descripciones })
   );
 }
 
-export default Cards;
+export default Card;

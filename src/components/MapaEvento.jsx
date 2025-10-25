@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-function MapaEventos({ eventos, marcadorSeleccionado }) {
+function MapaEvento({ eventos, marcadorSeleccionado }) {
   const mapaRef = useRef(null);
 
   useEffect(() => {
@@ -39,4 +39,4 @@ function MapaEventos({ eventos, marcadorSeleccionado }) {
   return <div ref={mapaRef} style={{ height: "420px", borderRadius: "1rem", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }} />;
 }
 
-export default MapaEventos;
+export default MapaEvento;

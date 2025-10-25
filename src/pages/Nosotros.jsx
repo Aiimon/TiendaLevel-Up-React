@@ -1,7 +1,6 @@
 import CarritoSidebar from "../components/CarritoSidebar";
 import Footer from "../components/Footer";
 
-// Importa imágenes
 import integrante1 from "../assets/img/Integrante1.png";
 import integrante2 from "../assets/img/Integrante2.jpg";
 

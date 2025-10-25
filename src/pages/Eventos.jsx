@@ -2,7 +2,7 @@ import { useState } from "react";
 import Footer from "../components/Footer";
 import CarritoSidebar from "../components/CarritoSidebar";
 import EventoCard from "../components/EventoCard";
-import MapaEventos from "../components/MapaEventos";
+import MapaEventos from "../components/MapaEvento";
 
 const eventosData = [
   { titulo: "Evento Gaming Centro", fecha: "03 Noviembre 2025, 16:00 hrs", lugar: "Centro de Convenciones Santiago", coordenadas: [-33.4489, -70.6693] },

@@ -1,6 +1,6 @@
-export default function Reseñas({ reseñas }) {
-  const promedioRating = reseñas.length
-    ? Math.round(reseñas.reduce((a, r) => a + r.rating, 0) / reseñas.length)
+function Resenia({ resenias }) {
+  const promedioRating = resenias.length
+    ? Math.round(resenias.reduce((a, r) => a + r.rating, 0) / resenias.length)
     : 0;
 
   return (
@@ -8,13 +8,13 @@ export default function Reseñas({ reseñas }) {
       <h5 className="orbitron mb-3">Reseñas de otros usuarios</h5>
       <div className="d-flex align-items-center mb-3">
         <div className="text-warning me-2">{"★".repeat(promedioRating)}</div>
-        <small className="text-secondary">({reseñas.length} reseña{reseñas.length > 1 ? "s" : ""})</small>
+        <small className="text-secondary">({resenias.length} reseña{resenias.length > 1 ? "s" : ""})</small>
       </div>
       <div className="list-group mb-3">
-        {reseñas.length === 0 ? (
+        {resenias.length === 0 ? (
           <p className="text-secondary">No hay reseñas todavía.</p>
         ) : (
-          reseñas.map((r, i) => (
+          resenias.map((r, i) => (
             <div key={i} className="list-group-item bg-dark text-light mb-2 rounded">
               <strong>{r.nombre}</strong>{" "}
               <small className="text-secondary">{new Date(r.fecha).toLocaleString("es-CL")}</small>{" "}
@@ -27,3 +27,5 @@ export default function Reseñas({ reseñas }) {
     </div>
   );
 }
+
+export default Resenia;

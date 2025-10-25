@@ -1,5 +1,5 @@
 import Hero from "../components/Hero";
-import Cards from "../components/Cards";
+import Cards from "../components/Card";
 import Carrito from "../components/Carrito";
 import Footer from "../components/Footer";
 import productosD from "../data/productos.json";

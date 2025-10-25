@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-function Incidencias({ usuario }) {
+function Incidencia({ usuario }) {
   const [incidencias, setIncidencias] = useState([]);
 
   useEffect(() => {
@@ -49,4 +49,4 @@ function Incidencias({ usuario }) {
   );
 }
 
-export default Incidencias;
+export default Incidencia;
