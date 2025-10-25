@@ -17,6 +17,8 @@ import Detalles from "./pages/Detalles";
 import HomeAdmin from "./pages/Homeadmin";
 import productosD from "./data/productos.json";
 import Productosadmin from "./pages/Productosadmin";
+import Checkout from "./pages/Checkout";
+import Carro from "./pages/Carro";
 
 function Layout() {
   const location = useLocation();
@@ -25,13 +27,13 @@ function Layout() {
   const [productos, setProductos] = useState([]);
   const [usuario, setUsuario] = useState(null);
 
-  // Cargar usuario desde localStorage
+  // Cargar usuario
   useEffect(() => {
     const usuarioLS = JSON.parse(localStorage.getItem("usuario"));
     if (usuarioLS) setUsuario(usuarioLS);
   }, []);
 
-  // Cargar productos y carrito desde localStorage
+  // Inicializar productos y carrito desde localStorage
   useEffect(() => {
     const carritoLS = JSON.parse(localStorage.getItem("carrito")) || [];
     const iniciales = productosD.productos.map(p => {
@@ -43,7 +45,7 @@ function Layout() {
     setProductos(iniciales);
   }, []);
 
-  // Función para agregar productos al carrito
+  // Función para agregar al carrito
   const handleAgregarCarrito = (idProducto, cant = 1) => {
     setProductos(prev => {
       const nuevos = prev.map(p => {
@@ -62,7 +64,27 @@ function Layout() {
     setCarritoOpen(true);
   };
 
-  // Cambiar título dinámicamente según ruta
+  // Función para actualizar cantidad en carrito (subir, bajar o eliminar)
+  const handleActualizarCantidad = (idProducto, cantidadNueva) => {
+    setProductos(prev => {
+      const nuevos = prev.map(p => {
+        if (p.id === idProducto) {
+          const cantidadFinal = Math.max(0, Math.min(cantidadNueva, p.stock + p.cantidad));
+          const stockFinal = p.stock + p.cantidad - cantidadFinal;
+          localStorage.setItem(`stock_${p.id}`, stockFinal);
+          return { ...p, cantidad: cantidadFinal, stock: stockFinal };
+        }
+        return p;
+      });
+      localStorage.setItem(
+        "carrito",
+        JSON.stringify(nuevos.filter(p => p.cantidad > 0))
+      );
+      return nuevos;
+    });
+  };
+
+  // Manejar títulos dinámicos
   useEffect(() => {
     if (!location.pathname.startsWith("/detalles/")) {
       switch (location.pathname) {
@@ -76,6 +98,8 @@ function Layout() {
         case "/eventos": document.title = "Level-Up · Eventos"; break;
         case "/soporte": document.title = "Level-Up · Soporte"; break;
         case "/productosadmin": document.title = "Level-Up · Productos"; break;
+        case "/checkout": document.title = "Level-Up · Checkout"; break;
+        case "/carro": document.title = "Level-Up · Carro"; break;
         default: document.title = "Level-Up";
       }
     }
@@ -99,6 +123,7 @@ function Layout() {
         abierto={carritoOpen}
         cerrar={() => setCarritoOpen(false)}
         carrito={productos.filter(p => p.cantidad > 0)}
+        onActualizarCantidad={handleActualizarCantidad}
       />
 
       <Routes>
@@ -109,8 +134,6 @@ function Layout() {
               productos={productos}
               usuario={usuario}
               onAgregarCarrito={handleAgregarCarrito}
-              carritoOpen={carritoOpen}
-              setCarritoOpen={setCarritoOpen}
             />
           }
         />
@@ -148,6 +171,24 @@ function Layout() {
               productos={productos}
               usuario={usuario}
               onAgregarCarrito={handleAgregarCarrito}
+            />
+          }
+        />
+        <Route
+          path="/carro"
+          element={
+            <Carro
+              carrito={productos.filter(p => p.cantidad > 0)}
+              onActualizarCantidad={handleActualizarCantidad}
+            />
+          }
+        />
+        <Route
+          path="/checkout"
+          element={
+            <Checkout
+              carrito={productos.filter(p => p.cantidad > 0)}
+              onActualizarCantidad={handleActualizarCantidad}
             />
           }
         />

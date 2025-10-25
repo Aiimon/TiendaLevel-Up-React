@@ -12,6 +12,7 @@
   "dependencies": {
     "@fontsource/orbitron": "^5.2.8",
     "@fontsource/roboto": "^5.2.8",
+    "@paypal/react-paypal-js": "^8.9.2",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "crypto-js": "^4.2.0",
