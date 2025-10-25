@@ -7,7 +7,7 @@ import CarritoSidebar from "./components/CarritoSidebar";
 import BotonWsp from "./components/BotonWsp";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
-import Productos from "./pages/Productos";
+import Categoria from "./pages/Categoria";
 import Nosotros from "./pages/Nosotros";
 import Blog from "./pages/Blog";
 import Eventos from "./pages/Eventos";
@@ -56,8 +56,8 @@ function Layout() {
         case "/": 
           document.title = "Level-Up · Inicio";
           break;
-        case "/productos": 
-          document.title = "Level-Up · Productos"; 
+        case "/categoria": 
+          document.title = "Level-Up · Categoria"; 
           break;
         case "/auth": 
           document.title = "Level-Up · Acceso"; 
@@ -108,7 +108,7 @@ function Layout() {
             />
           }
         />
-        <Route path="/productos" element={<Productos productos={productos} />} />
+        <Route path="/categoria" element={<Categoria productos={productos} />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/blog" element={<Blog />} />

@@ -17,5 +17,4 @@ function CarritoSidebar({ abierto, cerrar, cantidad }) {
     </div>
   );
 }
-
 export default CarritoSidebar;

@@ -1,10 +1,57 @@
-import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+import productosD from "../data/productos.json";
 
-function Navbar({ cantidad, abrirCarrito }) {
+import Wooting60HE from "../assets/img/Wooting60HE.png";
+import AuricularesHyperXCloudII from "../assets/img/AuricularesHyperXCloudII.png";
+import MouseLogitech from "../assets/img/MouseLogitech.png";
+import Catan from "../assets/img/catanJuegoMesa.png";
+import Carcassonne from "../assets/img/carcassonneJuegoMesa.png";
+
+const imagenesMap = {
+  "Wooting60HE.png": Wooting60HE,
+  "AuricularesHyperXCloudII.png": AuricularesHyperXCloudII,
+  "MouseLogitech.png": MouseLogitech,
+  "catanJuegoMesa.png": Catan,
+  "carcassonneJuegoMesa.png": Carcassonne,
+};
+
+function Navbar({ cantidad, abrirCarrito, usuario }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [productosOpen, setProductosOpen] = useState(false);
+  const [usuarioOpen, setUsuarioOpen] = useState(false);
+
+  const dropdownRef = useRef(null);
+  const usuarioRef = useRef(null);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
+  const toggleProductos = () => setProductosOpen(!productosOpen);
+  const toggleUsuario = () => setUsuarioOpen(!usuarioOpen);
+
+  const categorias = productosD.categorias || [];
+
+  const imagenesCategoria = {};
+  categorias.forEach(cat => {
+    const prod = productosD.productos.find(p => p.categoria === cat);
+    imagenesCategoria[cat] = prod ? imagenesMap[prod.imagen.split("/").pop()] : null;
+  });
+
+  // Cerrar dropdown de categoría si se hace click fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setProductosOpen(false);
+      }
+      if (usuarioRef.current && !usuarioRef.current.contains(event.target)) {
+        setUsuarioOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <nav
@@ -29,24 +76,81 @@ function Navbar({ cantidad, abrirCarrito }) {
 
         <div className={`collapse navbar-collapse ${menuOpen ? "show" : ""}`} id="nav">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            <li className="nav-item position-relative" ref={dropdownRef}>
+              <button
+                className="nav-link btn btn-link text-decoration-none"
+                onClick={toggleProductos}
+                style={{ color: "white" }}
+              >
+                Categoría <i className="bi bi-chevron-down"></i>
+              </button>
+
+              {productosOpen && (
+                <div
+                  className="position-absolute bg-dark p-3 rounded shadow"
+                  style={{
+                    top: "100%",
+                    left: 0,
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+                    gap: "10px",
+                    minWidth: "320px",
+                    zIndex: 2000,
+                    animation: "fadeInSlide 0.25s ease forwards"
+                  }}
+                >
+                  <Link
+                    to="/categoria"
+                    className="dropdown-item card-mini d-flex flex-column align-items-center justify-content-center p-2 bg-dark rounded hover-neon text-center"
+                    onClick={() => setProductosOpen(false)}
+                  >
+                    <i className="bi bi-box-seam fs-2 mb-1"></i>
+                    <span style={{ fontSize: "0.85rem" }}>Ver todos</span>
+                  </Link>
+
+                  {categorias.map((cat) => (
+                    <Link
+                      key={cat}
+                      to={`/categoria?categoria=${encodeURIComponent(cat)}`}
+                      className="dropdown-item card-mini d-flex flex-column align-items-center justify-content-center p-2 bg-dark rounded hover-neon text-center"
+                      onClick={() => setProductosOpen(false)}
+                    >
+                      {imagenesCategoria[cat] && (
+                        <img
+                          src={imagenesCategoria[cat]}
+                          alt={cat}
+                          style={{
+                            width: "60px",
+                            height: "60px",
+                            objectFit: "contain",
+                            marginBottom: "5px",
+                            borderRadius: "8px"
+                          }}
+                        />
+                      )}
+                      <span style={{ fontSize: "0.85rem" }}>{cat}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </li>
+
             <li className="nav-item">
-              <NavLink className="nav-link" to="/productos">Productos</NavLink>
+              <Link className="nav-link" to="/blog">Blog</Link>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/blog">Blog</NavLink>
+              <Link className="nav-link" to="/eventos">Eventos</Link>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/eventos">Eventos</NavLink>
+              <Link className="nav-link" to="/soporte">Soporte</Link>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/soporte">Soporte</NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" to="/nosotros">Nosotros</NavLink>
+              <Link className="nav-link" to="/nosotros">Nosotros</Link>
             </li>
           </ul>
 
-          <div className="d-flex gap-2 align-items-center">
+          <div className="d-flex gap-2 align-items-center position-relative">
+            {/* Carrito */}
             <button
               className="btn btn-accent position-relative"
               onClick={abrirCarrito}
@@ -59,39 +163,68 @@ function Navbar({ cantidad, abrirCarrito }) {
               )}
             </button>
 
-            <div className="dropdown">
+            {/* Usuario */}
+            <div className="position-relative" ref={usuarioRef}>
               <button
-                className="btn btn-outline-light dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
+                className="btn text-white"
+                onClick={toggleUsuario}
+                style={{
+                  border: "1px solid #fff",
+                  background: "transparent",
+                  padding: "4px 10px",
+                  borderRadius: "6px",
+                  fontFamily: "'Roboto', system-ui, -apple-system, Segoe UI, sans-serif"
+                }}
               >
-                <i className="bi bi-person-circle me-1"></i> Invitado
+                {usuario ? usuario : "Invitado"}
+                <i className="bi bi-caret-down-fill ms-1"></i>
               </button>
-              <ul className="dropdown-menu dropdown-menu-end">
-                <li>
-                  <Link className="dropdown-item" to="/auth">
-                    Ingresar / Registrar
+
+              {usuarioOpen && !usuario && (
+                <div
+                  className="position-absolute bg-dark p-2 rounded shadow"
+                  style={{
+                    top: "110%",
+                    right: 0,
+                    minWidth: "150px",
+                    zIndex: 3000
+                  }}
+                >
+                  <Link
+                    to="/auth"
+                    className="dropdown-item text-white p-2 hover-neon"
+                    onClick={() => setUsuarioOpen(false)}
+                  >
+                    Iniciar sesión
                   </Link>
-                </li>
-                <li>
-                  <Link className="dropdown-item" to="/perfil">
-                    Perfil
+                  <Link
+                    to="/auth"
+                    className="dropdown-item text-white p-2 hover-neon"
+                    onClick={() => setUsuarioOpen(false)}
+                  >
+                    Registrarse
                   </Link>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <a className="dropdown-item" href="#">
-                    Cerrar sesión
-                  </a>
-                </li>
-              </ul>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes fadeInSlide {
+          0% {opacity: 0; transform: translateY(-10px);}
+          100% {opacity: 1; transform: translateY(0);}
+        }
+        .hover-neon:hover {
+          box-shadow: 0 0 8px #1E90FF, 0 0 16px #39FF14;
+          transform: translateY(-3px);
+          transition: all 0.2s ease;
+        }
+        .dropdown-item {
+          color: white !important;
+        }
+      `}</style>
     </nav>
   );
 }

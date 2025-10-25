@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function BuscadorAvanzado({ categorias = [], onFilter }) {
   const [abierto, setAbierto] = useState(false);
@@ -6,6 +6,8 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
   const [cat, setCat] = useState("Todas");
   const [min, setMin] = useState("");
   const [max, setMax] = useState("");
+
+  const contenedorRef = useRef(null);
 
   const aplicarFiltros = () => {
     onFilter({
@@ -24,6 +26,18 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
     onFilter({ q: "", cat: "Todas", min: 0, max: Infinity });
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (contenedorRef.current && !contenedorRef.current.contains(event.target)) {
+        setAbierto(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <>
       {/* Botón flotante */}
@@ -36,6 +50,7 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
 
       {/* Contenedor del buscador */}
       <div
+        ref={contenedorRef}
         className={`buscador-contenido-flotante ${abierto ? "activo" : ""}`}
       >
         <h5 className="orbitron mb-3">Búsqueda avanzada</h5>
@@ -93,12 +108,10 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
           </div>
         </div>
       </div>
-
-      {/* Estilos en línea o en tu CSS */}
       <style>{`
         .buscador-flotante {
           position: fixed;
-          top: 80px; /* un poco debajo del navbar */
+          top: 80px;
           right: 20px;
           z-index: 1050;
           border-radius: 50%;
@@ -111,7 +124,7 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
 
         .buscador-contenido-flotante {
           position: fixed;
-          top: 140px; /* debajo del botón */
+          top: 140px;
           right: 20px;
           width: 300px;
           background: #111;
@@ -137,6 +150,7 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
           margin-bottom: 5px;
         }
       `}</style>
+    
     </>
   );
 }

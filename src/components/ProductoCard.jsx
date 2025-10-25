@@ -4,7 +4,6 @@ export default function ProductoCard({ producto, usuario = { esDuoc: false }, on
   const { id, nombre, categoria, precio, stock, rating, imagen } = producto;
   const precioFinal = usuario.esDuoc ? precio * 0.8 : precio;
 
-  // Extraer la imagen del map
   const nombreArchivo = imagen.split("/").pop();
   const imgSrc = imagenesMap[nombreArchivo];
 

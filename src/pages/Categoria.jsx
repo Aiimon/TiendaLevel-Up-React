@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom"; // <- IMPORT
 import ProductoCard from "../components/ProductoCard";
 import BuscadorAvanzado from "../components/BuscadorAvanzado";
 import productosD from "../data/productos.json";
@@ -30,6 +31,10 @@ const imagenesMap = {
 };
 
 function Productos({ usuario, onAgregarCarrito }) {
+  const location = useLocation(); // <- LEEMOS LA URL
+  const params = new URLSearchParams(location.search);
+  const categoriaUrl = params.get("categoria") || "Todas";
+
   const [productos, setProductos] = useState([]);
   const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [categorias, setCategorias] = useState([]);
@@ -40,11 +45,15 @@ function Productos({ usuario, onAgregarCarrito }) {
       stock: Number(localStorage.getItem(`stock_${p.id}`)) || p.stock,
     }));
     setProductos(iniciales);
-    setProductosFiltrados(iniciales);
     setCategorias(["Todas", ...productosD.categorias]);
-  }, []);
 
-  // Actualiza el stock local y en localStorage
+    // Filtrar por categoría de URL al cargar
+    const filtrados = categoriaUrl === "Todas"
+      ? iniciales
+      : iniciales.filter(p => p.categoria === categoriaUrl);
+    setProductosFiltrados(filtrados);
+  }, [categoriaUrl]);
+
   const actualizarStock = (idProducto) => {
     setProductos((prev) =>
       prev.map((p) => {
@@ -71,11 +80,10 @@ function Productos({ usuario, onAgregarCarrito }) {
 
   return (
     <div className="container py-4">
-      {/* Buscador */}
       <BuscadorAvanzado categorias={categorias} onFilter={filtrarProductos} />
 
       <div className="d-flex justify-content-between align-items-center mb-3 mt-4">
-        <h2 className="section-title mb-0">Catálogo</h2>
+        <h2 className="section-title mb-0">{categoriaUrl === "Todas" ? "Catálogo" : categoriaUrl}</h2>
         <small className="text-secondary">
           Autenticidad garantizada • Origen y distribuidores detallados
         </small>
