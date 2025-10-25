@@ -83,7 +83,7 @@ function Layout() {
     }
   }, [location.pathname]);
 
-  const hideNavbarRoutes = ["/auth"];
+  const hideNavbarRoutes = ["/auth", "/homeadmin"];
   const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
   const shouldShowBotonWsp = !hideNavbarRoutes.includes(location.pathname);
 
