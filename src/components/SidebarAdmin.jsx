@@ -1,26 +1,27 @@
-import React from 'react';
-import { NavLink, Link } from 'react-router-dom'; // <--- 1. IMPORTAR LINK
-import productosD from "../data/productos.json";
-
+import { NavLink, Link } from 'react-router-dom';
+import Footer from "./Footer"; 
+// Importaciones de datos
+import productosD from "../data/productos.json"; 
+import usuariosD from "../data/usuarios.json"; // <-- ASUMO esta ruta y nombre de archivo
 
 // --- Componente Sidebar ---
 const Sidebar = () => {
+    // Definición de las rutas de navegación con los path actualizados
     const navItems = [
-      
-        { name: 'Dashboard', path: '/homeadmin' }, 
-        { name: 'Órdenes', path: '/ordenesadmin' },
-        { name: 'Productos', path: '/productosadmin' },
-        { name: 'Categorías', path: '/categoriasadmin' },
-        { name: 'Usuarios', path: '/usuariosadmin' },
-        { name: 'Reportes', path: '/reportesadmin' },
+        { name: 'Dashboard', icon: 'fas fa-cloud', path: '/homeadmin' }, 
+        { name: 'Órdenes', icon: 'fas fa-clipboard-list', path: '/ordenesadmin' },
+        { name: 'Productos', icon: 'fas fa-cubes', path: '/productosadmin' },
+        { name: 'Categorías', icon: 'fas fa-tags', path: '/categoriasadmin' },
+        { name: 'Usuarios', icon: 'fas fa-users', path: '/usuariosadmin' },
+        { name: 'Reportes', icon: 'fas fa-file-alt', path: '/reportesadmin' },
     ];
 
     return (
-        // Fondo negro (oscuro) y estructura Flexbox vertical
+        // Estilo oscuro consistente para el Sidebar
         <div className="d-flex flex-column p-3 text-white sidebar-admin" 
              style={{ width: '250px', backgroundColor: '#161616ff', minHeight: '100vh', flexShrink: 0 }}>
             
-            {/* 2. REEMPLAZO DE COMPANY NAME POR EL COMPONENTE LINK */}
+            {/* Logo y link a la página principal */}
             <Link className="navbar-brand brand neon active text-decoration-none text-light mb-4 text-center fs-5 fw-bold" to="/" style={{ display: 'block' }}>
                 <i className="bi bi-joystick me-2"></i>Level‑Up Gamer
             </Link>
@@ -36,7 +37,6 @@ const Sidebar = () => {
                             className={({ isActive }) => 
                                 `nav-link text-white d-flex align-items-center mb-1 ${isActive ? 'sidebar-active' : ''}`
                             }
-                            // Estilo para el botón activo de Dashboard
                             style={({ isActive }) => 
                                 isActive && item.name === 'Dashboard' ? { backgroundColor: '#007bff', borderRadius: '5px' } : {}
                             }
@@ -71,23 +71,47 @@ const Sidebar = () => {
 
 // --- Componente de las Tarjetas de Contenido (DashboardContent) ---
 const DashboardContent = () => {
-    // Lógica de cálculo y renderizado de tarjetas (se mantiene igual)
+    // ---------------------------------------------
+    // 1. CÁLCULO DE MÉTRICAS (PRODUCTOS Y USUARIOS)
+    // ---------------------------------------------
     const productosArray = productosD.productos;
     const totalProductos = productosArray.length; 
     const inventarioActual = productosArray.reduce((sum, producto) => sum + (producto.stock || 0), 0); 
+    
+    // ASUMO que usuariosD es un array de usuarios y que quieres el conteo total.
+    const totalUsuarios = usuariosD.length; 
+    const nuevosUsuariosEsteMes = 20; // Se mantiene fijo, ya que no hay información de fechas de registro en el JSON
+
     const formatNumber = (num) => num.toLocaleString('es-CL'); 
 
+    // ---------------------------------------------
+    // 2. DATOS PARA LAS TARJETAS (Actualizados con valores dinámicos)
+    // ---------------------------------------------
     const metricCards = [
-        { title: 'Compras', value: '1,234', icon: 'fas fa-shopping-cart', detail: 'Probabilidad de aumento: 20%', color: '#007bff', textColor: 'text-white' },
+        { 
+            title: 'Compras', 
+            value: '1,234', 
+            icon: 'fas fa-shopping-cart', 
+            detail: 'Probabilidad de aumento: 20%', 
+            color: '#007bff', 
+            textColor: 'text-white' 
+        },
         { 
             title: 'Productos', 
-            value: formatNumber(totalProductos), 
+            value: formatNumber(totalProductos), // DINÁMICO: Total de productos
             icon: 'fas fa-box', 
-            detail: `Inventario actual: ${formatNumber(inventarioActual)}`, 
+            detail: `Inventario actual: ${formatNumber(inventarioActual)}`, // DINÁMICO: Stock total
             color: '#28a745', 
             textColor: 'text-white' 
         },
-        { title: 'Usuarios', value: '890', icon: 'fas fa-users', detail: 'Nuevos usuarios este mes: 120', color: '#ffc107', textColor: 'text-dark' },
+        { 
+            title: 'Usuarios', 
+            value: formatNumber(totalUsuarios), // DINÁMICO: Total de usuarios
+            icon: 'fas fa-users', 
+            detail: `Nuevos usuarios este mes: ${nuevosUsuariosEsteMes}`, 
+            color: '#ffc107', 
+            textColor: 'text-dark' 
+        },
     ];
 
     const featureCardsTop = [
@@ -104,6 +128,7 @@ const DashboardContent = () => {
         { icon: 'fas fa-store', title: 'Tienda', desc: 'Visualiza tu tienda en tiempo real, Visualiza los reportes de los usuarios.' },
     ];
 
+    // Renderización de Tarjetas (MetricCard y FeatureCard)
     const MetricCard = ({ title, value, icon, detail, color, textColor }) => (
         <div className="col-lg-4 col-md-6 mb-4">
             <div className={`card ${textColor} p-3 shadow-sm border-0 h-100`} style={{ backgroundColor: color }}>
@@ -134,9 +159,10 @@ const DashboardContent = () => {
     );
 
     return (
+        // Color de fondo negro para el área de contenido principal, según tu última indicación.
         <div className="admin-content-wrapper p-4 flex-grow-1" style={{ backgroundColor: '#000000ff' }}> 
             
-            <h1 className="h4 mb-1">Dashboard</h1>
+            <h1 className="text-light h4 mb-1">Dashboard</h1> {/* Título blanco sobre fondo negro */}
             <p className="text-muted mb-4">Resumen de las actividades diarias</p>
 
             <div className="row mb-4">
@@ -151,7 +177,7 @@ const DashboardContent = () => {
                 {featureCardsBottom.map((card, index) => (<FeatureCard key={`bottom-${index}`} {...card} />))}
             </div>
 
-           
+            <Footer />
         </div>
     );
 };
