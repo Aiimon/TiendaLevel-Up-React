@@ -46,8 +46,8 @@ export const Sidebar = () => {
     const navItems = [
         { name: 'Dashboard',  path: '/homeadmin' }, 
         { name: 'Órdenes', path: '/ordenesadmin' },
-        { name: 'Productos', path: '/Productosadmin' },
-        { name: 'Categorías', path: '/categoriasadmin' },
+        { name: 'Productos', path: '/productosadmin' },
+        { name: 'Categorías', path: '/categoria_admin' },
         { name: 'Usuarios', path: '/usuariosadmin' },
         { name: 'Reportes', path: '/reportesadmin' },
     ];
