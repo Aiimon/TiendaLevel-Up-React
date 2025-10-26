@@ -1,6 +1,4 @@
 import { useRef, useEffect } from "react";
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-
 
 function CardBlog({ titulo, categoria, imagenSrc, videoUrl, descripcion }) {
   const modalVideoRef = useRef();
@@ -26,20 +24,15 @@ function CardBlog({ titulo, categoria, imagenSrc, videoUrl, descripcion }) {
     };
 
     modalEl.addEventListener("hidden.bs.modal", manejarCierre);
-
-    return () => {
-      modalEl.removeEventListener("hidden.bs.modal", manejarCierre);
-    };
+    return () => modalEl.removeEventListener("hidden.bs.modal", manejarCierre);
   }, []);
 
-  // Abrir modal de video
   const abrirModalVideo = () => {
     const modalEl = modalVideoRef.current;
     const bsModal = new window.bootstrap.Modal(modalEl);
     bsModal.show();
   };
 
-  // Compartir publicación
   const compartir = async () => {
     const datos = {
       titulo,
@@ -47,7 +40,6 @@ function CardBlog({ titulo, categoria, imagenSrc, videoUrl, descripcion }) {
       url: videoUrl,
     };
 
-    // Web Share API (móviles)
     if (navigator.share) {
       try {
         await navigator.share(datos);
@@ -57,7 +49,6 @@ function CardBlog({ titulo, categoria, imagenSrc, videoUrl, descripcion }) {
       return;
     }
 
-    // Llenar modal de compartir
     const modalEl = modalCompartirRef.current;
     if (!modalEl) return;
 
@@ -69,7 +60,6 @@ function CardBlog({ titulo, categoria, imagenSrc, videoUrl, descripcion }) {
     const bsModal = new window.bootstrap.Modal(modalEl);
     bsModal.show();
 
-    // Copiar enlace
     botonCopiarRef.current.onclick = async () => {
       try {
         await navigator.clipboard.writeText(`${datos.titulo} - ${datos.url}`);
@@ -86,26 +76,26 @@ function CardBlog({ titulo, categoria, imagenSrc, videoUrl, descripcion }) {
   return (
     <>
       {/* Tarjeta */}
-        <div className="col-md-4">
+      <div className="col-md-4">
         <div className="card h-100">
-            <div className="blog-card-img">
+          <div className="blog-card-img">
             <img src={imagenSrc} alt={titulo} />
-            </div>
-            <div className="card-body">
+          </div>
+          <div className="card-body">
             <span className="badge badge-neon mb-2">{categoria}</span>
             <h5 className="card-title">{titulo}</h5>
             <p className="card-text text-secondary mb-3">{descripcion}</p>
             <div className="d-flex gap-2">
-                <button className="btn btn-ver btn-sm" onClick={abrirModalVideo}>
+              <button className="btn btn-ver btn-sm" onClick={abrirModalVideo}>
                 <i className="bi bi-play-btn"></i> Ver
-                </button>
-                <button className="btn btn-sm btn-compartir" onClick={compartir}>
+              </button>
+              <button className="btn btn-sm btn-compartir" onClick={compartir}>
                 <i className="bi bi-share"></i> Compartir
-                </button>
+              </button>
             </div>
-            </div>
+          </div>
         </div>
-        </div>
+      </div>
 
       {/* Modal de video */}
       <div className="modal fade" tabIndex="-1" aria-hidden="true" ref={modalVideoRef}>

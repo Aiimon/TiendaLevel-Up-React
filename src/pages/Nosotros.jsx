@@ -22,7 +22,7 @@ function Nosotros({ carritoOpen, setCarritoOpen }) {
             <div className="col-md-4">
               <div className="card team-card h-100">
                 <div className="team-card my-card">
-                  <img src="/img/integrante1" alt="Aimon Medina" />
+                  <img src="/Integrante1.png" alt="Aimon Medina" />
                 </div>
                 <div className="card-body text-center">
                   <h5 className="card-title">Aimon Medina</h5>
@@ -33,7 +33,7 @@ function Nosotros({ carritoOpen, setCarritoOpen }) {
             <div className="col-md-4">
               <div className="card team-card h-100">
                 <div className="team-card-img-container">
-                  <img src="/img/integrante2" alt="Diego Alarcon" />
+                  <img src="/Integrante2.jpg" alt="Diego Alarcon" />
                 </div>
                 <div className="card-body text-center">
                   <h5 className="card-title">Diego Alarcon</h5>
