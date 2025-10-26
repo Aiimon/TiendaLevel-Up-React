@@ -34,10 +34,15 @@ function Layout() {
   const [productos, setProductos] = useState([]);
   const [usuario, setUsuario] = useState(null);
 
-  // Cargar usuario desde localStorage
+  // Cargar usuario desde localStorage y escuchar cambios
   useEffect(() => {
-    const usuarioLS = JSON.parse(localStorage.getItem("usuario"));
-    if (usuarioLS) setUsuario(usuarioLS);
+    const cargarUsuario = () => {
+      const usuarioLS = JSON.parse(localStorage.getItem("usuario"));
+      setUsuario(usuarioLS || null);
+    };
+    cargarUsuario();
+    window.addEventListener("usuarioCambiado", cargarUsuario);
+    return () => window.removeEventListener("usuarioCambiado", cargarUsuario);
   }, []);
 
   // Inicializar productos y carrito
@@ -52,6 +57,7 @@ function Layout() {
     setProductos(iniciales);
   }, []);
 
+  // Agregar al carrito
   const handleAgregarCarrito = (idProducto, cant = 1) => {
     setProductos((prev) => {
       const nuevos = prev.map((p) => {
@@ -72,9 +78,9 @@ function Layout() {
       );
       return nuevos;
     });
-    // No abrir automáticamente el carrito
   };
 
+  // Actualizar cantidad en carrito y stock
   const handleActualizarCantidad = (idProducto, cantidadNueva) => {
     setProductos((prev) => {
       const nuevos = prev.map((p) => {
@@ -84,17 +90,37 @@ function Layout() {
             Math.min(cantidadNueva, p.stock + p.cantidad)
           );
           const stockFinal = p.stock + p.cantidad - cantidadFinal;
+
           localStorage.setItem(`stock_${p.id}`, stockFinal);
-          return { ...p, cantidad: cantidadFinal, stock: stockFinal };
+
+          return {
+            ...p,
+            cantidad: cantidadFinal,
+            stock: stockFinal,
+          };
         }
         return p;
       });
+
       localStorage.setItem(
         "carrito",
         JSON.stringify(nuevos.filter((p) => p.cantidad > 0))
       );
+
       return nuevos;
     });
+  };
+
+  // Vaciar carrito tras compra exitosa
+  const handleCompraExitosa = () => {
+    setProductos((prev) =>
+      prev.map((p) => ({
+        ...p,
+        cantidad: 0,
+        stock: Number(localStorage.getItem(`stock_${p.id}`)) || p.stock,
+      }))
+    );
+    localStorage.removeItem("carrito");
   };
 
   // Títulos dinámicos
@@ -167,7 +193,7 @@ function Layout() {
     }
   }, [location.pathname]);
 
-  const hideNavbarRoutes = ["/auth", "/homeadmin"];
+  const hideNavbarRoutes = ["/auth", "/productosadmin", "/nuevoproducto", "/usuariosadmin", "/nuevousuario", "/homeadmin","/perfiladmin", "/categoria_admin", "/editaruser", "/editarproducto",];
   const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
   const shouldShowBotonWsp = !hideNavbarRoutes.includes(location.pathname);
 
@@ -219,7 +245,7 @@ function Layout() {
             />
           }
         />
-        <Route path="/auth" element={<Auth />} />
+        <Route path="/auth" element={<Auth onUsuarioChange={setUsuario} />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/eventos" element={<Eventos />} />
@@ -257,6 +283,7 @@ function Layout() {
             <Checkout
               carrito={productos.filter((p) => p.cantidad > 0)}
               onActualizarCantidad={handleActualizarCantidad}
+              onCompraExitosa={handleCompraExitosa}
             />
           }
         />

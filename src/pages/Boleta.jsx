@@ -6,56 +6,85 @@ function Boleta() {
 
   if (!ultimaBoleta) {
     return (
-      <div className="container py-5">
-        <h2>Boleta</h2>
-        <p>No hay una compra reciente.</p>
-        <button className="btn btn-primary" onClick={() => navigate("/")}>Ir al inicio</button>
+      <div className="py-5 text-center" style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff" }}>
+        <h2 className="mb-4">Boleta</h2>
+        <p className="text-muted">No hay una compra reciente.</p>
+        <button className="btn btn-primary" onClick={() => navigate("/")}>
+          Ir al inicio
+        </button>
       </div>
     );
   }
 
+  const IVA = 0.19;
+  const totalConIVA = Math.round(ultimaBoleta.totalPrecio * (1 + IVA));
+
   return (
-    <div className="container py-5">
-      <div className="card shadow-sm p-4">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h3 className="mb-0">Boleta - LevelUp</h3>
-            <small className="text-muted">Fecha: {new Date(ultimaBoleta.fecha).toLocaleString()}</small>
-          </div>
-          <div className="text-end">
-            <strong>Transacción</strong>
-            <div className="small text-muted">{ultimaBoleta.idTransaccionPayPal}</div>
-          </div>
-        </div>
-
-        <div>
-          {ultimaBoleta.items.map(item => (
-            <div key={item.id} className="d-flex align-items-center py-2 border-bottom">
-              <img src={item.imagen} alt={item.nombre} style={{ width: 70, height: 70, objectFit: "contain", marginRight: 15 }} />
-              <div className="flex-grow-1">
-                <div className="fw-bold">{item.nombre}</div>
-                <div className="text-muted">Cantidad: {item.cantidad} × ${item.precioUnitario.toLocaleString()}</div>
+    <div style={{ backgroundColor: "#121212", minHeight: "100vh", padding: "50px 0", fontFamily: "Arial, sans-serif" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto", color: "#fff" }}>
+        {/* Card principal */}
+        <div style={{ borderRadius: 10, overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>
+          {/* Header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 20, backgroundColor: "#1e1e1e" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <img src="/logo.png" alt="LevelUp" style={{ width: 100, height: 50, objectFit: "contain" }} />
+              <div>
+                <h3 style={{ margin: 0 }}>LevelUp Store</h3>
+                <small style={{ color: "#aaa" }}>Fecha: {new Date(ultimaBoleta.fecha).toLocaleString()}</small>
               </div>
-              <div className="fw-bold">${item.subtotal.toLocaleString()}</div>
             </div>
-          ))}
-        </div>
+            <div style={{ textAlign: "right" }}>
+              <strong>ID Transacción</strong>
+              <div style={{ color: "#aaa" }}>{ultimaBoleta.idTransaccionPayPal || ultimaBoleta.idTransaccion}</div>
+              {ultimaBoleta.estado && (
+                <div style={{ marginTop: 5, fontWeight: "bold", color: ultimaBoleta.estado === "EXITOSA" ? "#4CAF50" : "#F44336" }}>
+                  {ultimaBoleta.estado}
+                </div>
+              )}
+            </div>
+          </div>
 
-        <div className="mt-3 d-flex justify-content-end">
-          <div style={{ width: 300 }}>
-            <div className="d-flex justify-content-between">
-              <span>Productos</span><strong>{ultimaBoleta.totalProductos}</strong>
-            </div>
-            <div className="d-flex justify-content-between">
-              <span>Total</span><strong>${ultimaBoleta.totalPrecio.toLocaleString()}</strong>
-            </div>
+          {/* Productos */}
+          <div style={{ backgroundColor: "#2a2a2a", padding: 20 }}>
+            {ultimaBoleta.items.map(item => (
+              <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #444" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 15 }}>
+                  <img
+                    src={item.imagen.startsWith("/") ? item.imagen : `/${item.imagen}`}
+                    alt={item.nombre}
+                    style={{ width: 70, height: 70, objectFit: "contain", borderRadius: 5 }}
+                  />
+                  <div>
+                    <div style={{ fontWeight: 600 }}>{item.nombre}</div>
+                    <div style={{ fontSize: "0.9rem", color: "#ccc" }}>
+                      {item.cantidad} × ${item.precioUnitario.toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ fontWeight: 600 }}>${item.subtotal.toLocaleString()}</div>
+              </div>
+            ))}
+          </div>
 
-            <button
-              className="btn btn-success w-100 mt-3"
-              onClick={() => {
-                navigate("/");
-              }}
-            >
+          {/* Resumen */}
+          <div style={{ backgroundColor: "#1e1e1e", padding: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+              <span>Subtotal:</span>
+              <strong>${ultimaBoleta.totalPrecio.toLocaleString()}</strong>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+              <span>IVA (19%):</span>
+              <strong>${Math.round(ultimaBoleta.totalPrecio * IVA).toLocaleString()}</strong>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, paddingTop: 10, borderTop: "1px solid #444", fontSize: "1.1rem" }}>
+              <span>Total:</span>
+              <strong>${totalConIVA.toLocaleString()}</strong>
+            </div>
+          </div>
+
+          {/* Botón */}
+          <div style={{ padding: 20, textAlign: "center", backgroundColor: "#1e1e1e" }}>
+            <button className="btn btn-success w-50" onClick={() => navigate("/")}>
               Finalizar
             </button>
           </div>

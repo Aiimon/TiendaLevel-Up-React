@@ -177,7 +177,7 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                 <i className="bi bi-caret-down-fill ms-1"></i>
               </button>
 
-              {usuarioOpen && !usuario && (
+              {usuarioOpen && (
                 <div
                   className="position-absolute bg-dark p-2 rounded shadow"
                   style={{
@@ -187,20 +187,44 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                     zIndex: 3000,
                   }}
                 >
-                  <Link
-                    to="/auth"
-                    className="dropdown-item text-white p-2 hover-neon"
-                    onClick={() => setUsuarioOpen(false)}
-                  >
-                    Iniciar sesión
-                  </Link>
-                  <Link
-                    to="/auth"
-                    className="dropdown-item text-white p-2 hover-neon"
-                    onClick={() => setUsuarioOpen(false)}
-                  >
-                    Registrarse
-                  </Link>
+                  {!usuario ? (
+                    <>
+                      <Link
+                        to="/auth"
+                        className="dropdown-item text-white p-2 hover-neon"
+                        onClick={() => setUsuarioOpen(false)}
+                      >
+                        Iniciar sesión
+                      </Link>
+                      <Link
+                        to="/auth"
+                        className="dropdown-item text-white p-2 hover-neon"
+                        onClick={() => setUsuarioOpen(false)}
+                      >
+                        Registrarse
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/perfil"
+                        className="dropdown-item text-white p-2 hover-neon"
+                        onClick={() => setUsuarioOpen(false)}
+                      >
+                        Perfil
+                      </Link>
+                      <button
+                        className="dropdown-item text-white p-2 hover-neon w-100 text-start"
+                        onClick={() => {
+                          localStorage.removeItem("usuario");
+                          localStorage.removeItem("carrito");
+                          window.location.href = "/";
+                        }}
+                      >
+                        Cerrar sesión
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>

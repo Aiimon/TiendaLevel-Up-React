@@ -49,10 +49,7 @@ function Auth() {
       {/* Modal Registro */}
       {showRegister && (
         <>
-          {/* Backdrop */}
           <div className="modal-backdrop fade show"></div>
-
-          {/* Modal */}
           <div className="modal d-block" tabIndex="-1" role="dialog">
             <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
               <div className="modal-content dark-card">
@@ -67,7 +64,10 @@ function Auth() {
                   ></button>
                 </div>
                 <div className="modal-body">
-                  <RegistroForm onClose={() => setShowRegister(false)} />
+                  <RegistroForm
+                    onClose={() => setShowRegister(false)}
+                    onUsuarioChange={() => window.dispatchEvent(new Event("usuarioCambiado"))} // 🔔 Notifica a Layout
+                  />
                 </div>
               </div>
             </div>
@@ -78,10 +78,7 @@ function Auth() {
       {/* Modal Login */}
       {showLogin && (
         <>
-          {/* Backdrop */}
           <div className="modal-backdrop fade show"></div>
-
-          {/* Modal */}
           <div className="modal d-block" tabIndex="-1">
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content dark-card">
@@ -96,7 +93,10 @@ function Auth() {
                   ></button>
                 </div>
                 <div className="modal-body">
-                  <LoginForm onClose={() => setShowLogin(false)} />
+                  <LoginForm
+                    onClose={() => setShowLogin(false)}
+                    onUsuarioChange={() => window.dispatchEvent(new Event("usuarioCambiado"))} // 🔔 Notifica a Layout
+                  />
                 </div>
               </div>
             </div>

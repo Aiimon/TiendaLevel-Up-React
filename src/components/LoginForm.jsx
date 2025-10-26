@@ -5,7 +5,7 @@ import usuariosData from "../data/usuarios.json"; // <-- importar JSON
 
 const claveSecreta = "miClaveFijaParaAES";
 
-export default function LoginForm() {
+export default function LoginForm({ onClose, onUsuarioChange }) { // 🔹 agregamos prop onUsuarioChange
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errores, setErrores] = useState({});
@@ -53,7 +53,7 @@ export default function LoginForm() {
     e.preventDefault();
 
     if (!email || !password || errores.email || errores.password) {
-      mostrarAlerta("danger", "Por favor corrige los errores antes de continuar.");
+      mostrarAlerta("danger", "Por favor, ingresa un correo valido.");
       return;
     }
 
@@ -82,7 +82,13 @@ export default function LoginForm() {
 
       mostrarAlerta("success", `Bienvenido, ${usuario.nombre}`);
 
-      setTimeout(() => navigate("/"), 1000);
+      // 🔹 Notificar a Layout que el usuario cambió
+      if (onUsuarioChange) onUsuarioChange();
+
+      setTimeout(() => {
+        onClose(); // cerrar modal
+        navigate("/"); // ir a inicio
+      }, 1000);
 
     } catch {
       mostrarAlerta("danger", "Correo o contraseña incorrectos.");

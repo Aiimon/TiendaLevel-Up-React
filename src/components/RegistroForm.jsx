@@ -4,7 +4,7 @@ import regionesData from "../data/regiones.json";
 
 const claveSecreta = "miClaveFijaParaAES";
 
-export default function RegistroForm({ onClose }) {
+export default function RegistroForm({ onClose, onUsuarioChange }) {
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [rut, setRut] = useState("");
@@ -28,7 +28,6 @@ export default function RegistroForm({ onClose }) {
     }
   }, [region]);
 
-  // --- Validaciones individuales ---
   const validarCampo = {
     nombre: val => val.trim() !== "" || "Debes ingresar tu nombre",
     apellido: val => val.trim() !== "" || "Debes ingresar tu apellido",
@@ -46,7 +45,7 @@ export default function RegistroForm({ onClose }) {
     },
     region: val => val !== "" || "Debes seleccionar una región",
     comuna: val => val !== "" || "Debes seleccionar una comuna",
-    telefono: val => val.trim() !== "" || "Debes ingresar tu teléfono",
+    telefono: val => val.length >= 9  || "El numero telefonico debe tener 9 digitos"
   };
 
   // --- Validación en tiempo real ---
@@ -54,7 +53,6 @@ export default function RegistroForm({ onClose }) {
     const valid = validarCampo[campo](valor);
     setErrores(prev => ({ ...prev, [campo]: valid === true ? "" : valid }));
 
-    // Actualizar estado
     switch(campo){
       case "nombre": setNombre(valor); break;
       case "apellido": setApellido(valor); break;
@@ -97,9 +95,25 @@ export default function RegistroForm({ onClose }) {
     const rutEncriptado = CryptoJS.AES.encrypt(rut, claveSecreta).toString();
     const passwordEncriptada = CryptoJS.AES.encrypt(password, claveSecreta).toString();
 
-    const nuevoUsuario = { nombre, apellido, rut: rutEncriptado, email, password: passwordEncriptada, fecha, region, comuna, telefono, esDuoc: email.endsWith("@duoc.cl"), rol: "usuario" };
+    const nuevoUsuario = { 
+      nombre, 
+      apellido, 
+      rut: rutEncriptado, 
+      email, 
+      password: passwordEncriptada, 
+      fecha, 
+      region, 
+      comuna, 
+      telefono, 
+      esDuoc: email.endsWith("@duoc.cl"), 
+      rol: "usuario" 
+    };
     usuarios.push(nuevoUsuario);
     localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+    // 🔹 Guardar usuario en sesión y notificar a Layout
+    localStorage.setItem("usuario", JSON.stringify(nuevoUsuario));
+    if (onUsuarioChange) onUsuarioChange();
 
     alert("Registro exitoso!");
     // reset

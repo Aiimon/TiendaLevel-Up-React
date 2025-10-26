@@ -15,7 +15,7 @@ function CarritoSidebar({ abierto, cerrar, carrito = [], onActualizarCantidad })
 
   return (
     <>
-      {/* Overlay para cerrar al hacer click afuera */}
+      {/* Overlay */}
       <div
         className="carrito-overlay"
         style={{
@@ -47,7 +47,7 @@ function CarritoSidebar({ abierto, cerrar, carrito = [], onActualizarCantidad })
           transition: "transform 0.3s ease",
           transform: abierto ? "translateX(0)" : "translateX(100%)"
         }}
-        onClick={e => e.stopPropagation()} // evita cerrar al click dentro
+        onClick={e => e.stopPropagation()}
       >
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h5>Carrito</h5>
@@ -82,7 +82,6 @@ function CarritoSidebar({ abierto, cerrar, carrito = [], onActualizarCantidad })
                       <button
                         className="btn btn-sm btn-outline-light"
                         onClick={() => onActualizarCantidad(p.id, p.cantidad - 1)}
-                        disabled={p.cantidad <= 1}
                       >
                         -
                       </button>
