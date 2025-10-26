@@ -24,6 +24,9 @@ npm install react react-dom
 npm install leaflet
 npm install @fontsource/roboto @fontsource/orbitron
 npm install --save-dev vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom
+npm install @paypal/react-paypal-js
+npm install crypto-js
+
 
 
 */

@@ -2,30 +2,18 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import productosD from "../data/productos.json";
 
-import Wooting60HE from "../assets/img/Wooting60HE.png";
-import AuricularesHyperXCloudII from "../assets/img/AuricularesHyperXCloudII.png";
-import MouseLogitech from "../assets/img/MouseLogitech.png";
-import Catan from "../assets/img/catanJuegoMesa.png";
-import Carcassonne from "../assets/img/carcassonneJuegoMesa.png";
-import AccesorioMandoXbox from "../assets/img/accesorioMandoXbox.png";
-import PlayStation5 from "../assets/img/playStation5.png";
-import PcAsusROG from "../assets/img/PcAsusROG.png";
-import SillaSecretlab from "../assets/img/sillaSecretlab.png";
-import MousepadRazer from "../assets/img/MousepadRazer.png";
-import PoleraLevelUP from "../assets/img/PoleraLevelUP.png";
-
 const imagenesMap = {
-  "Wooting60HE.png": Wooting60HE,
-  "AuricularesHyperXCloudII.png": AuricularesHyperXCloudII,
-  "MouseLogitech.png": MouseLogitech,
-  "catanJuegoMesa.png": Catan,
-  "carcassonneJuegoMesa.png": Carcassonne,
-  "accesorioMandoXbox.png": AccesorioMandoXbox,
-  "playStation5.png": PlayStation5,
-  "PcAsusROG.png": PcAsusROG,
-  "sillaSecretlab.png": SillaSecretlab,
-  "MousepadRazer.png": MousepadRazer,
-  "PoleraLevelUP.png": PoleraLevelUP,
+  "Wooting60HE.png": "/img/Wooting60HE.png",
+  "AuricularesHyperXCloudII.png": "/img/AuricularesHyperXCloudII.png",
+  "MouseLogitech.png": "/img/MouseLogitech.png",
+  "catanJuegoMesa.png": "/img/catanJuegoMesa.png",
+  "carcassonneJuegoMesa.png": "/img/carcassonneJuegoMesa.png",
+  "accesorioMandoXbox.png": "/img/accesorioMandoXbox.png",
+  "playStation5.png": "/img/playStation5.png",
+  "PcAsusROG.png": "/img/PcAsusROG.png",
+  "sillaSecretlab.png": "/img/sillaSecretlab.png",
+  "MousepadRazer.png": "/img/MousepadRazer.png",
+  "PoleraLevelUP.png": "/img/PoleraLevelUP.png",
 };
 
 function Navbar({ cantidad, abrirCarrito, usuario }) {
