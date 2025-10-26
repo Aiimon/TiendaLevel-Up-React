@@ -3,40 +3,56 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SidebarAdmin from "../components/SidebarAdmin"; 
-import Footer from "../components/Footer"; 
+import Footer from '../components/Footer';
 import productosD from "../data/productos.json"; 
 
-// --- Configuración de Estilos y Lógica ---
+// --- Configuración Global ---
 const STOCK_CRITICO = 5; 
-const GREEN_LIGHT = '#39FF14'; // Color para el efecto neon
+const GREEN_LIGHT = '#39FF14'; 
 const hoverStyle = { transition: 'box-shadow 0.3s ease-in-out' };
+const LOCAL_STORAGE_KEY = 'productos_maestro';
+
+// Función para obtener todos los productos (JSON inicial + localStorage)
+const getAllProducts = () => {
+    // Aquí solo leemos el array consolidado
+    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || productosD.productos || [];
+};
 
 // --- Componente de Contenido (Tabla de Productos) ---
 const ProductContent = () => {
     
-    const productosArray = productosD.productos;
+    // Lee los productos combinados del almacenamiento
+    const initialProducts = getAllProducts(); 
+    
+    // Estados para el filtrado y el hover
+    const [productosArray, setProductosArray] = useState(initialProducts);
     const [filter, setFilter] = useState('todos'); 
     const [isNewButtonHovered, setIsNewButtonHovered] = useState(false); 
 
     // 1. Lógica de Filtrado
     const filteredProducts = productosArray.filter(producto => {
+        const productStockCritico = producto.stockCritico || STOCK_CRITICO;
+        
         if (filter === 'critico') {
-            return producto.stock <= STOCK_CRITICO;
+            return producto.stock <= productStockCritico;
         }
-        return true; 
+        return true; // 'todos'
     });
 
     // Funciones de acción de ejemplo (simuladas)
     const handleDelete = (id) => {
         if (window.confirm(`¿Estás seguro de que quieres eliminar el producto ID: ${id}?`)) {
             console.log(`Producto ID ${id} eliminado (simulado).`);
-            // Lógica real de eliminación aquí
+            
+            const updatedProducts = productosArray.filter(p => p.id !== id);
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedProducts));
+            
+            setProductosArray(updatedProducts);
         }
     };
 
     const handleViewReports = (id) => {
         console.log(`Navegando a reportes del producto ID ${id} (simulado).`);
-        // Lógica real de navegación a reportes aquí
     };
 
 
@@ -95,7 +111,7 @@ const ProductContent = () => {
                             <th scope="col">Nombre</th>
                             <th scope="col">Categoría</th>
                             <th scope="col">Precio</th>
-                            <th scope="col">Rating</th>
+                            <th scope="col">Rating</th> 
                             <th scope="col">Stock</th>
                             <th scope="col">Estado</th>
                             <th scope="col" style={{ width: '200px' }}>Acciones</th>
@@ -104,21 +120,26 @@ const ProductContent = () => {
 
                     <tbody>
                         {filteredProducts.map((producto) => {
-                            const isCritico = producto.stock <= STOCK_CRITICO;
+                            const productStockCritico = producto.stockCritico || STOCK_CRITICO;
+                            const isCritico = producto.stock <= productStockCritico;
+                            const ratingValue = producto.rating || 0; 
                             
                             return (
                                 <tr key={producto.id}>
                                     <th scope="row">{producto.id}</th>
                                     <td>{producto.nombre}</td>
                                     <td>{producto.categoria}</td>
-                                    <td>${producto.precio.toLocaleString('es-CL')}</td>
-                                    <td>{producto.rating} <i className="fas fa-star text-warning"></i></td>
+                                    <td>${(producto.precio || 0).toLocaleString('es-CL')}</td>
+                                    <td>
+                                        {ratingValue.toFixed(1)} <i className="fas fa-star text-warning"></i> 
+                                    </td>
                                     <td>{producto.stock}</td>
                                     
+                                    {/* Columna de Estado (Stock Crítico) */}
                                     <td>
                                         <span 
                                             className={`badge ${isCritico ? 'bg-danger' : 'bg-success'}`}
-                                            title={`Umbral: ${STOCK_CRITICO}`}
+                                            title={`Umbral: ${productStockCritico}`}
                                         >
                                             {isCritico ? 'CRÍTICO' : 'Normal'}
                                         </span>
@@ -159,11 +180,13 @@ const ProductContent = () => {
                     </tbody>
                 </table>
                 {filteredProducts.length === 0 && (
-                    <p className="text-center text-muted p-3">No hay productos que coincidan con el filtro seleccionado.</p>
+                    <p className="text-center text-muted p-3">
+                        No hay productos que coincidan con el filtro seleccionado.
+                    </p>
                 )}
             </div>
             
-            
+          
         </div>
     );
 }

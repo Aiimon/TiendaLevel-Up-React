@@ -16,6 +16,9 @@ import Soporte from "./pages/Soporte";
 import Detalles from "./pages/Detalles";
 import Homeadmin from "./pages/Homeadmin";
 import Productosadmin from "./pages/Productosadmin";
+import NuevoProducto from "./pages/NuevoProducto";
+import Usuariosadmin from "./pages/Usuariosadmin";
+import NuevoUsuario from "./pages/NuevoUsuario";
 import Checkout from "./pages/Checkout";
 import Carro from "./pages/Carro";
 import Boleta from "./pages/Boleta";
@@ -125,6 +128,15 @@ function Layout() {
         case "/productosadmin":
           document.title = "Level-Up · Productos";
           break;
+        case "/nuevoproducto":
+          document.title = "Level-Up · Nuevo Producto";
+          break;
+        case "/usuariosadmin":
+          document.title = "Level-Up · Usuarios";
+          break;
+        case "/nuevousuario":
+          document.title = "Level-Up · Nuevo Usuario";
+          break;
         case "/checkout":
           document.title = "Level-Up · Checkout";
           break;
@@ -198,6 +210,9 @@ function Layout() {
         <Route path="/eventos" element={<Eventos />} />
         <Route path="/homeadmin" element={<Homeadmin />} />
         <Route path="/productosadmin" element={<Productosadmin />} />
+        <Route path="/nuevoproducto" element={<NuevoProducto />} />
+        <Route path="/usuariosadmin" element={<Usuariosadmin />} />
+        <Route path="/nuevousuario" element={<NuevoUsuario />} />
         <Route
           path="/detalles/:id"
           element={

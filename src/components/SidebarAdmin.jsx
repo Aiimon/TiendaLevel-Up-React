@@ -103,10 +103,10 @@ export const Sidebar = () => {
                     <i className="fas fa-user-circle me-3"></i>
                     Ver Perfil
                 </Link>
-                <button /* ... estilos y hover ... */ className="btn w-100 mb-2 text-start text-white" style={{ backgroundColor: '#000000', border: 'none', ...hoverStyle, boxShadow: hoveredNav === 'tienda' ? `0 0 10px ${GREEN_LIGHT}` : 'none' }} onMouseEnter={() => setHoveredNav('tienda')} onMouseLeave={() => setHoveredNav(null)}>
-                    <i className="fas fa-store me-3"></i>
+                <Link to="/categoria" /* ... estilos y hover ... */ className="btn w-100 mb-2 text-start text-white text-decoration-none" style={{ backgroundColor: '#000000', border: 'none', ...hoverStyle, boxShadow: hoveredNav === 'tienda' ? `0 0 10px ${GREEN_LIGHT}` : 'none' }} onMouseEnter={() => setHoveredNav('tienda')} onMouseLeave={() => setHoveredNav(null)}>
+                    <i className="fas fa-user-circle me-3"></i>
                     Tienda
-                </button>
+                </Link>
                 <button /* ... estilos y hover ... */ className="btn w-100 text-start text-white" style={{ backgroundColor: '#dc3545', border: 'none', ...hoverStyle, boxShadow: hoveredNav === 'logout' ? `0 0 10px ${BLUE_LIGHT}` : 'none' }} onMouseEnter={() => setHoveredNav('logout')} onMouseLeave={() => setHoveredNav(null)}>
                     <i className="fas fa-sign-out-alt me-3"></i>
                     Cerrar Sesión
