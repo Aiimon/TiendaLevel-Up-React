@@ -11,7 +11,7 @@ function CarritoSidebar({ abierto, cerrar, carrito = [], onActualizarCantidad })
     return acc + p.cantidad * precioFinal;
   }, 0);
 
-  if (!abierto) return null; // no renderiza si no está abierto
+  if (!abierto) return null;
 
   return (
     <>
@@ -65,11 +65,14 @@ function CarritoSidebar({ abierto, cerrar, carrito = [], onActualizarCantidad })
                 ? Math.round(p.precio * (1 - p.descuento / 100))
                 : p.precio;
               const stockMax = p.stock + p.cantidad;
+              const srcImagen = p.imagen.startsWith("/")
+                ? p.imagen
+                : `/${p.imagen}`;
 
               return (
                 <div key={p.id} className="d-flex align-items-center justify-content-between mb-3">
                   <img
-                    src={p.imagen}
+                    src={srcImagen}
                     alt={p.nombre}
                     style={{ width: 50, height: 50, objectFit: "contain", marginRight: 10 }}
                   />

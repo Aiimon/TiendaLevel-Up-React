@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import Footer from "../components/Footer";
 
 function Checkout({ carrito, onActualizarCantidad }) {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ function Checkout({ carrito, onActualizarCantidad }) {
   }, 0);
 
   return (
+    <>
     <div className="container py-5">
       <h2 className="mb-4 text-center">Checkout</h2>
 
@@ -213,6 +215,8 @@ function Checkout({ carrito, onActualizarCantidad }) {
         </div>
       )}
     </div>
+    <Footer />
+    </>
   );
 }
 

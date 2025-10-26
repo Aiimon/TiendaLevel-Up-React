@@ -4,7 +4,6 @@ import Footer from "../components/Footer";
 function Carro({ carrito, usuario }) {
   const navigate = useNavigate();
 
-  // Totales con descuentos
   const totalProductos = carrito.reduce((acc, p) => acc + p.cantidad, 0);
   const totalPrecio = carrito.reduce((acc, p) => {
     const precioFinal = p.descuento
@@ -16,13 +15,12 @@ function Carro({ carrito, usuario }) {
   return (
     <>
       <div className="container py-4">
-        <h2 className="mb-4">Resumen de tu carrito</h2>
+        <h2 className="mb-4 text-center">Resumen de tu carrito</h2>
 
         {carrito.length === 0 ? (
           <p className="text-center text-muted">Tu carrito está vacío</p>
         ) : (
           <>
-            {/* Lista de productos */}
             <div className="row g-3 mb-4">
               {carrito.map((p) => {
                 const precioFinal = p.descuento
@@ -30,37 +28,60 @@ function Carro({ carrito, usuario }) {
                   : p.precio;
 
                 return (
-                  <div key={p.id} className="col-12 d-flex align-items-center border rounded p-2">
+                  <div
+                    key={p.id}
+                    className="col-12 d-flex align-items-center border rounded p-3 shadow-sm bg-dark text-light"
+                    style={{ transition: "all 0.2s", cursor: "pointer" }}
+                  >
                     <img
                       src={p.imagen}
                       alt={p.nombre}
-                      style={{ width: 70, height: 70, objectFit: "contain", marginRight: 10 }}
+                      style={{
+                        width: 80,
+                        height: 80,
+                        objectFit: "contain",
+                        marginRight: 15,
+                        borderRadius: "8px",
+                        backgroundColor: "#222",
+                        padding: "5px",
+                      }}
                     />
                     <div className="flex-grow-1">
-                      <strong>{p.nombre}</strong>
-                      {p.descuento > 0 && (
-                        <div className="text-success">
-                          Precio con descuento: ${precioFinal.toLocaleString()}
-                        </div>
-                      )}
-                      <small>Cantidad: {p.cantidad}</small>
+                      <strong className="d-block mb-1">{p.nombre}</strong>
+
+                      {/* Precio con descuento o normal */}
+                      <div className="mb-1 d-flex align-items-center gap-2">
+                        {p.descuento > 0 && (
+                          <>
+                            <small className="text-decoration-line-through text-muted">
+                              ${p.precio.toLocaleString()}
+                            </small>
+                            <span className="text-success fw-bold">
+                              ${precioFinal.toLocaleString()}
+                            </span>
+                            <span className="badge bg-danger">{p.descuento}% OFF</span>
+                          </>
+                        )}
+                        {p.descuento === 0 && (
+                          <span className="fw-bold">${precioFinal.toLocaleString()}</span>
+                        )}
+                      </div>
+
+                      <span className="badge bg-primary rounded-pill">x{p.cantidad}</span>
                     </div>
-                    <span className="ms-3 fw-bold">${(precioFinal * p.cantidad).toLocaleString()}</span>
+                    <span className="fw-bold ms-3">${(precioFinal * p.cantidad).toLocaleString()}</span>
                   </div>
                 );
               })}
             </div>
 
-            {/* Totales */}
-            <hr />
-            <div className="mb-4">
+            <div className="border-top pt-3 mb-4">
               <p>Total productos: <strong>{totalProductos}</strong></p>
               <p>Total precio: <strong>${totalPrecio.toLocaleString()}</strong></p>
             </div>
 
-            {/* Datos personales */}
             {usuario && (
-              <div className="mb-4 p-3 border rounded">
+              <div className="mb-4 p-3 border rounded bg-dark text-light">
                 <h4>Datos personales</h4>
                 <p><strong>Nombre:</strong> {usuario.nombre}</p>
                 <p><strong>Email:</strong> {usuario.email}</p>
@@ -69,9 +90,8 @@ function Carro({ carrito, usuario }) {
               </div>
             )}
 
-            {/* Botón para ir a Checkout */}
             <button
-              className="btn btn-primary w-100 mb-3"
+              className="btn btn-success w-100 btn-lg"
               onClick={() => navigate("/checkout")}
             >
               Continuar a Checkout
