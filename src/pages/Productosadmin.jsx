@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import SidebarAdmin from "../components/SidebarAdmin"; 
 import Footer from '../components/Footer';
 import productosD from "../data/productos.json"; 
+import Notiadmn from '../components/Notiadmn';
 
 // --- Configuración Global ---
 const STOCK_CRITICO = 5; 
@@ -67,7 +68,7 @@ const ProductContent = () => {
                 
                 {/* Botón Nuevo Producto (con efecto neon verde) */}
                 <Link 
-                    to="/productosadmin/nuevo"
+                    to="/nuevoproducto"
                     className="btn btn-lg text-white d-flex align-items-center fw-bold"
                     style={{
                         backgroundColor: '#28a745', 
@@ -197,6 +198,7 @@ function Productosadmin() {
         <>
             <SidebarAdmin>
                 <ProductContent />
+                <Notiadmn />
             </SidebarAdmin>
             <Footer />
         </>

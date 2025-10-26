@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import SidebarAdmin from "../components/SidebarAdmin"; 
 import TablaUsuarios from "../components/TablaUsuarios"; // <-- IMPORTACIÓN CLAVE
 import Footer from '../components/Footer';
+import Notiadmn from '../components/Notiadmn';
 
 // --- Configuración de Estilos ---
 const GREEN_LIGHT = '#39FF14'; 
@@ -51,6 +52,7 @@ function Usuariosadmin() {
         <>
             <SidebarAdmin>
             <UserContent />
+            <Notiadmn />
             </SidebarAdmin>
             <Footer />
         </>

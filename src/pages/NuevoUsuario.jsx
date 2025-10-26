@@ -4,7 +4,7 @@ import React from 'react';
 import SidebarAdmin from "../components/SidebarAdmin"; 
 import Footer from "../components/Footer";
 import { Link } from 'react-router-dom';
-// Importamos el componente de formulario que contiene la lógica
+import Notiadmn from '../components/Notiadmn';
 import FormularioUsuarioNV from "../components/FormularioUsuarioNV"; 
 
 
@@ -33,6 +33,7 @@ function NuevoUsuario() {
         // Usamos SidebarAdmin como Layout
         <SidebarAdmin>
             <UserContent />
+            <Notiadmn />
         </SidebarAdmin>
     );
 }

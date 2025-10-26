@@ -4,6 +4,7 @@ import React from 'react';
 import SidebarAdmin from "../components/SidebarAdmin"; 
 import DashboardContent from "../components/DashboardContent"; 
 import Footer from "../components/Footer";
+import Notiadmn from '../components/Notiadmn';
 
 function Homeadmin() {
     return (
@@ -11,6 +12,7 @@ function Homeadmin() {
         <>
             <SidebarAdmin>
                 <DashboardContent />
+                <Notiadmn />
             </SidebarAdmin>
             <Footer />
         </>

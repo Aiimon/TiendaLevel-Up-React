@@ -2,8 +2,8 @@ import React from 'react';
 import SidebarAdmin from "../components/SidebarAdmin"; 
 import Footer from "../components/Footer";
 import { Link } from 'react-router-dom';
-// Importamos el nuevo componente de formulario
-import FormularioProductoNV from "../components/formularioproductonv"; 
+import FormularioProductoNV from "../components/FormularioProductoNV"; 
+import Notiadmn from '../components/Notiadmn';
 
 
 function NuevoProducto() {
@@ -30,6 +30,7 @@ function NuevoProducto() {
         <>
             <SidebarAdmin>
                 <ProductContent />
+                <Notiadmn />
             </SidebarAdmin>
          <Footer />
         </>

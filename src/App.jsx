@@ -23,6 +23,7 @@ import Checkout from "./pages/Checkout";
 import Carro from "./pages/Carro";
 import Boleta from "./pages/Boleta";
 import productosD from "./data/productos.json";
+import Perfiladmin from "./pages/Perfiladmin";
 
 function Layout() {
   const location = useLocation();
@@ -146,6 +147,9 @@ function Layout() {
         case "/boleta":
           document.title = "Level-Up · Boleta";
           break;
+        case "/perfiladmin":
+          document.title = "Level-Up · Perfil";
+          break;
         default:
           document.title = "Level-Up";
       }
@@ -213,6 +217,7 @@ function Layout() {
         <Route path="/nuevoproducto" element={<NuevoProducto />} />
         <Route path="/usuariosadmin" element={<Usuariosadmin />} />
         <Route path="/nuevousuario" element={<NuevoUsuario />} />
+        <Route path="/perfiladmin" element={<Perfiladmin />} />
         <Route
           path="/detalles/:id"
           element={
