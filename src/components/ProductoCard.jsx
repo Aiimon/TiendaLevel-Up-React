@@ -1,10 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function ProductoCard({
-  producto,
-  usuario = {}, // Valor por defecto para evitar null
-  onAgregarCarrito
-}) {
+export default function ProductoCard({ producto, usuario = {}, onAgregarCarrito }) {
   const { id, nombre, categoria, precio, stock, rating, imagen, descuento = 0 } = producto;
 
   // Protección si usuario es null
@@ -17,9 +13,9 @@ export default function ProductoCard({
   }
   const precioFinal = esDuoc ? Math.round(precioConDescuento * 0.8) : precioConDescuento;
 
-  // Ruta de la imagen en public
+  // Obtenemos la imagen desde public/
   const nombreArchivo = imagen.split("/").pop();
-  const imgSrc = `/img/${nombreArchivo}`; // ahora desde public
+  const imgSrc = `/${nombreArchivo}`; // busca directamente en public/
 
   return (
     <div className="card h-100 shadow-sm d-flex flex-column position-relative">

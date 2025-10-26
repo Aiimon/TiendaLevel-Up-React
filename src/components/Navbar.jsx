@@ -2,20 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import productosD from "../data/productos.json";
 
-const imagenesMap = {
-  "Wooting60HE.png": "/img/Wooting60HE.png",
-  "AuricularesHyperXCloudII.png": "/img/AuricularesHyperXCloudII.png",
-  "MouseLogitech.png": "/img/MouseLogitech.png",
-  "catanJuegoMesa.png": "/img/catanJuegoMesa.png",
-  "carcassonneJuegoMesa.png": "/img/carcassonneJuegoMesa.png",
-  "accesorioMandoXbox.png": "/img/accesorioMandoXbox.png",
-  "playStation5.png": "/img/playStation5.png",
-  "PcAsusROG.png": "/img/PcAsusROG.png",
-  "sillaSecretlab.png": "/img/sillaSecretlab.png",
-  "MousepadRazer.png": "/img/MousepadRazer.png",
-  "PoleraLevelUP.png": "/img/PoleraLevelUP.png",
-};
-
 function Navbar({ cantidad, abrirCarrito, usuario }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [productosOpen, setProductosOpen] = useState(false);
@@ -30,13 +16,16 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
 
   const categorias = productosD.categorias || [];
 
+  // Mapear cada categoría a la imagen del primer producto
   const imagenesCategoria = {};
-  categorias.forEach(cat => {
-    const prod = productosD.productos.find(p => p.categoria === cat);
-    imagenesCategoria[cat] = prod ? imagenesMap[prod.imagen.split("/").pop()] : null;
+  categorias.forEach((cat) => {
+    const prod = productosD.productos.find((p) => p.categoria === cat);
+    imagenesCategoria[cat] = prod
+      ? `/${prod.imagen.split("/").pop()}` // Ruta desde public
+      : "/default.png"; // fallback opcional
   });
 
-  // Cerrar dropdown de categoría si se hace click fuera
+  // Cerrar dropdowns si se hace click fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -48,9 +37,7 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -76,6 +63,7 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
 
         <div className={`collapse navbar-collapse ${menuOpen ? "show" : ""}`} id="nav">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            {/* Dropdown de categorías */}
             <li className="nav-item position-relative" ref={dropdownRef}>
               <button
                 className="nav-link btn btn-link text-decoration-none"
@@ -96,7 +84,7 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                     gap: "10px",
                     minWidth: "320px",
                     zIndex: 2000,
-                    animation: "fadeInSlide 0.25s ease forwards"
+                    animation: "fadeInSlide 0.25s ease forwards",
                   }}
                 >
                   <Link
@@ -124,7 +112,7 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                             height: "60px",
                             objectFit: "contain",
                             marginBottom: "5px",
-                            borderRadius: "8px"
+                            borderRadius: "8px",
                           }}
                         />
                       )}
@@ -134,31 +122,37 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                 </div>
               )}
             </li>
-              <li className="nav-item">
+
+            <li className="nav-item">
               <Link className="nav-link neon-link" to="/ofertas">
                 🔥 Ofertas
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/blog">Blog</Link>
+              <Link className="nav-link" to="/blog">
+                Blog
+              </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/eventos">Eventos</Link>
+              <Link className="nav-link" to="/eventos">
+                Eventos
+              </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/soporte">Soporte</Link>
+              <Link className="nav-link" to="/soporte">
+                Soporte
+              </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/nosotros">Nosotros</Link>
+              <Link className="nav-link" to="/nosotros">
+                Nosotros
+              </Link>
             </li>
           </ul>
 
+          {/* Carrito y usuario */}
           <div className="d-flex gap-2 align-items-center position-relative">
-            {/* Carrito */}
-            <button
-              className="btn btn-accent position-relative"
-              onClick={abrirCarrito}
-            >
+            <button className="btn btn-accent position-relative" onClick={abrirCarrito}>
               <i className="bi bi-cart3"></i>
               {cantidad > 0 && (
                 <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
@@ -167,7 +161,6 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
               )}
             </button>
 
-            {/* Usuario */}
             <div className="position-relative" ref={usuarioRef}>
               <button
                 className="btn text-white"
@@ -177,7 +170,7 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                   background: "transparent",
                   padding: "4px 10px",
                   borderRadius: "6px",
-                  fontFamily: "'Roboto', system-ui, -apple-system, Segoe UI, sans-serif"
+                  fontFamily: "'Roboto', system-ui, -apple-system, Segoe UI, sans-serif",
                 }}
               >
                 {usuario ? usuario : "Invitado"}
@@ -191,7 +184,7 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                     top: "110%",
                     right: 0,
                     minWidth: "150px",
-                    zIndex: 3000
+                    zIndex: 3000,
                   }}
                 >
                   <Link

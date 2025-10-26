@@ -13,13 +13,12 @@ export default function Detalles({ productos, usuario, onAgregarCarrito }) {
     { nombre: "Juan", texto: "Excelente producto", rating: 5, fecha: new Date() }
   ]);
 
-  // Inicializamos el stock desde localStorage
+  // Stock inicial desde localStorage
   const [stock, setStock] = useState(() => {
     const stockLS = localStorage.getItem(`stock_${producto?.id}`);
     return stockLS !== null ? Number(stockLS) : producto?.stock || 0;
   });
 
-  // Cada vez que cambia el producto, actualizar el stock desde localStorage
   useEffect(() => {
     if (producto) {
       const stockLS = localStorage.getItem(`stock_${producto.id}`);
@@ -29,20 +28,17 @@ export default function Detalles({ productos, usuario, onAgregarCarrito }) {
 
   if (!producto) return <p>Producto no encontrado</p>;
 
-  // Calcular descuento
-  const descuento = producto.descuento || 0;
-  const tieneDescuento = descuento > 0 || (usuario && usuario.esDuoc);
-
+  // Precio final considerando descuento y DUOC
   let precioFinal = producto.precio;
+  const descuento = producto.descuento || 0;
+  const tieneDescuento = descuento > 0 || usuario?.esDuoc;
+
   if (descuento > 0) precioFinal = Math.round(precioFinal * (1 - descuento / 100));
   if (usuario?.esDuoc) precioFinal = Math.round(precioFinal * 0.8);
 
-  // Manejar agregar al carrito y actualizar stock localStorage
   const handleAgregar = () => {
     if (stock <= 0) return;
-
     onAgregarCarrito(producto.id, 1);
-
     setStock(prev => {
       const nuevoStock = Math.max(prev - 1, 0);
       localStorage.setItem(`stock_${producto.id}`, nuevoStock);
@@ -54,10 +50,9 @@ export default function Detalles({ productos, usuario, onAgregarCarrito }) {
     setResenias(prev => [...prev, { ...resenia, fecha: new Date() }]);
   };
 
-  // Importar imágenes dinámicamente
-  const imagenes = import.meta.glob('../assets/img/*', { eager: true, as: 'url' });
+  // Imagen desde public/
   const nombreArchivo = producto.imagen.split("/").pop();
-  const srcImg = imagenes[`../assets/img/${nombreArchivo}`];
+  const srcImg = `/${nombreArchivo}`; // solo public/
 
   return (
     <>
@@ -87,11 +82,7 @@ export default function Detalles({ productos, usuario, onAgregarCarrito }) {
               <span className={tieneDescuento ? "text-danger" : "text-success"}>
                 ${precioFinal.toLocaleString()}
               </span>
-              {descuento > 0 && (
-                <span className="badge bg-success ms-2">
-                  -{descuento}%
-                </span>
-              )}
+              {descuento > 0 && <span className="badge bg-success ms-2">-{descuento}%</span>}
             </p>
 
             <p className={stock > 0 ? "text-success" : "text-danger"}>

@@ -4,10 +4,11 @@ import Carrito from "../components/Carrito";
 import Footer from "../components/Footer";
 import productosD from "../data/productos.json";
 
+// Map de imágenes desde public/
 const imagenesMap = {
-  "Wooting60HE.png": "/img/Wooting60HE.png",
-  "AuricularesHyperXCloudII.png": "/img/AuricularesHyperXCloudII.png",
-  "MouseLogitech.png": "/img/MouseLogitech.png",
+  "Wooting60HE.png": "/Wooting60HE.png",
+  "AuricularesHyperXCloudII.png": "/AuricularesHyperXCloudII.png",
+  "MouseLogitech.png": "/MouseLogitech.png",
 };
 
 const descripciones = {
@@ -18,6 +19,8 @@ const descripciones = {
 
 function Home({ carritoOpen, setCarritoOpen, cantidad, setCantidad }) {
   const productos = productosD.productos;
+
+  // Filtramos los destacados según la imagen
   const productosDestacados = productos.filter((producto) =>
     ["Wooting60HE.png", "AuricularesHyperXCloudII.png", "MouseLogitech.png"].includes(
       producto.imagen.split("/").pop()
@@ -39,10 +42,10 @@ function Home({ carritoOpen, setCarritoOpen, cantidad, setCantidad }) {
       />
 
       <Card
-      productosDestacados={productosDestacados}
-      imagenesMap={imagenesMap}
-      setCantidad={setCantidad}
-      descripciones={descripciones}
+        productosDestacados={productosDestacados}
+        imagenesMap={imagenesMap}
+        descripciones={descripciones}
+        setCantidad={setCantidad}
       />
 
       <Carrito
