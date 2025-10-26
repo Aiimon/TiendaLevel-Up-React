@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SidebarAdmin from "../components/SidebarAdmin"; 
-import Footer from "../components/Footer"; 
+import Footer from '../components/Footer';
 import productosD from "../data/productos.json"; 
 
 // --- Configuración Global ---
@@ -14,8 +14,7 @@ const LOCAL_STORAGE_KEY = 'productos_maestro';
 
 // Función para obtener todos los productos (JSON inicial + localStorage)
 const getAllProducts = () => {
-    // La inicialización del localStorage se hace en formularioproductonv.jsx.
-    // Aquí solo leemos el array consolidado.
+    // Aquí solo leemos el array consolidado
     return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || productosD.productos || [];
 };
 
@@ -32,7 +31,6 @@ const ProductContent = () => {
 
     // 1. Lógica de Filtrado
     const filteredProducts = productosArray.filter(producto => {
-        // Obtenemos el stock crítico del producto, usando 5 como fallback si no está definido
         const productStockCritico = producto.stockCritico || STOCK_CRITICO;
         
         if (filter === 'critico') {
@@ -46,18 +44,15 @@ const ProductContent = () => {
         if (window.confirm(`¿Estás seguro de que quieres eliminar el producto ID: ${id}?`)) {
             console.log(`Producto ID ${id} eliminado (simulado).`);
             
-            // Lógica de eliminación en localStorage (simulado)
             const updatedProducts = productosArray.filter(p => p.id !== id);
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedProducts));
             
-            // Actualizar el estado local para reflejar el cambio en la tabla
             setProductosArray(updatedProducts);
         }
     };
 
     const handleViewReports = (id) => {
         console.log(`Navegando a reportes del producto ID ${id} (simulado).`);
-        // Aquí iría la lógica real de navegación a reportes
     };
 
 
@@ -72,7 +67,7 @@ const ProductContent = () => {
                 
                 {/* Botón Nuevo Producto (con efecto neon verde) */}
                 <Link 
-                    to="/nuevoproducto"
+                    to="/productosadmin/nuevo"
                     className="btn btn-lg text-white d-flex align-items-center fw-bold"
                     style={{
                         backgroundColor: '#28a745', 
@@ -116,6 +111,7 @@ const ProductContent = () => {
                             <th scope="col">Nombre</th>
                             <th scope="col">Categoría</th>
                             <th scope="col">Precio</th>
+                            <th scope="col">Rating</th> 
                             <th scope="col">Stock</th>
                             <th scope="col">Estado</th>
                             <th scope="col" style={{ width: '200px' }}>Acciones</th>
@@ -126,6 +122,7 @@ const ProductContent = () => {
                         {filteredProducts.map((producto) => {
                             const productStockCritico = producto.stockCritico || STOCK_CRITICO;
                             const isCritico = producto.stock <= productStockCritico;
+                            const ratingValue = producto.rating || 0; 
                             
                             return (
                                 <tr key={producto.id}>
@@ -133,6 +130,9 @@ const ProductContent = () => {
                                     <td>{producto.nombre}</td>
                                     <td>{producto.categoria}</td>
                                     <td>${(producto.precio || 0).toLocaleString('es-CL')}</td>
+                                    <td>
+                                        {ratingValue.toFixed(1)} <i className="fas fa-star text-warning"></i> 
+                                    </td>
                                     <td>{producto.stock}</td>
                                     
                                     {/* Columna de Estado (Stock Crítico) */}
@@ -186,7 +186,7 @@ const ProductContent = () => {
                 )}
             </div>
             
-            
+          
         </div>
     );
 }
@@ -200,6 +200,7 @@ function Productosadmin() {
             </SidebarAdmin>
             <Footer />
         </>
+        
     );
 }
 
