@@ -1,10 +1,16 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 function Checkout({ carrito, onActualizarCantidad }) {
   const navigate = useNavigate();
 
+  // Obtener stock actual de localStorage o fallback al stock del producto
+  const obtenerStock = (id, stockOriginal) => {
+    const almacen = localStorage.getItem(`stock_${id}`);
+    return almacen !== null ? Number(almacen) : stockOriginal;
+  };
+
+  // Total productos y precio calculado dinámicamente
   const totalProductos = carrito.reduce((acc, p) => acc + p.cantidad, 0);
   const totalPrecio = carrito.reduce((acc, p) => {
     const precioFinal = p.descuento
@@ -27,6 +33,7 @@ function Checkout({ carrito, onActualizarCantidad }) {
               const precioFinal = p.descuento
                 ? Math.round(p.precio * (1 - p.descuento / 100))
                 : p.precio;
+              const stockActual = obtenerStock(p.id, p.stock);
 
               return (
                 <div
@@ -64,9 +71,12 @@ function Checkout({ carrito, onActualizarCantidad }) {
                       <button
                         className="btn btn-sm btn-outline-secondary"
                         onClick={() =>
-                          onActualizarCantidad(p.id, p.cantidad + 1)
+                          onActualizarCantidad(
+                            p.id,
+                            Math.min(p.cantidad + 1, stockActual)
+                          )
                         }
-                        disabled={p.cantidad >= p.stock + p.cantidad}
+                        disabled={p.cantidad >= stockActual}
                       >
                         +
                       </button>
@@ -77,6 +87,9 @@ function Checkout({ carrito, onActualizarCantidad }) {
                         🗑
                       </button>
                     </div>
+                    <small className="text-muted">
+                      Stock disponible: {stockActual}
+                    </small>
                   </div>
                   <div className="fw-bold">
                     ${ (precioFinal * p.cantidad).toLocaleString() }
@@ -90,8 +103,12 @@ function Checkout({ carrito, onActualizarCantidad }) {
           <div className="col-lg-4">
             <div className="card shadow-sm p-3">
               <h4 className="mb-3">Resumen del pedido</h4>
-              <p>Total productos: <strong>{totalProductos}</strong></p>
-              <p>Total a pagar: <strong>${totalPrecio.toLocaleString()}</strong></p>
+              <p>
+                Total productos: <strong>{totalProductos}</strong>
+              </p>
+              <p>
+                Total a pagar: <strong>${totalPrecio.toLocaleString()}</strong>
+              </p>
 
               <PayPalScriptProvider
                 options={{
@@ -119,11 +136,68 @@ function Checkout({ carrito, onActualizarCantidad }) {
                     });
                   }}
                   onApprove={async (data, actions) => {
-                    const order = await actions.order.capture();
-                    alert(
-                      "Pago simulado exitoso! ID de transacción: " + order.id
-                    );
-                    navigate("/");
+                    try {
+                      const order = await actions.order.capture();
+
+                      // Construir boleta
+                      const fecha = new Date().toISOString();
+                      const items = carrito.map((p) => {
+                        const precioFinal = p.descuento
+                          ? Math.round(p.precio * (1 - p.descuento / 100))
+                          : p.precio;
+                        const stockActual = obtenerStock(p.id, p.stock);
+
+                        // Reducir stock en localStorage
+                        localStorage.setItem(
+                          `stock_${p.id}`,
+                          Math.max(stockActual - p.cantidad, 0)
+                        );
+
+                        return {
+                          id: p.id,
+                          nombre: p.nombre,
+                          cantidad: p.cantidad,
+                          precioUnitario: precioFinal,
+                          subtotal: precioFinal * p.cantidad,
+                          imagen: p.imagen,
+                        };
+                      });
+
+                      const totalProductos = items.reduce(
+                        (acc, it) => acc + it.cantidad,
+                        0
+                      );
+                      const totalPrecio = items.reduce(
+                        (acc, it) => acc + it.subtotal,
+                        0
+                      );
+
+                      const boleta = {
+                        idTransaccionPayPal: order.id || data.orderID,
+                        fecha,
+                        items,
+                        totalProductos,
+                        totalPrecio,
+                        payer: order.payer || null,
+                      };
+
+                      // Guardar boleta
+                      localStorage.setItem(
+                        "ultimaBoleta",
+                        JSON.stringify(boleta)
+                      );
+
+                      // Vaciar carrito
+                      localStorage.removeItem("carrito");
+
+                      // Navegar a boleta
+                      navigate("/boleta");
+                    } catch (err) {
+                      console.error("Error capturando orden:", err);
+                      alert(
+                        "Hubo un error al finalizar el pago. Revisa la consola."
+                      );
+                    }
                   }}
                 />
               </PayPalScriptProvider>
