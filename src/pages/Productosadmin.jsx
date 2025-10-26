@@ -67,7 +67,7 @@ const ProductContent = () => {
                 
                 {/* Botón Nuevo Producto */}
                 <Link 
-                    to="/productosadmin/nuevo"
+                    to="/nuevoproducto"
                     className="btn btn-lg text-white d-flex align-items-center fw-bold"
                     style={{
                         backgroundColor: '#28a745', 
