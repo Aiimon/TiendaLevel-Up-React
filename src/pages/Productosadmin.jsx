@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SidebarAdmin from "../components/SidebarAdmin"; 
-// ELIMINAMOS la importación de Footer de aquí
 import productosD from "../data/productos.json"; 
 import Notiadmn from '../components/Notiadmn';
 
@@ -15,7 +14,7 @@ const LOCAL_STORAGE_KEY = 'productos_maestro';
 
 // Función para obtener todos los productos (JSON inicial + localStorage)
 const getAllProducts = () => {
-    // Aquí solo leemos el array consolidado
+    // Lectura robusta del array consolidado
     return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || productosD.productos || [];
 };
 
@@ -66,7 +65,7 @@ const ProductContent = () => {
             {/* BARRA DE ACCIONES SUPERIOR (Nuevo Producto y Filtro) */}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 
-                {/* Botón Nuevo Producto (Ruta corregida a /productosadmin/nuevo) */}
+                {/* Botón Nuevo Producto */}
                 <Link 
                     to="/productosadmin/nuevo"
                     className="btn btn-lg text-white d-flex align-items-center fw-bold"
@@ -148,9 +147,9 @@ const ProductContent = () => {
                                     
                                     {/* Columna de Acciones con íconos característicos */}
                                     <td>
-                                        {/* 1. Editar (Ruta dinámica a /productosadmin/editar/:id) */}
+                                        {/* 1. Editar (RUTA CORREGIDA) */}
                                         <Link 
-                                            to={`/editarproducto/${producto.id}`} 
+                                            to={`/editarproducto/${producto.id}`} // <-- RUTA CORREGIDA a EditarProducto.jsx
                                             className="btn btn-sm btn-primary me-1"
                                             title="Editar Producto"
                                         >
@@ -194,15 +193,11 @@ const ProductContent = () => {
 
 function Productosadmin() {
     return (
-       
-        <>
-         <SidebarAdmin>
+        // Se envuelve el contenido y la notificación dentro del SidebarAdmin
+        <SidebarAdmin>
             <ProductContent />
             <Notiadmn />
         </SidebarAdmin>
-        <Footer />
-        </>
-       
     );
 }
 
