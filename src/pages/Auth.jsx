@@ -11,7 +11,7 @@ function Auth() {
     <section className="banner-auth">
       <div className="banner-left d-flex flex-column justify-content-center align-items-center text-center">
         <img
-          src="/img/logo.png"
+          src="/logo.png"
           alt="Logo Level-Up Gamer"
           className="mb-4"
           style={{ maxWidth: "500px" }}
