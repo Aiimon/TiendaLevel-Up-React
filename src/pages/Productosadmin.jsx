@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SidebarAdmin from "../components/SidebarAdmin"; 
-import Footer from '../components/Footer';
+// ELIMINAMOS la importación de Footer de aquí
 import productosD from "../data/productos.json"; 
 import Notiadmn from '../components/Notiadmn';
 
@@ -66,9 +66,9 @@ const ProductContent = () => {
             {/* BARRA DE ACCIONES SUPERIOR (Nuevo Producto y Filtro) */}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 
-                {/* Botón Nuevo Producto (con efecto neon verde) */}
+                {/* Botón Nuevo Producto (Ruta corregida a /productosadmin/nuevo) */}
                 <Link 
-                    to="/nuevoproducto"
+                    to="/productosadmin/nuevo"
                     className="btn btn-lg text-white d-flex align-items-center fw-bold"
                     style={{
                         backgroundColor: '#28a745', 
@@ -148,9 +148,9 @@ const ProductContent = () => {
                                     
                                     {/* Columna de Acciones con íconos característicos */}
                                     <td>
-                                        {/* 1. Editar (Lápiz) */}
+                                        {/* 1. Editar (Ruta dinámica a /productosadmin/editar/:id) */}
                                         <Link 
-                                            to={`/productosadmin/editar/${producto.id}`} 
+                                            to={`/editarproducto/${producto.id}`} 
                                             className="btn btn-sm btn-primary me-1"
                                             title="Editar Producto"
                                         >
@@ -187,7 +187,6 @@ const ProductContent = () => {
                 )}
             </div>
             
-          
         </div>
     );
 }
@@ -195,14 +194,15 @@ const ProductContent = () => {
 
 function Productosadmin() {
     return (
+       
         <>
-            <SidebarAdmin>
-                <ProductContent />
-                <Notiadmn />
-            </SidebarAdmin>
-            <Footer />
+         <SidebarAdmin>
+            <ProductContent />
+            <Notiadmn />
+        </SidebarAdmin>
+        <Footer />
         </>
-        
+       
     );
 }
 

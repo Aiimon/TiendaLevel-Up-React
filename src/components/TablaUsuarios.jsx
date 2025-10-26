@@ -1,8 +1,8 @@
 // src/components/TablaUsuarios.jsx
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import usuariosD from "../data/usuarios.json"; // <-- JSON IMPORTADO
+import { Link } from 'react-router-dom'; // Aseguramos que Link esté importado
+import usuariosD from "../data/usuarios.json"; 
 import Historial from './Historial'; 
 
 // Clave para manejar los usuarios persistentes en localStorage
@@ -10,7 +10,7 @@ const LOCAL_STORAGE_KEY_USERS = 'usuarios_maestro';
 
 // Función para obtener todos los usuarios (JSON inicial + localStorage)
 const getAllUsers = () => {
-    // 1. OBTENER LA LISTA DEL JSON INICIAL: Ahora accedemos a 'usuariosD' directamente, asumiendo que es el array.
+    // 1. OBTENER LA LISTA DEL JSON INICIAL
     const initialUsers = Array.isArray(usuariosD) ? usuariosD : [];
     
     // 2. Obtener la lista guardada en localStorage
@@ -35,7 +35,6 @@ const getAllUsers = () => {
 
 function TablaUsuarios() {
     
-    // El estado usa la lista maestra cargada con el JSON inicial
     const [usersArray, setUsersArray] = useState(getAllUsers());
     const [selectedUser, setSelectedUser] = useState(null); 
     
@@ -52,9 +51,8 @@ function TablaUsuarios() {
         }
     };
 
-    const handleEdit = (id) => {
-        console.log(`Navegando a edición del usuario ID ${id} (simulado).`);
-    };
+    // Eliminamos handleEdit ya que ahora usaremos Link directamente
+    // const handleEdit = (id) => { console.log(`Navegando a edición del usuario ID ${id} (simulado).`); };
 
     const handleViewHistory = (user) => {
         setSelectedUser(user);
@@ -99,7 +97,6 @@ function TablaUsuarios() {
 
                     <tbody>
                         {usersArray.map((user) => (
-                            // La clave de React DEBE ser user.id
                             <tr key={user.id}> 
                                 <th scope="row">{user.id}</th>
                                 <td>{user.nombre} {user.apellido}</td>
@@ -118,14 +115,14 @@ function TablaUsuarios() {
                                 
                                 {/* Columna de Acciones */}
                                 <td>
-                                    {/* 1. Editar */}
-                                    <button 
-                                        onClick={() => handleEdit(user.id)} 
+                                    {/* 1. Editar (Usando Link a EditarUser.jsx con el ID) */}
+                                    <Link 
+                                        to={`/editaruser/${user.id}`} // RUTA A LA PÁGINA DE EDICIÓN
                                         className="btn btn-sm btn-primary me-1"
                                         title="Editar Usuario"
                                     >
                                         <i className="fas fa-edit"></i>
-                                    </button>
+                                    </Link>
                                     
                                     {/* 2. Ver Historial de Compras */}
                                     <button 
@@ -155,6 +152,7 @@ function TablaUsuarios() {
                     </p>
                 )}
             </div>
+            
          
         </div>
     );

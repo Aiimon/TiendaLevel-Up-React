@@ -25,6 +25,8 @@ import Boleta from "./pages/Boleta";
 import productosD from "./data/productos.json";
 import Perfiladmin from "./pages/Perfiladmin";
 import Categoriaadmin from "./pages/Categoria_admin";
+import EditarUser from "./pages/Editaruser";
+import EditarProducto from './pages/EditarProducto';
 
 function Layout() {
   const location = useLocation();
@@ -154,6 +156,12 @@ function Layout() {
         case "/categoria_admin":
           document.title = "Level-Up · Admin de Categorías";
           break;
+        case "/editaruser":
+          document.title = "Level-Up · Editar Usuario";
+          break;
+        case "/editarproducto":
+          document.title = "Level-Up · Editar Producto";
+          break;
         default:
           document.title = "Level-Up";
       }
@@ -223,6 +231,8 @@ function Layout() {
         <Route path="/nuevousuario" element={<NuevoUsuario />} />
         <Route path="/perfiladmin" element={<Perfiladmin />} />
         <Route path="/categoria_admin" element={<Categoriaadmin />} />
+        <Route path="/editaruser/:id" element={<EditarUser />} />
+        <Route path="/editarproducto/:id" element={<EditarProducto />} />
         <Route
           path="/detalles/:id"
           element={
