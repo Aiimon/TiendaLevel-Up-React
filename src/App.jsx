@@ -1,85 +1,129 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import './App.css'
-import './index.css'
+import "./App.css";
+import "./index.css";
 import Navbar from "./components/Navbar";
 import CarritoSidebar from "./components/CarritoSidebar";
 import BotonWsp from "./components/BotonWsp";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Categoria from "./pages/Categoria";
+import Ofertas from "./pages/Ofertas";
 import Nosotros from "./pages/Nosotros";
 import Blog from "./pages/Blog";
 import Eventos from "./pages/Eventos";
 import Soporte from "./pages/Soporte";
 import Detalles from "./pages/Detalles";
-import HomeAdmin from "./pages/Homeadmin";
-import productosD from "./data/productos.json";
+import Homeadmin from "./pages/Homeadmin";
 import Productosadmin from "./pages/Productosadmin";
 import NuevoProducto from "./pages/NuevoProducto";
 import Usuariosadmin from "./pages/Usuariosadmin";
 import NuevoUsuario from "./pages/NuevoUsuario";
+import Checkout from "./pages/Checkout";
+import Carro from "./pages/Carro";
+import Boleta from "./pages/Boleta";
+import productosD from "./data/productos.json";
 
 function Layout() {
   const location = useLocation();
 
   const [carritoOpen, setCarritoOpen] = useState(false);
-  const [cantidad, setCantidad] = useState(0);
   const [productos, setProductos] = useState([]);
   const [usuario, setUsuario] = useState(null);
 
+  // Cargar usuario desde localStorage
   useEffect(() => {
     const usuarioLS = JSON.parse(localStorage.getItem("usuario"));
     if (usuarioLS) setUsuario(usuarioLS);
   }, []);
 
-  // Inicializar productos con stock desde localStorage
+  // Inicializar productos y carrito
   useEffect(() => {
-    const iniciales = productosD.productos.map(p => ({
-      ...p,
-      stock: Number(localStorage.getItem(`stock_${p.id}`)) || p.stock
-    }));
+    const carritoLS = JSON.parse(localStorage.getItem("carrito")) || [];
+    const iniciales = productosD.productos.map((p) => {
+      const itemCarrito = carritoLS.find((c) => c.id === p.id);
+      const cantidad = itemCarrito ? itemCarrito.cantidad : 0;
+      const stockLS = Number(localStorage.getItem(`stock_${p.id}`)) || p.stock;
+      return { ...p, stock: stockLS, cantidad };
+    });
     setProductos(iniciales);
   }, []);
 
-  // Función para agregar al carrito
-  const handleAgregarCarrito = (idProducto, cant) => {
-    setCantidad(prev => prev + cant);
-    // actualizar el stock 
-    setProductos(prev =>
-      prev.map(p =>
-        p.id === idProducto ? { ...p, stock: p.stock - cant } : p
-      )
-    );
+  const handleAgregarCarrito = (idProducto, cant = 1) => {
+    setProductos((prev) => {
+      const nuevos = prev.map((p) => {
+        if (p.id === idProducto && p.stock >= cant) {
+          const nuevoStock = p.stock - cant;
+          localStorage.setItem(`stock_${p.id}`, nuevoStock);
+          return {
+            ...p,
+            cantidad: (p.cantidad || 0) + cant,
+            stock: nuevoStock,
+          };
+        }
+        return p;
+      });
+      localStorage.setItem(
+        "carrito",
+        JSON.stringify(nuevos.filter((p) => p.cantidad > 0))
+      );
+      return nuevos;
+    });
+    // No abrir automáticamente el carrito
   };
 
+  const handleActualizarCantidad = (idProducto, cantidadNueva) => {
+    setProductos((prev) => {
+      const nuevos = prev.map((p) => {
+        if (p.id === idProducto) {
+          const cantidadFinal = Math.max(
+            0,
+            Math.min(cantidadNueva, p.stock + p.cantidad)
+          );
+          const stockFinal = p.stock + p.cantidad - cantidadFinal;
+          localStorage.setItem(`stock_${p.id}`, stockFinal);
+          return { ...p, cantidad: cantidadFinal, stock: stockFinal };
+        }
+        return p;
+      });
+      localStorage.setItem(
+        "carrito",
+        JSON.stringify(nuevos.filter((p) => p.cantidad > 0))
+      );
+      return nuevos;
+    });
+  };
 
+  // Títulos dinámicos
   useEffect(() => {
     if (!location.pathname.startsWith("/detalles/")) {
       switch (location.pathname) {
-        case "/": 
+        case "/":
           document.title = "Level-Up · Inicio";
           break;
-        case "/categoria": 
-          document.title = "Level-Up · Categoria"; 
+        case "/categoria":
+          document.title = "Level-Up · Categoria";
           break;
-        case "/auth": 
-          document.title = "Level-Up · Acceso"; 
+        case "/ofertas":
+          document.title = "Level-Up · Ofertas";
           break;
-        case "/Homeadmin": 
-          document.title = "Level-Up · Admin"; 
+        case "/auth":
+          document.title = "Level-Up · Acceso";
           break;
-        case "/nosotros": 
-          document.title = "Level-Up · Nosotros"; 
+        case "/homeadmin":
+          document.title = "Level-Up · Admin";
           break;
-        case "/blog": 
-          document.title = "Level-Up · Blog"; 
+        case "/nosotros":
+          document.title = "Level-Up · Nosotros";
           break;
-        case "/eventos": 
-          document.title = "Level-Up · Eventos"; 
+        case "/blog":
+          document.title = "Level-Up · Blog";
           break;
-        case "/soporte": 
-          document.title = "Level-Up · Soporte"; 
+        case "/eventos":
+          document.title = "Level-Up · Eventos";
+          break;
+        case "/soporte":
+          document.title = "Level-Up · Soporte";
           break;
         case "/productosadmin":
           document.title = "Level-Up · Productos";
@@ -93,7 +137,16 @@ function Layout() {
         case "/nuevousuario":
           document.title = "Level-Up · Nuevo Usuario";
           break;
-        default: 
+        case "/checkout":
+          document.title = "Level-Up · Checkout";
+          break;
+        case "/carro":
+          document.title = "Level-Up · Carro";
+          break;
+        case "/boleta":
+          document.title = "Level-Up · Boleta";
+          break;
+        default:
           document.title = "Level-Up";
       }
     }
@@ -106,13 +159,18 @@ function Layout() {
   return (
     <>
       {shouldShowNavbar && (
-  <Navbar cantidad={cantidad} abrirCarrito={() => setCarritoOpen(true)} />
+        <Navbar
+          cantidad={productos.reduce((acc, p) => acc + (p.cantidad || 0), 0)}
+          abrirCarrito={() => setCarritoOpen(true)}
+          usuario={usuario?.nombre || usuario}
+        />
       )}
 
       <CarritoSidebar
         abierto={carritoOpen}
         cerrar={() => setCarritoOpen(false)}
-        cantidad={cantidad}
+        carrito={productos.filter((p) => p.cantidad > 0)}
+        onActualizarCantidad={handleActualizarCantidad}
       />
 
       <Routes>
@@ -120,21 +178,37 @@ function Layout() {
           path="/"
           element={
             <Home
-              setCantidad={setCantidad}
-              cantidad={cantidad}
-              carritoOpen={carritoOpen}
-              setCarritoOpen={setCarritoOpen}
+              productos={productos}
+              usuario={usuario}
+              onAgregarCarrito={handleAgregarCarrito}
             />
           }
         />
-        
-        <Route path="/categoria" element={<Categoria productos={productos} />} />
+        <Route
+          path="/categoria"
+          element={
+            <Categoria
+              productos={productos}
+              usuario={usuario}
+              onAgregarCarrito={handleAgregarCarrito}
+            />
+          }
+        />
+        <Route
+          path="/ofertas"
+          element={
+            <Ofertas
+              productos={productos}
+              usuario={usuario}
+              onAgregarCarrito={handleAgregarCarrito}
+            />
+          }
+        />
         <Route path="/auth" element={<Auth />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/eventos" element={<Eventos />} />
-        <Route path="/soporte" element={<Soporte />} />
-        <Route path="/homeadmin" element={<HomeAdmin />} />
+        <Route path="/homeadmin" element={<Homeadmin />} />
         <Route path="/productosadmin" element={<Productosadmin />} />
         <Route path="/nuevoproducto" element={<NuevoProducto />} />
         <Route path="/usuariosadmin" element={<Usuariosadmin />} />
@@ -149,8 +223,29 @@ function Layout() {
             />
           }
         />
+        <Route
+          path="/carro"
+          element={
+            <Carro
+              carrito={productos.filter((p) => p.cantidad > 0)}
+              onActualizarCantidad={handleActualizarCantidad}
+            />
+          }
+        />
+        <Route
+          path="/checkout"
+          element={
+            <Checkout
+              carrito={productos.filter((p) => p.cantidad > 0)}
+              onActualizarCantidad={handleActualizarCantidad}
+            />
+          }
+        />
+        <Route path="/soporte" element={<Soporte usuario={usuario} />} />
+        <Route path="/boleta" element={<Boleta />} />
       </Routes>
-    {shouldShowBotonWsp && <BotonWsp />}
+
+      {shouldShowBotonWsp && <BotonWsp />}
     </>
   );
 }

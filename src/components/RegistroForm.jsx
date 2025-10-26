@@ -3,7 +3,7 @@ import CryptoJS from "crypto-js";
 
 const claveSecreta = "miClaveFijaParaAES";
 
-export default function RegistroForm({ cerrarModal }) {
+export default function RegistroForm({ onClose }) {
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [rut, setRut] = useState("");
@@ -12,86 +12,85 @@ export default function RegistroForm({ cerrarModal }) {
   const [fecha, setFecha] = useState("");
   const [region, setRegion] = useState("");
   const [comuna, setComuna] = useState("");
-  const [regiones, setRegiones] = useState([]);
-  const [comunas, setComunas] = useState([]);
-  const [mensaje, setMensaje] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [regionesData, setRegionesData] = useState([]);
 
   useEffect(() => {
-    fetch("/data/regiones.json")
+    fetch("../data/regiones.json")
       .then(res => res.json())
-      .then(data => setRegiones(data))
-      .catch(err => console.error(err));
+      .then(data => setRegionesData(data))
+      .catch(console.error);
   }, []);
-
-  useEffect(() => {
-    const regionObj = regiones.find(r => r.region === region);
-    setComunas(regionObj ? regionObj.comunas : []);
-    setComuna("");
-  }, [region, regiones]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validaciones
-    if (!/^[0-9]{8}[0-9Kk]$/.test(rut)) {
-      setMensaje("RUT inválido");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setMensaje("Email inválido");
-      return;
-    }
-    if (new Date().getFullYear() - new Date(fecha).getFullYear() < 18) {
-      setMensaje("Debes ser mayor de 18 años");
-      return;
-    }
+    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 
-    // Guardar usuario
-    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
     if (usuarios.some(u => u.email === email)) {
-      setMensaje("Correo ya registrado");
+      alert("Este correo ya está registrado.");
       return;
     }
 
-    const nuevoUsuario = {
-      nombre,
-      apellido,
-      rut: CryptoJS.AES.encrypt(rut, claveSecreta).toString(),
-      email,
-      password: CryptoJS.AES.encrypt(password, claveSecreta).toString(),
-      fecha,
-      region,
-      comuna,
-      rol: "usuario"
-    };
+    const rutEncriptado = CryptoJS.AES.encrypt(rut, claveSecreta).toString();
+    const passwordEncriptada = CryptoJS.AES.encrypt(password, claveSecreta).toString();
 
+    const nuevoUsuario = { nombre, apellido, rut: rutEncriptado, email, password: passwordEncriptada, fecha, region, comuna, telefono, rol: "usuario" };
     usuarios.push(nuevoUsuario);
     localStorage.setItem("usuarios", JSON.stringify(usuarios));
-    setMensaje("Registro exitoso");
-    cerrarModal();
+
+    alert("Registro exitoso");
+    onClose(); // Cierra el modal
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" value={nombre} onChange={e=>setNombre(e.target.value)} placeholder="Nombre" required/>
-      <input type="text" value={apellido} onChange={e=>setApellido(e.target.value)} placeholder="Apellido" required/>
-      <input type="text" value={rut} onChange={e=>setRut(e.target.value)} placeholder="RUT" required/>
-      <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Correo" required/>
-      <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Contraseña" required/>
-      <input type="date" value={fecha} onChange={e=>setFecha(e.target.value)} required/>
-
-      <select value={region} onChange={e=>setRegion(e.target.value)} required>
-        <option value="">Selecciona Región</option>
-        {regiones.map(r => <option key={r.region} value={r.region}>{r.region}</option>)}
-      </select>
-
-      <select value={comuna} onChange={e=>setComuna(e.target.value)} required>
-        <option value="">Selecciona Comuna</option>
-        {comunas.map(c => <option key={c} value={c}>{c}</option>)}
-      </select>
-
-      <button type="submit">Registrarme</button>
-      {mensaje && <p>{mensaje}</p>}
+    <form onSubmit={handleSubmit} className="row g-3 needs-validation">
+      <div className="col-md-6">
+        <label className="form-label">Nombre</label>
+        <input type="text" className="form-control dark-input" value={nombre} onChange={e => setNombre(e.target.value)} required />
+      </div>
+      <div className="col-md-6">
+        <label className="form-label">Apellido</label>
+        <input type="text" className="form-control dark-input" value={apellido} onChange={e => setApellido(e.target.value)} required />
+      </div>
+      <div className="col-md-6">
+        <label className="form-label">RUT</label>
+        <input type="text" className="form-control dark-input" value={rut} onChange={e => setRut(e.target.value)} required />
+      </div>
+      <div className="col-md-6">
+        <label className="form-label">Correo electrónico</label>
+        <input type="email" className="form-control dark-input" value={email} onChange={e => setEmail(e.target.value)} required />
+      </div>
+      {/* Región y Comuna */}
+      <div className="col-md-6">
+        <label className="form-label">Región</label>
+        <select className="form-select dark-input" value={region} onChange={e => setRegion(e.target.value)} required>
+          <option disabled value="">Selecciona Región</option>
+          {regionesData.map(r => <option key={r.region}>{r.region}</option>)}
+        </select>
+      </div>
+      <div className="col-md-6">
+        <label className="form-label">Comuna</label>
+        <select className="form-select dark-input" value={comuna} onChange={e => setComuna(e.target.value)} required>
+          <option disabled value="">Selecciona Comuna</option>
+          {region && regionesData.find(r => r.region === region)?.comunas.map(c => <option key={c}>{c}</option>)}
+        </select>
+      </div>
+      <div className="col-md-6">
+        <label className="form-label">Teléfono</label>
+        <input type="tel" className="form-control dark-input" value={telefono} onChange={e => setTelefono(e.target.value)} required />
+      </div>
+      <div className="col-md-6">
+        <label className="form-label">Contraseña</label>
+        <input type="password" className="form-control dark-input" value={password} onChange={e => setPassword(e.target.value)} required />
+      </div>
+      <div className="col-md-6">
+        <label className="form-label">Fecha de nacimiento</label>
+        <input type="date" className="form-control dark-input" value={fecha} onChange={e => setFecha(e.target.value)} required />
+      </div>
+      <div className="col-12">
+        <button type="submit" className="btn btn-accent w-100">Registrarme</button>
+      </div>
     </form>
   );
 }
