@@ -16,6 +16,9 @@ import Detalles from "./pages/Detalles";
 import HomeAdmin from "./pages/Homeadmin";
 import productosD from "./data/productos.json";
 import Productosadmin from "./pages/Productosadmin";
+import NuevoProducto from "./pages/NuevoProducto";
+import Usuariosadmin from "./pages/Usuariosadmin";
+import NuevoUsuario from "./pages/NuevoUsuario";
 
 function Layout() {
   const location = useLocation();
@@ -81,6 +84,15 @@ function Layout() {
         case "/productosadmin":
           document.title = "Level-Up · Productos";
           break;
+        case "/nuevoproducto":
+          document.title = "Level-Up · Nuevo Producto";
+          break;
+        case "/usuariosadmin":
+          document.title = "Level-Up · Usuarios";
+          break;
+        case "/nuevousuario":
+          document.title = "Level-Up · Nuevo Usuario";
+          break;
         default: 
           document.title = "Level-Up";
       }
@@ -124,6 +136,9 @@ function Layout() {
         <Route path="/soporte" element={<Soporte />} />
         <Route path="/homeadmin" element={<HomeAdmin />} />
         <Route path="/productosadmin" element={<Productosadmin />} />
+        <Route path="/nuevoproducto" element={<NuevoProducto />} />
+        <Route path="/usuariosadmin" element={<Usuariosadmin />} />
+        <Route path="/nuevousuario" element={<NuevoUsuario />} />
         <Route
           path="/detalles/:id"
           element={
