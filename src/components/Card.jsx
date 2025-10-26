@@ -1,6 +1,10 @@
-function Card({ productosDestacados, imagenesMap, setCantidad, descripciones }) {
-  const handleComprar = () => {
-    setCantidad(prev => prev + 1);
+import { useNavigate } from "react-router-dom";
+
+function Card({ productosDestacados, imagenesMap, descripciones }) {
+  const navigate = useNavigate();
+
+  const handleVerProducto = (id) => {
+    navigate(`/detalles/${id}`);
   };
 
   return (
@@ -33,16 +37,15 @@ function Card({ productosDestacados, imagenesMap, setCantidad, descripciones }) 
                   <div className="card-body">
                     <span className="badge badge-neon mb-2">{badge}</span>
                     <h5 className="card-title">{producto.nombre}</h5>
-                    {/* Aquí se toma la descripción personalizada si existe */}
                     <p className="card-text text-secondary">
                       {descripciones[producto.id] || producto.descripcion}
                     </p>
                     <button
-                      className="btn btn-accent w-100"
-                      onClick={handleComprar}
-                    >
-                      <i className="bi bi-cart3 me-1"></i> Agregar al carrito
-                    </button>
+                        className="btn btn-neon-accent w-100"
+                        onClick={() => handleVerProducto(producto.id)}
+                      >
+                        <i className="bi bi-eye me-1"></i> Ver producto
+                      </button>
                   </div>
                 </div>
               </div>
