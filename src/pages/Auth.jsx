@@ -1,7 +1,6 @@
 import { useState } from "react";
 import RegistroForm from "../components/RegistroForm";
 import LoginForm from "../components/LoginForm";
-import "../auth.css";
 
 function Auth() {
   const [showRegister, setShowRegister] = useState(false);
@@ -49,7 +48,11 @@ function Auth() {
 
       {/* Modal Registro */}
       {showRegister && (
-        <div className="modal-backdrop fade show">
+        <>
+          {/* Backdrop */}
+          <div className="modal-backdrop fade show"></div>
+
+          {/* Modal */}
           <div className="modal d-block" tabIndex="-1" role="dialog">
             <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
               <div className="modal-content dark-card">
@@ -69,12 +72,16 @@ function Auth() {
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Modal Login */}
       {showLogin && (
-        <div className="modal-backdrop fade show">
+        <>
+          {/* Backdrop */}
+          <div className="modal-backdrop fade show"></div>
+
+          {/* Modal */}
           <div className="modal d-block" tabIndex="-1">
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content dark-card">
@@ -94,7 +101,7 @@ function Auth() {
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </section>
   );

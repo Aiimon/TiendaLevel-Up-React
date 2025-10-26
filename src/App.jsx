@@ -1,7 +1,6 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./App.css";
-import "./index.css";
 import Navbar from "./components/Navbar";
 import CarritoSidebar from "./components/CarritoSidebar";
 import BotonWsp from "./components/BotonWsp";

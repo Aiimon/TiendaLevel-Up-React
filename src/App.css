@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap');
 
+/* =========================
+   Variables globales
+   ========================= */
 :root {
   --bg: #000000;
   --accent-blue: #1E90FF;
@@ -8,16 +11,118 @@
   --text-2: #D3D3D3;
 }
 
+/* =========================
+   Reset y fuente global
+   ========================= */
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
   background: var(--bg);
   color: var(--text);
+  font-family: 'Roboto', system-ui, -apple-system, Segoe UI, sans-serif !important;
 }
 
 body, html, #root, .card, .btn, .dropdown-item, h1, h2, h3, h4, h5, h6, p, span, a {
   font-family: 'Roboto', system-ui, -apple-system, Segoe UI, sans-serif !important;
+}
+
+/* =========================
+   Fuentes especiales
+   ========================= */
+.brand, .section-title {
+  font-family: 'Orbitron', 'Roboto', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.form-hint {
+  color: var(--accent-blue);
+  font-size: 0.85rem; 
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* =========================
+   Banner Auth
+   ========================= */
+.banner-auth {
+  display: flex;
+  min-height: 100vh;
+}
+
+.banner-left, .banner-right {
+  flex: 1;
+  padding: 2rem;
+}
+
+.banner-left {
+  background: radial-gradient(circle at top left, var(--accent-blue), transparent 70%),
+              linear-gradient(#050505, #000);
+  font-size: 1.3rem;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.banner-left img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 1.5rem;
+}
+
+.banner-left h1 {
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.duoc-msg {
+  display: inline-block;
+  margin-top: 1rem;
+  font-weight: 600;
+  color: var(--accent-blue);
+}
+
+.banner-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* =========================
+   Auth Box
+   ========================= */
+.auth-box {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  border-radius: 1rem;
+}
+
+/* =========================
+   Botones
+   ========================= */
+.btn-accent {
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+  border: none;
+  color: #000;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.btn-accent:hover {
+  filter: brightness(1.1);
+}
+
+.btn-outline-light {
+  color: #fff;
+  border-color: rgba(255,255,255,0.3);
+}
+
+.btn-outline-light:hover {
+  background-color: rgba(255,255,255,0.1);
+  color: #fff;
 }
 
 .btn-neon-accent {
@@ -34,54 +139,6 @@ body, html, #root, .card, .btn, .dropdown-item, h1, h2, h3, h4, h5, h6, p, span,
   filter: brightness(1.05);
   color: #fff;
   transform: translateY(-1px);
-}
-
-/* Fuentes especiales */
-.brand, .section-title {
-  font-family: 'Orbitron', 'Roboto', sans-serif;
-  letter-spacing: 0.5px;
-}
-
-/* Enlaces */
-a {
-  color: var(--accent-blue);
-  text-decoration: none;
-}
-
-/* Neon text */
-.neon {
-  text-shadow: 0 0 6px var(--accent-blue), 0 0 12px rgba(30,144,255,0.4);
-}
-
-@media (max-width: 768px) {
-  .card-img-container {
-    height: 180px;
-  }
-}
-
-@media (min-width: 768px) {
-  .card-img-container {
-    height: 220px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .card-img-container {
-    height: 260px;
-  }
-}
-
-
-.btn-accent {
-  background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
-  border: none;
-  color: #000;
-  font-weight: 700;
-  transition: all 0.3s ease;
-}
-
-.btn-accent:hover {
-  filter: brightness(1.1);
 }
 
 .btn-ver {
@@ -122,7 +179,21 @@ a {
   box-shadow: 0 0 10px var(--accent-green);
 }
 
-/* Cards */
+/* =========================
+   Enlaces y Neon
+   ========================= */
+a {
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+
+.neon {
+  text-shadow: 0 0 6px var(--accent-blue), 0 0 12px rgba(30,144,255,0.4);
+}
+
+/* =========================
+   Cards
+   ========================= */
 .card {
   background: #0d0d0d;
   border: 1px solid rgba(255,255,255,0.08);
@@ -137,7 +208,7 @@ a {
 }
 
 .card-img-container {
-  height: 200px ;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -165,29 +236,23 @@ a {
   border: 1px solid rgba(57,255,20,0.35);
 }
 
-/* Precio */
 .price {
   color: var(--accent-green);
   font-weight: 700;
 }
 
-/* Hero */
+/* =========================
+   Hero
+   ========================= */
 .hero {
   background: radial-gradient(1200px 600px at 80% -10%, rgba(30,144,255,0.25), transparent 40%),
               radial-gradient(1000px 500px at 10% -20%, rgba(57,255,20,0.18), transparent 40%),
               linear-gradient(#050505,#000);
 }
 
-
-/* Inputs oscuros */
-.dark-input {
-  background: #111;
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px;
-}
-
-/* Tablas */
+/* =========================
+   Tablas
+   ========================= */
 .custom-table,
 .custom-table th,
 .custom-table td,
@@ -210,7 +275,9 @@ a {
   transform: scale(1.01);
 }
 
-/* Carrito lateral */
+/* =========================
+   Carrito lateral
+   ========================= */
 .carrito-sidebar {
   position: fixed;
   top: 0;
@@ -266,13 +333,9 @@ a {
   min-width: 32px;
 }
 
-/* Hover estrellas */
-.estrellas-hover:hover {
-  filter: brightness(1.2);
-  transition: filter 0.2s;
-}
-
-/* Imagenes contenedores */
+/* =========================
+   Imagenes y contenedores
+   ========================= */
 .imagen-contenedor {
   width: 100%;
   max-width: 600px;
@@ -305,38 +368,9 @@ a {
   transform: scale(1.02);
 }
 
-/* Buscador avanzado */
-#buscador {
-  position: fixed;
-  top: 80px;
-  right: 20px;
-  z-index: 999;
-  transition: width 0.3s, height 0.3s;
-}
-
-.buscador-cerrado {
-  width: 50px;
-  height: 50px;
-}
-
-.buscador-abierto {
-  width: 350px;
-  height: auto;
-  background: #0b0b0b;
-  border: 1px solid rgba(255,255,255,0.06);
-  padding: 1rem;
-  border-radius: 1rem;
-}
-
-.buscador-contenido {
-  display: none;
-}
-
-.buscador-abierto .buscador-contenido {
-  display: block;
-}
-
-/* Blog cards */
+/* =========================
+   Blog cards
+   ========================= */
 .blog-card-img {
   padding: 5px;
   height: 250px;
@@ -349,4 +383,36 @@ a {
   object-fit: cover;
   border-radius: 10px;
   display: block;
+}
+
+/* =========================
+   Ajustes responsive
+   ========================= */
+@media (max-width: 768px) {
+  .banner-auth {
+    flex-direction: column;
+  }
+
+  .banner-left, .banner-right {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 1.5rem;
+  }
+
+  .card-img-container {
+    height: 180px;
+  }
+}
+
+@media (min-width: 768px) {
+  .card-img-container {
+    height: 220px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .card-img-container {
+    height: 260px;
+  }
 }
