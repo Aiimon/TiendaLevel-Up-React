@@ -60,7 +60,16 @@ export default function RegistroForm({ onClose }) {
       </div>
       <div className="col-md-6">
         <label className="form-label">Correo electrónico</label>
-        <input type="email" className="form-control dark-input" value={email} onChange={e => setEmail(e.target.value)} required />
+        <input 
+          type="email" 
+          className="form-control dark-input" 
+          value={email} 
+          onChange={e => setEmail(e.target.value)} 
+          required 
+        />
+        <span className="form-hint">
+          <i className="bi bi-gift-fill me-1"></i> Usa un correo <strong>@duoc.cl</strong> y obtén 20% de descuento.
+        </span>
       </div>
       {/* Región y Comuna */}
       <div className="col-md-6">

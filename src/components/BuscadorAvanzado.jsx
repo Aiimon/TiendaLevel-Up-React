@@ -71,12 +71,15 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
               value={cat}
               onChange={(e) => setCat(e.target.value)}
             >
+              {/* Siempre dejamos la opción "Todas" manual */}
               <option value="Todas">Todas</option>
-              {categorias.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
+              {categorias
+                .filter((c) => c !== "Todas") // filtramos por si accidentalmente viene en el arreglo
+                .map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
             </select>
           </div>
           <div className="col-12">
@@ -108,6 +111,7 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
           </div>
         </div>
       </div>
+
       <style>{`
         .buscador-flotante {
           position: fixed;
@@ -150,7 +154,6 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
           margin-bottom: 5px;
         }
       `}</style>
-    
     </>
   );
 }
