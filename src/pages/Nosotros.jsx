@@ -20,22 +20,22 @@ function Nosotros({ carritoOpen, setCarritoOpen }) {
           <h2 className="section-title mb-4">Nuestro Equipo</h2>
           <div className="row g-4">
             <div className="col-md-4">
-              <div className="card team-card h-100">
-                <div className="team-card my-card">
+              <div className="card team-card h-100 text-center">
+                <div className="team-card-img-container">
                   <img src="/Integrante1.png" alt="Aimon Medina" />
                 </div>
-                <div className="card-body text-center">
+                <div className="card-body">
                   <h5 className="card-title">Aimon Medina</h5>
                   <p className="text-secondary">Vistas del cliente</p>
                 </div>
               </div>
             </div>
             <div className="col-md-4">
-              <div className="card team-card h-100">
+              <div className="card team-card h-100 text-center">
                 <div className="team-card-img-container">
                   <img src="/Integrante2.jpg" alt="Diego Alarcon" />
                 </div>
-                <div className="card-body text-center">
+                <div className="card-body">
                   <h5 className="card-title">Diego Alarcon</h5>
                   <p className="text-secondary">Vista Administrador</p>
                 </div>

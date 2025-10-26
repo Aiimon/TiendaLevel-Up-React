@@ -369,6 +369,29 @@ a {
 }
 
 /* =========================
+   Blog team nosotros
+   ========================= */
+   
+.team-card-img-container {
+  width: 310px;
+  height: 310px;
+  margin: 0 auto 15px;
+  overflow: hidden;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.team-card-img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+/* =========================
    Blog cards
    ========================= */
 .blog-card-img {
