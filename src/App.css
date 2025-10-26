@@ -20,6 +20,22 @@ body, html, #root, .card, .btn, .dropdown-item, h1, h2, h3, h4, h5, h6, p, span,
   font-family: 'Roboto', system-ui, -apple-system, Segoe UI, sans-serif !important;
 }
 
+.btn-neon-accent {
+  background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+  color: #000;
+  font-weight: 700;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.btn-neon-accent:hover {
+  filter: brightness(1.05);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
 /* Fuentes especiales */
 .brand, .section-title {
   font-family: 'Orbitron', 'Roboto', sans-serif;
