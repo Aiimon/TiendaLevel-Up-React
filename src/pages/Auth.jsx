@@ -1,5 +1,4 @@
 import { useState } from "react";
-import logo from "../assets/img/logo.png";
 import RegistroForm from "../components/RegistroForm";
 import LoginForm from "../components/LoginForm";
 import "../auth.css";
@@ -12,7 +11,7 @@ function Auth() {
     <section className="banner-auth">
       <div className="banner-left d-flex flex-column justify-content-center align-items-center text-center">
         <img
-          src={logo}
+          src="/img/logo.png"
           alt="Logo Level-Up Gamer"
           className="mb-4"
           style={{ maxWidth: "500px" }}

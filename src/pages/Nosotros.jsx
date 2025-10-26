@@ -1,9 +1,6 @@
 import CarritoSidebar from "../components/CarritoSidebar";
 import Footer from "../components/Footer";
 
-import integrante1 from "../assets/img/Integrante1.png";
-import integrante2 from "../assets/img/Integrante2.jpg";
-
 function Nosotros({ carritoOpen, setCarritoOpen }) {
   return (
     <>
@@ -25,7 +22,7 @@ function Nosotros({ carritoOpen, setCarritoOpen }) {
             <div className="col-md-4">
               <div className="card team-card h-100">
                 <div className="team-card my-card">
-                  <img src={integrante1} alt="Aimon Medina" />
+                  <img src="/img/integrante1" alt="Aimon Medina" />
                 </div>
                 <div className="card-body text-center">
                   <h5 className="card-title">Aimon Medina</h5>
@@ -36,7 +33,7 @@ function Nosotros({ carritoOpen, setCarritoOpen }) {
             <div className="col-md-4">
               <div className="card team-card h-100">
                 <div className="team-card-img-container">
-                  <img src={integrante2} alt="Diego Alarcon" />
+                  <img src="/img/integrante2" alt="Diego Alarcon" />
                 </div>
                 <div className="card-body text-center">
                   <h5 className="card-title">Diego Alarcon</h5>

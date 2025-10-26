@@ -2,29 +2,19 @@ import { useState, useEffect } from "react";
 import ProductoCard from "../components/ProductoCard";
 import Footer from "../components/Footer";
 
-import RazerBlackWindowV3 from "../assets/img/razerBlackwidowV3MiniPhantom.png";
-import MicrofonoBlue from "../assets/img/microfonoBlueYetiX.png";
-import Dixit from "../assets/img/dixitJuegoMesa.png";
-import Nintendo from "../assets/img/nintendoSwitchOLED.png";
-import SillaCougar from "../assets/img/sillaCougarArmor.png";
-import RazerDeathV2 from "../assets/img/razerDeathAdderV2.png";
-import MousepadPower from "../assets/img/mousepadPowerplay.png";
-import PcMsiTrident from "../assets/img/pcMsiTrident3.png";
-import PoleraPressStart from "../assets/img/poleraPressStart.png";
-import WebCamStream from "../assets/img/webcamStreamcam.png";
-
 const imagenesMap = {
-  "razerBlackwidowV3MiniPhantom.png" : RazerBlackWindowV3,
-  "microfonoBlueYetiX.png" : MicrofonoBlue,
-  "dixitJuegoMesa.png" : Dixit,
-  "nintendoSwitchOLED.png" : Nintendo,
-  "sillaCougarArmor.png" : SillaCougar,
-  "razerDeathAdderV2.png" : RazerDeathV2,
-  "mousepadPowerplay.png" : MousepadPower,
-  "pcMsiTrident3.png" : PcMsiTrident,
-  "poleraPressStart.png" : PoleraPressStart,
-  "webcamStreamcam.png" : WebCamStream,
+  "razerBlackwidowV3MiniPhantom.png": "/img/razerBlackwidowV3MiniPhantom.png",
+  "microfonoBlueYetiX.png": "/img/microfonoBlueYetiX.png",
+  "dixitJuegoMesa.png": "/img/dixitJuegoMesa.png",
+  "nintendoSwitchOLED.png": "/img/nintendoSwitchOLED.png",
+  "sillaCougarArmor.png": "/img/sillaCougarArmor.png",
+  "razerDeathAdderV2.png": "/img/razerDeathAdderV2.png",
+  "mousepadPowerplay.png": "/img/mousepadPowerplay.png",
+  "pcMsiTrident3.png": "/img/pcMsiTrident3.png",
+  "poleraPressStart.png": "/img/poleraPressStart.png",
+  "webcamStreamcam.png": "/img/webcamStreamcam.png",
 };
+
 
 function Ofertas({ productos: productosApp, usuario, onAgregarCarrito }) {
   const [productos, setProductos] = useState([]);

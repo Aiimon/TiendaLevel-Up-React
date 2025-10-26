@@ -4,14 +4,10 @@ import Carrito from "../components/Carrito";
 import Footer from "../components/Footer";
 import productosD from "../data/productos.json";
 
-import Wooting60HE from "../assets/img/Wooting60HE.png";
-import AuricularesHyperXCloudII from "../assets/img/AuricularesHyperXCloudII.png";
-import MouseLogitech from "../assets/img/MouseLogitech.png";
-
 const imagenesMap = {
-  "Wooting60HE.png": Wooting60HE,
-  "AuricularesHyperXCloudII.png": AuricularesHyperXCloudII,
-  "MouseLogitech.png": MouseLogitech,
+  "Wooting60HE.png": "/img/Wooting60HE.png",
+  "AuricularesHyperXCloudII.png": "/img/AuricularesHyperXCloudII.png",
+  "MouseLogitech.png": "/img/MouseLogitech.png",
 };
 
 const descripciones = {

@@ -20,7 +20,7 @@
       "oferta": false,
       "rating": 5.0,
       "descripcion": "El teclado mecánico para gaming definitivo. Con switches magnéticos que permiten una actuación ultra rápida y personalizable, ideal para jugadores competitivos.",
-      "imagen": "img/Wooting60HE.png",
+      "imagen": "/img/Wooting60HE.png",
       "stock": 10,
       "stockCritico": 5,
       "detalles": {
@@ -41,7 +41,7 @@
       "oferta": false,
       "rating": 4.5,
       "descripcion": "Un clásico juego de estrategia donde los jugadores compiten por colonizar y expandirse en la isla de Catan. Ideal para 3-4 jugadores y perfecto para noches de juego en familia o con amigos.",
-      "imagen": "img/catanJuegoMesa.png",
+      "imagen": "/img/catanJuegoMesa.png",
       "stock": 23,
       "stockCritico": 5,
       "detalles": {
@@ -61,7 +61,7 @@
       "oferta": false,
       "rating": 4,
       "descripcion": "Un juego de colocación de fichas donde los jugadores construyen el paisaje alrededor de la fortaleza medieval de Carcassonne. Ideal para 2-5 jugadores y fácil de aprender.",
-      "imagen": "img/carcassonneJuegoMesa.png",
+      "imagen": "/img/carcassonneJuegoMesa.png",
       "stock": 20,
       "stockCritico": 5,
       "detalles": {
@@ -81,7 +81,7 @@
       "oferta": false,
       "rating": 4.5,
       "descripcion": "Ofrece una experiencia de juego cómoda con botones mapeables y una respuesta táctil mejorada. Compatible con consolas Xbox y PC.",
-      "imagen": "img/accesorioMandoXbox.png",
+      "imagen": "/img/accesorioMandoXbox.png",
       "stock": 7,
       "stockCritico": 3,
       "detalles": {
@@ -101,7 +101,7 @@
       "oferta": false,
       "rating": 4.5,
       "descripcion": "Proporcionan un sonido envolvente de calidad con un micrófono desmontable y almohadillas de espuma viscoelástica para mayor comodidad durante largas sesiones de juego.",
-      "imagen": "img/AuricularesHyperXCloudII.png",
+      "imagen": "/img/AuricularesHyperXCloudII.png",
       "stock": 18,
       "stockCritico": 5,
       "detalles": {
@@ -122,7 +122,7 @@
       "oferta": false,
       "rating": 5,
       "descripcion": "La consola de última generación de Sony, que ofrece gráficos impresionantes y tiempos de carga ultrarrápidos para una experiencia de juego inmersiva.",
-      "imagen": "img/playStation5.png",
+      "imagen": "/img/playStation5.png",
       "stock": 10,
       "stockCritico": 4,
       "detalles": {
@@ -143,7 +143,7 @@
       "oferta": false,
       "rating": 5,
       "descripcion": "Un potente equipo diseñado para los gamers más exigentes, equipado con los últimos componentes para ofrecer un rendimiento excepcional en cualquier juego.",
-      "imagen": "img/PcAsusROG.png",
+      "imagen": "/img/PcAsusROG.png",
       "stock": 9,
       "stockCritico": 3,
       "detalles": {
@@ -164,7 +164,7 @@
       "oferta": false,
       "rating": 4.5,
       "descripcion": "Diseñada para el máximo confort, esta silla ofrece un soporte ergonómico y personalización ajustable para sesiones de juego prolongadas.",
-      "imagen": "img/sillaSecretlab.png",
+      "imagen": "/img/sillaSecretlab.png",
       "stock": 14,
       "stockCritico": 6,
       "detalles": {
@@ -186,7 +186,7 @@
       "oferta": false,
       "rating": 4.5,
       "descripcion": "Con sensor de alta precisión y botones personalizables, este mouse es ideal para gamers que buscan un control preciso y personalización.",
-      "imagen": "img/MouseLogitech.png",
+      "imagen": "/img/MouseLogitech.png",
       "stock": 6,
       "stockCritico": 3,
       "detalles": {
@@ -207,7 +207,7 @@
       "oferta": false,
       "rating": 4,
       "descripcion": "Ofrece un área de juego amplia con iluminación RGB personalizable, asegurando una superficie suave y uniforme para el movimiento del mouse.",
-      "imagen": "img/MousepadRazer.png",
+      "imagen": "/img/MousepadRazer.png",
       "stock": 10,
       "stockCritico": 5,
       "detalles": {
@@ -228,7 +228,7 @@
       "oferta": false,
       "rating": 4,
       "descripcion": "Una camiseta cómoda y estilizada, con la posibilidad de personalizarla con tu gamer tag o diseño favorito.",
-      "imagen": "img/PoleraLevelUP.png",
+      "imagen": "/img/PoleraLevelUP.png",
       "stock": 15,
       "stockCritico": 6,
       "detalles": {
@@ -248,7 +248,7 @@
     "oferta": true,
     "rating": 4.7,
     "descripcion": "Teclado mecánico compacto al 65% con switches Razer Yellow lineales, iluminación RGB Chroma y conexión inalámbrica HyperSpeed. Ideal para gamers que buscan un diseño minimalista y rendimiento profesional.",
-    "imagen": "img/razerBlackwidowV3MiniPhantom.png",
+    "imagen": "/img/razerBlackwidowV3MiniPhantom.png",
     "stock": 12,
     "stockCritico": 5,
     "detalles": {
@@ -269,7 +269,7 @@
       "oferta": true,
       "rating": 4.7,
       "descripcion": "Micrófono profesional con calidad de transmisión para streaming y grabaciones de alta fidelidad.",
-      "imagen": "img/microfonoBlueYetiX.png",
+      "imagen": "/img/microfonoBlueYetiX.png",
       "stock": 8,
       "stockCritico": 3,
       "detalles": {
@@ -289,7 +289,7 @@
       "oferta": true,
       "rating": 4.8,
       "descripcion": "Un juego de imaginación donde las imágenes cuentan historias. Perfecto para jugar en grupo y desarrollar la creatividad.",
-      "imagen": "img/dixitJuegoMesa.png",
+      "imagen": "/img/dixitJuegoMesa.png",
       "stock": 17,
       "stockCritico": 5,
       "detalles": {
@@ -309,7 +309,7 @@
       "oferta": true,
       "rating": 4.9,
       "descripcion": "Versión mejorada de la popular consola híbrida de Nintendo, con pantalla OLED vibrante y mejor sonido.",
-      "imagen": "img/nintendoSwitchOLED.png",
+      "imagen": "/img/nintendoSwitchOLED.png",
       "stock": 11,
       "stockCritico": 4,
       "detalles": {
@@ -329,7 +329,7 @@
       "oferta": true,
       "rating": 4.3,
       "descripcion": "Silla ergonómica con diseño deportivo, reclinable y con soporte lumbar ajustable.",
-      "imagen": "img/sillaCougarArmor.png",
+      "imagen": "/img/sillaCougarArmor.png",
       "stock": 10,
       "stockCritico": 4,
       "detalles": {
@@ -349,7 +349,7 @@
       "oferta": true,
       "rating": 4.7,
       "descripcion": "Ergonómico y preciso, con sensor óptico Focus+ de 20K DPI y switches ópticos Razer.",
-      "imagen": "img/razerDeathAdderV2.png",
+      "imagen": "/img/razerDeathAdderV2.png",
       "stock": 13,
       "stockCritico": 5,
       "detalles": {
@@ -369,7 +369,7 @@
       "oferta": true,
       "rating": 4.6,
       "descripcion": "Mousepad que carga inalámbricamente tu mouse Logitech compatible mientras juegas.",
-      "imagen": "img/mousepadPowerplay.png",
+      "imagen": "/img/mousepadPowerplay.png",
       "stock": 7,
       "stockCritico": 3,
       "detalles": {
@@ -389,7 +389,7 @@
       "oferta": true,
       "rating": 4.8,
       "descripcion": "Compacto pero potente, este PC gamer cuenta con un diseño minimalista y componentes de alto rendimiento.",
-      "imagen": "img/pcMsiTrident3.png",
+      "imagen": "/img/pcMsiTrident3.png",
       "stock": 8,
       "stockCritico": 3,
       "detalles": {
@@ -409,7 +409,7 @@
       "oferta": true,
       "rating": 4.4,
       "descripcion": "Polera gamer con diseño retro y frase clásica de los videojuegos. Ideal para fanáticos de la nostalgia.",
-      "imagen": "img/poleraPressStart.png",
+      "imagen": "/img/poleraPressStart.png",
       "stock": 20,
       "stockCritico": 5,
       "detalles": {
@@ -428,7 +428,7 @@
       "oferta": true,
       "rating": 4.6,
       "descripcion": "Cámara Full HD ideal para streaming con enfoque automático y soporte para formato vertical.",
-      "imagen": "img/webcamStreamcam.png",
+      "imagen": "/img/webcamStreamcam.png",
       "stock": 9,
       "stockCritico": 3,
       "detalles": {

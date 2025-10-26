@@ -5,33 +5,6 @@ import BuscadorAvanzado from "../components/BuscadorAvanzado";
 import Footer from "../components/Footer";
 import productosD from "../data/productos.json";
 
-// Import de imágenes
-import Wooting60HE from "../assets/img/Wooting60HE.png";
-import AuricularesHyperXCloudII from "../assets/img/AuricularesHyperXCloudII.png";
-import MouseLogitech from "../assets/img/MouseLogitech.png";
-import Catan from "../assets/img/catanJuegoMesa.png";
-import Carcassonne from "../assets/img/carcassonneJuegoMesa.png";
-import AccesorioMandoXbox from "../assets/img/accesorioMandoXbox.png";
-import PlayStation5 from "../assets/img/playStation5.png";
-import PcAsusROG from "../assets/img/PcAsusROG.png";
-import SillaSecretlab from "../assets/img/sillaSecretlab.png";
-import MousepadRazer from "../assets/img/MousepadRazer.png";
-import PoleraLevelUP from "../assets/img/PoleraLevelUP.png";
-
-const imagenesMap = {
-  "Wooting60HE.png": Wooting60HE,
-  "AuricularesHyperXCloudII.png": AuricularesHyperXCloudII,
-  "MouseLogitech.png": MouseLogitech,
-  "catanJuegoMesa.png": Catan,
-  "carcassonneJuegoMesa.png": Carcassonne,
-  "accesorioMandoXbox.png": AccesorioMandoXbox,
-  "playStation5.png": PlayStation5,
-  "PcAsusROG.png": PcAsusROG,
-  "sillaSecretlab.png": SillaSecretlab,
-  "MousepadRazer.png": MousepadRazer,
-  "PoleraLevelUP.png": PoleraLevelUP,
-};
-
 function Categoria({ productos: productosApp, usuario, onAgregarCarrito }) {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -124,7 +97,6 @@ function Categoria({ productos: productosApp, usuario, onAgregarCarrito }) {
                 <ProductoCard
                   producto={prod}
                   usuario={usuario}
-                  imagenesMap={imagenesMap}
                   onAgregarCarrito={() => handleAgregar(prod)}
                 />
               </div>
