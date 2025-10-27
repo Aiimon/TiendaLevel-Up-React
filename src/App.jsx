@@ -26,6 +26,7 @@ import Perfiladmin from "./pages/Perfiladmin";
 import Categoriaadmin from "./pages/Categoria_admin";
 import EditarUser from "./pages/Editaruser";
 import EditarProducto from './pages/EditarProducto';
+import Perfil from "./pages/Perfil";
 
 function Layout() {
   const location = useLocation();
@@ -175,6 +176,9 @@ function Layout() {
         case "/boleta":
           document.title = "Level-Up · Boleta";
           break;
+        case "/perfil":
+          document.title = "Level-Up · Perfil";
+          break;
         case "/perfiladmin":
           document.title = "Level-Up · Perfil Admin";
           break;
@@ -289,6 +293,7 @@ function Layout() {
         />
         <Route path="/soporte" element={<Soporte usuario={usuario} />} />
         <Route path="/boleta" element={<Boleta />} />
+        <Route path="/perfil" element={<Perfil />} />
       </Routes>
 
       {shouldShowBotonWsp && <BotonWsp />}

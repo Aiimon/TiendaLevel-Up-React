@@ -1,6 +1,5 @@
 import Footer from "../components/Footer";
 import SoporteForm from "../components/SoporteForm";
-import Incidencia from "../components/Incidencia";
 
 function Soporte({ usuario }) {
   return (
@@ -12,7 +11,6 @@ function Soporte({ usuario }) {
             Envía tu mensaje para soporte técnico o consultas generales.
           </p>
           <SoporteForm usuario={usuario} />
-          {usuario && <Incidencia usuario={usuario} />}
         </div>
       </section>
       <Footer />

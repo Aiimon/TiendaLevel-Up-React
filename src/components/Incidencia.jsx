@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 
-function Incidencia({ usuario }) {
+function Incidencia({ usuario, actualizarTrigger }) {
   const [incidencias, setIncidencias] = useState([]);
 
   useEffect(() => {
     if (!usuario) return;
     const todasIncidencias = JSON.parse(localStorage.getItem("mensajesSoporte")) || {};
     setIncidencias(todasIncidencias[usuario.email] || []);
-  }, [usuario]);
+  }, [usuario, actualizarTrigger]);
 
   const eliminarIncidencia = (index) => {
     const todasIncidencias = JSON.parse(localStorage.getItem("mensajesSoporte")) || {};
@@ -32,10 +32,9 @@ function Incidencia({ usuario }) {
           className="list-group-item bg-dark text-light border-secondary d-flex justify-content-between align-items-start"
         >
           <div>
-            <strong>{i.tipo.toUpperCase()} - {i.asunto}</strong> –{" "}
+            <strong>{i.tipo.toUpperCase()} - {i.asunto}</strong> <br />
             <span className="text-secondary">{i.fecha}</span>
-            <br />
-            {i.mensaje}
+            <p className="mt-1">{i.mensaje}</p>
           </div>
           <button
             className="btn btn-sm btn-outline-danger"
