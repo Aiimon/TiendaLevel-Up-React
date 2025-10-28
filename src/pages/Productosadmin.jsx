@@ -76,7 +76,7 @@ const ProductContent = () => {
             <div className="d-flex justify-content-between align-items-center mb-4">
                 {/* Botón Nuevo Producto */}
                 <Link 
-                    to="/productosadmin/nuevo"
+                    to="/nuevoproducto"
                     className="btn btn-lg text-white d-flex align-items-center fw-bold"
                     style={{ backgroundColor: '#28a745', border: 'none', ...hoverStyle, boxShadow: isNewButtonHovered ? `0 0 15px ${GREEN_LIGHT}, 0 0 5px ${GREEN_LIGHT}` : 'none' }}
                     onMouseEnter={() => setIsNewButtonHovered(true)}
