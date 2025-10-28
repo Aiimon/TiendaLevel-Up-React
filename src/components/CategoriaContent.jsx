@@ -1,5 +1,3 @@
-// src/components/CategoriaContent.jsx
-
 import React, { useState, useEffect } from 'react';
 import productosD from "../data/productos.json"; 
 

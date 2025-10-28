@@ -1,5 +1,3 @@
-// src/components/FormularioUsuarioEdit.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import usuariosD from "../data/usuarios.json"; 
