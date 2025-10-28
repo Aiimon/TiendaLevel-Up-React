@@ -13,6 +13,8 @@ import Blog from "./pages/Blog";
 import Eventos from "./pages/Eventos";
 import Soporte from "./pages/Soporte";
 import Detalles from "./pages/Detalles";
+import Termino from "./pages/Termino";
+import Privacidad from "./pages/Privacidad";
 import Homeadmin from "./pages/Homeadmin";
 import Productosadmin from "./pages/Productosadmin";
 import NuevoProducto from "./pages/NuevoProducto";
@@ -181,6 +183,12 @@ function Layout() {
         case "/perfil":
           document.title = "Level-Up · Perfil";
           break;
+        case "/termino":
+          document.title = "Level-Up · Termino";
+          break;
+        case "/privacidad":
+          document.title = "Level-Up · Privacidad";
+          break;
         case "/perfiladmin":
           document.title = "Level-Up · Perfil Admin";
           break;
@@ -272,6 +280,8 @@ function Layout() {
         <Route path="/editarproducto/:id" element={<EditarProducto />} />
         <Route path="/ordenes" element={<Ordenes />} />
         <Route path="/reporte" element={<Reporte />} />
+        <Route path="/termino" element={<Termino />} />
+        <Route path="/privacidad" element={<Privacidad />} />
         <Route
           path="/detalles/:id"
           element={

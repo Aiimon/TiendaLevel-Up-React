@@ -53,8 +53,10 @@ function Ofertas({ productos: productosApp, usuario, onAgregarCarrito }) {
           <small className="text-secondary">
             Productos con descuentos especiales por tiempo limitado
           </small>
+          
         </div>
-
+        
+      
         {productos.length === 0 ? (
           <div className="text-center text-danger mt-3">
             <p>No hay productos en oferta actualmente.</p>
@@ -77,6 +79,7 @@ function Ofertas({ productos: productosApp, usuario, onAgregarCarrito }) {
             ))}
           </div>
         )}
+        
       </div>
       <Footer />
     </>
