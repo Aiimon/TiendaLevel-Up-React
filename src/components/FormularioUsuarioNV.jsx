@@ -1,5 +1,3 @@
-// src/components/FormularioUsuarioNV.jsx
-
 import React, { useState } from 'react'; // Eliminamos useEffect ya que no es necesario
 import usuariosD from "../data/usuarios.json"; 
 import regionesD from "../data/regiones.json"; // <--- Tu JSON de regiones/comunas (Ahora es el array directamente)

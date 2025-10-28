@@ -1,5 +1,3 @@
-// src/components/SidebarAdmin.jsx
-
 import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 // NO IMPORTAMOS MÁS LOS DATOS AQUÍ, solo para la Notificación.

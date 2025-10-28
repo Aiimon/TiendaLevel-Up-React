@@ -1,5 +1,3 @@
-// src/components/TablaUsuarios.jsx
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom'; // Aseguramos que Link esté importado
 import usuariosD from "../data/usuarios.json"; 
