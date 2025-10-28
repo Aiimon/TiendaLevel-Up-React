@@ -1,3 +1,5 @@
+// src/components/formularioproductonv.jsx
+
 import React, { useState } from 'react';
 import productosD from "../data/productos.json"; 
 
@@ -13,16 +15,21 @@ const LOCAL_STORAGE_KEY = 'productos_maestro';
 
 // --- LÓGICA DE PERSISTENCIA INICIAL ---
 const initializeProducts = () => {
+    // Si la clave maestra ya existe en localStorage, no hacemos nada
     if (localStorage.getItem(LOCAL_STORAGE_KEY)) {
         return;
     }
+    // Si no existe, guardamos los productos del JSON inicial
     const initialProducts = productosD.productos || [];
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(initialProducts));
 };
+// Ejecutar al cargar el módulo para asegurar la base de datos maestra
 initializeProducts(); 
+
 
 // --- FUNCIÓN PARA OBTENER EL LISTADO MAESTRO ---
 const getMasterProducts = () => {
+    // Lee siempre el array consolidado del almacenamiento local
     return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
 };
 
@@ -65,6 +72,8 @@ function FormularioProductoNV() {
         detalles: '{}', 
     });
 
+    // Se cargan los productos maestros fuera de useState, pero dentro del componente,
+    // para que la generación del ID sea reactiva al cambio de categoría.
     const existingProducts = getMasterProducts();
     const currentGeneratedId = generateProductId(formData.categoria, existingProducts);
 
@@ -75,7 +84,16 @@ function FormularioProductoNV() {
         // Convertir a float solo si el valor no está vacío, manteniendo el input de texto
         let finalValue = value;
         if (type === 'number' && value !== '') {
-            finalValue = parseFloat(value);
+             // For numeric inputs like rating, stock, stockCritico, ensure they become numbers
+             // For price (step 0.01), ensure it's float
+            if (name === 'precio' || name === 'rating'){
+                 finalValue = parseFloat(value);
+            } else if (name === 'stock' || name === 'stockCritico'){
+                 finalValue = parseInt(value, 10); // Use parseInt for integers
+                 // Handle potential NaN if input is cleared or invalid for integer
+                 if (isNaN(finalValue) && value === '') finalValue = ''; // Allow clearing
+                 else if (isNaN(finalValue)) finalValue = formData[name]; // Revert if invalid char entered
+            }
         }
         
         setFormData(prev => ({
@@ -210,8 +228,6 @@ function FormularioProductoNV() {
                         <textarea className="form-control bg-dark text-white border-secondary" id="descripcion" name="descripcion" rows="3" value={formData.descripcion} onChange={handleChange}></textarea>
                     </div>
                 </div>
-                
-                
 
                 {/* Botón de Envío */}
                 <button type="submit" className="btn btn-primary w-100">

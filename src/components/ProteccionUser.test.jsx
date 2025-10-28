@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import ProteccionUser from "./ProteccionUser"; // Ajusta la ruta si es necesario
 import { beforeEach, describe, it, expect, vi } from "vitest";
 import "@testing-library/jest-dom";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom"; // Necesario para testear Navigate
+import { MemoryRouter, Route, Routes, useLocation, Navigate } from "react-router-dom"; // Necesario para testear Navigate
 
 // --- Mock de window.alert ---
 // Espiamos la función alert original para verificar llamadas
@@ -16,6 +16,32 @@ const LocationDisplay = () => {
   return <div data-testid="location-display">{location.pathname}</div>;
 };
 // ----------------------------------------------------
+
+// --- Mock del componente Navigate ---
+// Esto es crucial porque ProteccionUser usa <Navigate> directamente
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    Navigate: vi.fn(({ to, replace }) => {
+      // Simulamos la redirección actualizando la URL "manualmente" para LocationDisplay
+      // En un entorno real, MemoryRouter se encargaría de esto, pero aquí necesitamos ser explícitos
+      // Usamos useLocation dentro del mock para obtener el historial (si está disponible)
+       try {
+           const navigate = actual.useNavigate(); // Intentar obtener navigate si está en contexto
+           navigate(to, { replace });
+       } catch (e) {
+            // Si no hay contexto de Router, simulamos cambiando window.history (menos ideal)
+            window.history.pushState({}, '', to);
+       }
+      // Renderizamos algo para que LocationDisplay funcione
+      return <LocationDisplay />;
+    }),
+    useLocation: actual.useLocation, // Mantenemos el useLocation real
+  };
+});
+// -----------------------------------
+
 
 describe("Testing ProteccionUser Component", () => {
   // --- Datos de Prueba ---
@@ -40,23 +66,22 @@ describe("Testing ProteccionUser Component", () => {
     expect(screen.getByTestId("contenido-hijo")).toBeInTheDocument();
     // Verifica que la alerta NO fue llamada
     expect(alertSpy).not.toHaveBeenCalled();
-    // Verifica que NO se redirigió (opcional, comprobando que no estamos en /auth)
-    // No podemos verificar directamente Navigate, pero sí que el contenido está.
+    // Verifica que el componente Navigate NO fue llamado/renderizado
+    expect(Navigate).not.toHaveBeenCalled();
   });
 
   // --- Caso de Prueba 2: Usuario NO Logueado (Primera Vez) ---
   it("CP-ProteccionUser2: No renderiza children, muestra alerta (una vez) y redirige a /auth si no hay usuario", async () => {
      render(
+       // Usamos MemoryRouter para proveer contexto de navegación
        <MemoryRouter initialEntries={['/ruta-protegida']}>
-         <Routes>
-           <Route path="/ruta-protegida" element={
-             <ProteccionUser usuario={null}>
+           <ProteccionUser usuario={null}>
                <ContenidoHijo />
-             </ProteccionUser>
-           } />
-           {/* Ruta destino de la redirección */}
-           <Route path="/auth" element={<LocationDisplay />} />
-         </Routes>
+           </ProteccionUser>
+           {/* Ruta destino simulada */}
+           <Routes>
+               <Route path="/auth" element={<LocationDisplay />} />
+           </Routes>
        </MemoryRouter>
      );
 
@@ -70,7 +95,11 @@ describe("Testing ProteccionUser Component", () => {
     // Verifica que el contenido hijo NO se renderiza
     expect(screen.queryByTestId("contenido-hijo")).not.toBeInTheDocument();
 
-    // Verifica que se redirigió a /auth
+    // Verifica que el componente Navigate FUE llamado con los props correctos
+    expect(Navigate).toHaveBeenCalledTimes(1);
+    expect(Navigate).toHaveBeenCalledWith({ to: "/auth", replace: true }, expect.anything()); // El segundo arg son props internas
+
+    // Verifica que la URL cambió (usando LocationDisplay)
     expect(screen.getByTestId('location-display')).toHaveTextContent('/auth');
   });
 
@@ -79,14 +108,10 @@ describe("Testing ProteccionUser Component", () => {
      // Render inicial sin usuario
      const { rerender } = render(
        <MemoryRouter initialEntries={['/ruta-protegida']}>
-         <Routes>
-           <Route path="/ruta-protegida" element={
-             <ProteccionUser usuario={null}>
+            <ProteccionUser usuario={null}>
                <ContenidoHijo />
-             </ProteccionUser>
-           } />
-           <Route path="/auth" element={<LocationDisplay />} />
-         </Routes>
+           </ProteccionUser>
+           <Routes><Route path="/auth" element={<LocationDisplay />} /></Routes>
        </MemoryRouter>
      );
 
@@ -97,28 +122,26 @@ describe("Testing ProteccionUser Component", () => {
 
      // Limpiar el mock para la siguiente verificación
      alertSpy.mockClear();
+     // Limpiamos también el mock de Navigate
+     vi.mocked(Navigate).mockClear();
 
      // Re-renderizar el componente, todavía sin usuario
      rerender(
        <MemoryRouter initialEntries={['/ruta-protegida']}>
-         <Routes>
-           <Route path="/ruta-protegida" element={
-             <ProteccionUser usuario={null}>
+           <ProteccionUser usuario={null}>
                <ContenidoHijo />
-             </ProteccionUser>
-           } />
-           <Route path="/auth" element={<LocationDisplay />} />
-         </Routes>
+           </ProteccionUser>
+           <Routes><Route path="/auth" element={<LocationDisplay />} /></Routes>
        </MemoryRouter>
      );
 
-      // Esperar un ciclo de renderizado (aunque useEffect no debería dispararse de nuevo por el ref)
-      // Usamos un pequeño delay para estar seguros
+      // Esperar un ciclo de renderizado
       await new Promise(resolve => setTimeout(resolve, 0));
 
      // Verificar que la alerta NO fue llamada de nuevo gracias al useRef
      expect(alertSpy).not.toHaveBeenCalled();
-      // Todavía deberíamos estar redirigidos
+      // Todavía deberíamos estar redirigidos (Navigate se llama de nuevo en cada render sin usuario)
+     expect(Navigate).toHaveBeenCalledTimes(1);
      expect(screen.getByTestId('location-display')).toHaveTextContent('/auth');
    });
 
@@ -127,37 +150,35 @@ describe("Testing ProteccionUser Component", () => {
      // Render inicial sin usuario
      const { rerender } = render(
        <MemoryRouter initialEntries={['/ruta-protegida']}>
-         <Routes>
-           <Route path="/ruta-protegida" element={
-             <ProteccionUser usuario={null}>
+           <ProteccionUser usuario={null}>
                <ContenidoHijo />
-             </ProteccionUser>
-           } />
-           <Route path="/auth" element={<LocationDisplay />} />
-         </Routes>
+           </ProteccionUser>
+           <Routes><Route path="/auth" element={<LocationDisplay />} /></Routes>
        </MemoryRouter>
      );
 
      // Verifica redirección inicial
+     expect(Navigate).toHaveBeenCalledTimes(1);
      expect(screen.getByTestId('location-display')).toHaveTextContent('/auth');
      expect(screen.queryByTestId("contenido-hijo")).not.toBeInTheDocument();
+
+     // Limpiamos el mock de Navigate antes de re-renderizar
+     vi.mocked(Navigate).mockClear();
 
      // Re-renderizar CON usuario
      rerender(
        <MemoryRouter initialEntries={['/ruta-protegida']}>
-         <Routes>
-           <Route path="/ruta-protegida" element={
-             <ProteccionUser usuario={mockUsuarioLogueado}>
+           <ProteccionUser usuario={mockUsuarioLogueado}>
                <ContenidoHijo />
-             </ProteccionUser>
-           } />
-           <Route path="/auth" element={<div>Auth Page</div>} /> {/* Solo para que la ruta exista */}
-         </Routes>
+           </ProteccionUser>
+           <Routes><Route path="/auth" element={<div>Auth Page</div>} /></Routes>
        </MemoryRouter>
      );
 
      // Ahora debería renderizar los children
      expect(screen.getByTestId("contenido-hijo")).toBeInTheDocument();
+     // Y Navigate NO debería haber sido llamado
+     expect(Navigate).not.toHaveBeenCalled();
      // Y no debería estar en la página /auth
      expect(screen.queryByTestId('location-display')).not.toBeInTheDocument();
    });

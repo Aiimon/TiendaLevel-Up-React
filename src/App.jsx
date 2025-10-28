@@ -332,6 +332,7 @@ function Layout() {
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/termino" element={<Termino />} />
         <Route path="/privacidad" element={<Privacidad />} />
+        
 
         {adminRoutes.map(({ path, element }) => (
           <Route
@@ -342,6 +343,7 @@ function Layout() {
             }
           />
         ))}
+        
       </Routes>
 
       {shouldShowBotonWsp && <BotonWsp />}

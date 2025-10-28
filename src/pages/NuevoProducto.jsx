@@ -19,7 +19,6 @@ function NuevoProducto() {
                 <i className="fas fa-arrow-left me-2"></i> Volver al Listado
             </Link>
 
-            {/* Renderizar el Formulario importado */}
             <FormularioProductoNV />
             
            
