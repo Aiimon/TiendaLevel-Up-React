@@ -31,6 +31,7 @@ import EditarProducto from './pages/EditarProducto';
 import Perfil from "./pages/Perfil";
 import Ordenes from "./pages/Ordenes";
 import Reporte from "./pages/Reporte";
+import ProteccionUser from "./components/ProteccionUser";
 
 // Componente de protección Admin
 function ProteccionAdmin({ children, usuario }) {
@@ -44,17 +45,16 @@ function Layout() {
   const location = useLocation();
   const [carritoOpen, setCarritoOpen] = useState(false);
   const [productos, setProductos] = useState([]);
-  const [usuario, setUsuario] = useState(null);
+  const [usuario, setUsuario] = useState(() => JSON.parse(localStorage.getItem("usuario")) || null);
 
-  // Cargar usuario desde localStorage y escuchar cambios
+  // ✅ Escuchar eventos globales de cambio de usuario (Auth, logout, etc.)
   useEffect(() => {
-    const cargarUsuario = () => {
+    const handleUsuarioCambiado = () => {
       const usuarioLS = JSON.parse(localStorage.getItem("usuario"));
       setUsuario(usuarioLS || null);
     };
-    cargarUsuario();
-    window.addEventListener("usuarioCambiado", cargarUsuario);
-    return () => window.removeEventListener("usuarioCambiado", cargarUsuario);
+    window.addEventListener("usuarioCambiado", handleUsuarioCambiado);
+    return () => window.removeEventListener("usuarioCambiado", handleUsuarioCambiado);
   }, []);
 
   // Inicializar productos y carrito
@@ -249,7 +249,7 @@ function Layout() {
         <Navbar
           cantidad={productos.reduce((acc, p) => acc + (p.cantidad || 0), 0)}
           abrirCarrito={() => setCarritoOpen(true)}
-          usuario={usuario}
+          usuario={usuario} // ahora siempre cargará desde localStorage si existe
         />
       )}
 
@@ -296,14 +296,36 @@ function Layout() {
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/eventos" element={<Eventos />} />
-        <Route path="/detalles/:id"
-          element={<Detalles productos={productos} usuario={usuario} onAgregarCarrito={handleAgregarCarrito} />}
+        <Route
+          path="/detalles/:id"
+          element={
+            <Detalles
+              productos={productos}
+              usuario={usuario}
+              onAgregarCarrito={handleAgregarCarrito}
+            />
+          }
         />
-        <Route path="/carro"
-          element={<Carro carrito={productos.filter((p) => p.cantidad > 0)} onActualizarCantidad={handleActualizarCantidad} />}
+        <Route
+          path="/carro"
+          element={
+            <Carro
+              carrito={productos.filter((p) => p.cantidad > 0)}
+              onActualizarCantidad={handleActualizarCantidad}
+            />
+          }
         />
-        <Route path="/checkout"
-          element={<Checkout carrito={productos.filter((p) => p.cantidad > 0)} onActualizarCantidad={handleActualizarCantidad} onCompraExitosa={handleCompraExitosa} />}
+        <Route
+          path="/checkout"
+          element={
+            <ProteccionUser usuario={usuario}>
+              <Checkout
+                carrito={productos.filter((p) => p.cantidad > 0)}
+                onActualizarCantidad={handleActualizarCantidad}
+                onCompraExitosa={handleCompraExitosa}
+              />
+            </ProteccionUser>
+          }
         />
         <Route path="/soporte" element={<Soporte usuario={usuario} />} />
         <Route path="/boleta" element={<Boleta />} />
@@ -316,9 +338,7 @@ function Layout() {
             key={path}
             path={path}
             element={
-              <ProteccionAdmin usuario={usuario}>
-                {element}
-              </ProteccionAdmin>
+              <ProteccionAdmin usuario={usuario}>{element}</ProteccionAdmin>
             }
           />
         ))}

@@ -11,6 +11,7 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
 
   const dropdownRef = useRef(null);
   const usuarioRef = useRef(null);
+  const navRef = useRef(null);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleProductos = () => setProductosOpen(!productosOpen);
@@ -34,12 +35,16 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
       if (usuarioRef.current && !usuarioRef.current.contains(event.target)) {
         setUsuarioOpen(false);
       }
+
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Escuchar cambios de usuario global
   useEffect(() => {
     const handleUsuarioCambiado = () => {
       const usuarioLS = JSON.parse(localStorage.getItem("usuario"));
@@ -51,12 +56,13 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
 
   return (
     <nav
+      ref={navRef}
       className="navbar navbar-expand-lg border-bottom border-secondary-subtle sticky-top"
       style={{ background: "#05050580", backdropFilter: "blur(8px)" }}
     >
       <div className="container">
         <Link className="navbar-brand brand neon active" to="/">
-          <i className="bi bi-joystick me-2"></i>Level‑Up Gamer
+          <i className="bi bi-joystick me-2"></i>Level-Up Gamer
         </Link>
 
         <button
@@ -235,9 +241,18 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                       <button
                         className="dropdown-item text-white p-2 hover-neon w-100 text-start"
                         onClick={() => {
-                          localStorage.removeItem("usuario");
+                          const carritoLS = JSON.parse(localStorage.getItem("carrito")) || [];
+                          carritoLS.forEach(item => {
+                            const stockActual = Number(localStorage.getItem(`stock_${item.id}`)) || 0;
+                            const stockNuevo = stockActual + item.cantidad;
+                            localStorage.setItem(`stock_${item.id}`, stockNuevo);
+                          });
                           localStorage.removeItem("carrito");
+                          localStorage.removeItem("usuario");
+
                           window.dispatchEvent(new Event("usuarioCambiado"));
+                          window.dispatchEvent(new Event("carritoCambiado"));
+
                           window.location.href = "/";
                         }}
                       >
