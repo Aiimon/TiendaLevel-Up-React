@@ -70,8 +70,8 @@ function Auth() {
                 <div className="modal-body">
                   <RegistroForm
                     onClose={() => setShowRegister(false)}
-                    onUsuarioChange={() => window.dispatchEvent(new Event("usuarioCambiado"))} // 🔔 Notifica a Layout
-                    abrirLogin={abrirLogin} // 🔹 Pasamos la función a RegistroForm
+                    onUsuarioChange={() => window.dispatchEvent(new Event("usuarioCambiado"))}
+                    abrirLogin={abrirLogin}
                   />
                 </div>
               </div>
@@ -100,7 +100,7 @@ function Auth() {
                 <div className="modal-body">
                   <LoginForm
                     onClose={() => setShowLogin(false)}
-                    onUsuarioChange={() => window.dispatchEvent(new Event("usuarioCambiado"))} // 🔔 Notifica a Layout
+                    onUsuarioChange={() => window.dispatchEvent(new Event("usuarioCambiado"))}
                   />
                 </div>
               </div>

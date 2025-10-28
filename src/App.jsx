@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./App.css";
 import Navbar from "./components/Navbar";
@@ -32,9 +32,16 @@ import Perfil from "./pages/Perfil";
 import Ordenes from "./pages/Ordenes";
 import Reporte from "./pages/Reporte";
 
+// Componente de protección Admin
+function ProteccionAdmin({ children, usuario }) {
+  if (!usuario || usuario.rol !== "admin") {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+}
+
 function Layout() {
   const location = useLocation();
-
   const [carritoOpen, setCarritoOpen] = useState(false);
   const [productos, setProductos] = useState([]);
   const [usuario, setUsuario] = useState(null);
@@ -95,23 +102,15 @@ function Layout() {
             Math.min(cantidadNueva, p.stock + p.cantidad)
           );
           const stockFinal = p.stock + p.cantidad - cantidadFinal;
-
           localStorage.setItem(`stock_${p.id}`, stockFinal);
-
-          return {
-            ...p,
-            cantidad: cantidadFinal,
-            stock: stockFinal,
-          };
+          return { ...p, cantidad: cantidadFinal, stock: stockFinal };
         }
         return p;
       });
-
       localStorage.setItem(
         "carrito",
         JSON.stringify(nuevos.filter((p) => p.cantidad > 0))
       );
-
       return nuevos;
     });
   };
@@ -213,9 +212,36 @@ function Layout() {
     }
   }, [location.pathname]);
 
-  const hideNavbarRoutes = ["/auth", "/productosadmin", "/nuevoproducto", "/usuariosadmin", "/nuevousuario", "/homeadmin","/perfiladmin", "/categoria_admin", "/editaruser", "/editarproducto", "/ordenes","/reporte"];
+  const hideNavbarRoutes = [
+    "/auth",
+    "/productosadmin",
+    "/nuevoproducto",
+    "/usuariosadmin",
+    "/nuevousuario",
+    "/homeadmin",
+    "/perfiladmin",
+    "/categoria_admin",
+    "/editaruser",
+    "/editarproducto",
+    "/ordenes",
+    "/reporte",
+  ];
   const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
   const shouldShowBotonWsp = !hideNavbarRoutes.includes(location.pathname);
+
+  const adminRoutes = [
+    { path: "/homeadmin", element: <Homeadmin /> },
+    { path: "/productosadmin", element: <Productosadmin /> },
+    { path: "/usuariosadmin", element: <Usuariosadmin /> },
+    { path: "/nuevoproducto", element: <NuevoProducto /> },
+    { path: "/nuevousuario", element: <NuevoUsuario /> },
+    { path: "/perfiladmin", element: <Perfiladmin /> },
+    { path: "/categoria_admin", element: <Categoriaadmin /> },
+    { path: "/editaruser/:id", element: <EditarUser /> },
+    { path: "/editarproducto/:id", element: <EditarProducto /> },
+    { path: "/ordenes", element: <Ordenes /> },
+    { path: "/reporte", element: <Reporte /> },
+  ];
 
   return (
     <>
@@ -223,7 +249,7 @@ function Layout() {
         <Navbar
           cantidad={productos.reduce((acc, p) => acc + (p.cantidad || 0), 0)}
           abrirCarrito={() => setCarritoOpen(true)}
-          usuario={usuario?.nombre || usuario}
+          usuario={usuario}
         />
       )}
 
@@ -235,6 +261,7 @@ function Layout() {
       />
 
       <Routes>
+        {/* Rutas públicas */}
         <Route
           path="/"
           element={
@@ -269,51 +296,32 @@ function Layout() {
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/eventos" element={<Eventos />} />
-        <Route path="/homeadmin" element={<Homeadmin />} />
-        <Route path="/productosadmin" element={<Productosadmin />} />
-        <Route path="/nuevoproducto" element={<NuevoProducto />} />
-        <Route path="/usuariosadmin" element={<Usuariosadmin />} />
-        <Route path="/nuevousuario" element={<NuevoUsuario />} />
-        <Route path="/perfiladmin" element={<Perfiladmin />} />
-        <Route path="/categoria_admin" element={<Categoriaadmin />} />
-        <Route path="/editaruser/:id" element={<EditarUser />} />
-        <Route path="/editarproducto/:id" element={<EditarProducto />} />
-        <Route path="/ordenes" element={<Ordenes />} />
-        <Route path="/reporte" element={<Reporte />} />
-        <Route path="/termino" element={<Termino />} />
-        <Route path="/privacidad" element={<Privacidad />} />
-        <Route
-          path="/detalles/:id"
-          element={
-            <Detalles
-              productos={productos}
-              usuario={usuario}
-              onAgregarCarrito={handleAgregarCarrito}
-            />
-          }
+        <Route path="/detalles/:id"
+          element={<Detalles productos={productos} usuario={usuario} onAgregarCarrito={handleAgregarCarrito} />}
         />
-        <Route
-          path="/carro"
-          element={
-            <Carro
-              carrito={productos.filter((p) => p.cantidad > 0)}
-              onActualizarCantidad={handleActualizarCantidad}
-            />
-          }
+        <Route path="/carro"
+          element={<Carro carrito={productos.filter((p) => p.cantidad > 0)} onActualizarCantidad={handleActualizarCantidad} />}
         />
-        <Route
-          path="/checkout"
-          element={
-            <Checkout
-              carrito={productos.filter((p) => p.cantidad > 0)}
-              onActualizarCantidad={handleActualizarCantidad}
-              onCompraExitosa={handleCompraExitosa}
-            />
-          }
+        <Route path="/checkout"
+          element={<Checkout carrito={productos.filter((p) => p.cantidad > 0)} onActualizarCantidad={handleActualizarCantidad} onCompraExitosa={handleCompraExitosa} />}
         />
         <Route path="/soporte" element={<Soporte usuario={usuario} />} />
         <Route path="/boleta" element={<Boleta />} />
         <Route path="/perfil" element={<Perfil />} />
+        <Route path="/termino" element={<Termino />} />
+        <Route path="/privacidad" element={<Privacidad />} />
+
+        {adminRoutes.map(({ path, element }) => (
+          <Route
+            key={path}
+            path={path}
+            element={
+              <ProteccionAdmin usuario={usuario}>
+                {element}
+              </ProteccionAdmin>
+            }
+          />
+        ))}
       </Routes>
 
       {shouldShowBotonWsp && <BotonWsp />}

@@ -7,6 +7,8 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
   const [productosOpen, setProductosOpen] = useState(false);
   const [usuarioOpen, setUsuarioOpen] = useState(false);
 
+  const [usuarioActual, setUsuarioActual] = useState(usuario);
+
   const dropdownRef = useRef(null);
   const usuarioRef = useRef(null);
 
@@ -16,16 +18,14 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
 
   const categorias = productosD.categorias || [];
 
-  // Mapear cada categoría a la imagen del primer producto
   const imagenesCategoria = {};
   categorias.forEach((cat) => {
     const prod = productosD.productos.find((p) => p.categoria === cat);
     imagenesCategoria[cat] = prod
-      ? `/${prod.imagen.split("/").pop()}` // Ruta desde public
-      : "/default.png"; // fallback opcional
+      ? `/${prod.imagen.split("/").pop()}`
+      : "/default.png";
   });
 
-  // Cerrar dropdowns si se hace click fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -35,9 +35,18 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
         setUsuarioOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Escuchar cambios de usuario global
+  useEffect(() => {
+    const handleUsuarioCambiado = () => {
+      const usuarioLS = JSON.parse(localStorage.getItem("usuario"));
+      setUsuarioActual(usuarioLS || null);
+    };
+    window.addEventListener("usuarioCambiado", handleUsuarioCambiado);
+    return () => window.removeEventListener("usuarioCambiado", handleUsuarioCambiado);
   }, []);
 
   return (
@@ -84,7 +93,6 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                     gap: "10px",
                     minWidth: "320px",
                     zIndex: 2000,
-                    animation: "fadeInSlide 0.25s ease forwards",
                   }}
                 >
                   <Link
@@ -173,7 +181,7 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                   fontFamily: "'Roboto', system-ui, -apple-system, Segoe UI, sans-serif",
                 }}
               >
-                {usuario ? usuario : "Invitado"}
+                {usuarioActual?.nombre || "Invitado"}
                 <i className="bi bi-caret-down-fill ms-1"></i>
               </button>
 
@@ -187,7 +195,7 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                     zIndex: 3000,
                   }}
                 >
-                  {!usuario ? (
+                  {!usuarioActual ? (
                     <>
                       <Link
                         to="/auth"
@@ -213,11 +221,23 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                       >
                         Perfil
                       </Link>
+
+                      {usuarioActual?.rol === "admin" && (
+                        <Link
+                          to="/homeadmin"
+                          className="dropdown-item text-white p-2 hover-neon"
+                          onClick={() => setUsuarioOpen(false)}
+                        >
+                          Dashboard Admin
+                        </Link>
+                      )}
+
                       <button
                         className="dropdown-item text-white p-2 hover-neon w-100 text-start"
                         onClick={() => {
                           localStorage.removeItem("usuario");
                           localStorage.removeItem("carrito");
+                          window.dispatchEvent(new Event("usuarioCambiado"));
                           window.location.href = "/";
                         }}
                       >
@@ -231,21 +251,6 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes fadeInSlide {
-          0% {opacity: 0; transform: translateY(-10px);}
-          100% {opacity: 1; transform: translateY(0);}
-        }
-        .hover-neon:hover {
-          box-shadow: 0 0 8px #1E90FF, 0 0 16px #39FF14;
-          transform: translateY(-3px);
-          transition: all 0.2s ease;
-        }
-        .dropdown-item {
-          color: white !important;
-        }
-      `}</style>
     </nav>
   );
 }

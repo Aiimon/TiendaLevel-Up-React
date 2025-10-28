@@ -9,31 +9,38 @@ export default function Perfil() {
   const [resenias, setResenias] = useState([]);
   const [incidencias, setIncidencias] = useState([]);
   const [error, setError] = useState(null);
+  const [alerta, setAlerta] = useState(null);
 
   useEffect(() => {
-    const usuarioActivo =
-      JSON.parse(localStorage.getItem("usuario")) ||
-      JSON.parse(localStorage.getItem("usuarioActual"));
+    const cargarUsuario = () => {
+      const usuarioActivo =
+        JSON.parse(localStorage.getItem("usuario")) ||
+        JSON.parse(localStorage.getItem("usuarioActual"));
+      if (!usuarioActivo) {
+        setError("No hay una sesión activa. Inicia sesión para ver tu perfil.");
+        return;
+      }
+      setUsuario(usuarioActivo);
 
-    if (!usuarioActivo) {
-      setError("No hay una sesión activa. Inicia sesión para ver tu perfil.");
-      return;
-    }
-    setUsuario(usuarioActivo);
+      const todasBoletas = JSON.parse(localStorage.getItem("boletas")) || [];
+      setBoletas(todasBoletas.filter(b => b.email === usuarioActivo.email));
 
-    const todasBoletas = JSON.parse(localStorage.getItem("boletas")) || [];
-    setBoletas(todasBoletas.filter(b => b.email === usuarioActivo.email));
+      const todasResenias = JSON.parse(localStorage.getItem("resenias")) || [];
+      const filtradas = todasResenias.filter(r => r.email === usuarioActivo.email);
+      const únicas = filtradas.filter((r, index, arr) => {
+        return arr.findIndex(item => item.fecha === r.fecha && item.productoId === r.productoId) === index;
+      });
+      setResenias(únicas);
 
-    const todasResenias = JSON.parse(localStorage.getItem("resenias")) || [];
-    // Filtrar por email del usuario y eliminar duplicados por id o fecha ISO
-    const filtradas = todasResenias.filter(r => r.email === usuarioActivo.email);
-    const únicas = filtradas.filter((r, index, arr) => {
-      return arr.findIndex(item => item.fecha === r.fecha && item.productoId === r.productoId) === index;
-    });
-    setResenias(únicas);
+      const todosSoportes = JSON.parse(localStorage.getItem("mensajesSoporte")) || {};
+      setIncidencias(todosSoportes[usuarioActivo.email] || []);
+    };
 
-    const todosSoportes = JSON.parse(localStorage.getItem("mensajesSoporte")) || {};
-    setIncidencias(todosSoportes[usuarioActivo.email] || []);
+    cargarUsuario();
+
+    // Escuchar cambios en el usuario desde otros componentes (Navbar)
+    window.addEventListener("usuarioCambiado", cargarUsuario);
+    return () => window.removeEventListener("usuarioCambiado", cargarUsuario);
   }, []);
 
   if (error) {
@@ -68,8 +75,17 @@ export default function Perfil() {
             <button
               className="btn btn-outline-danger"
               onClick={() => {
-                localStorage.removeItem("usuario");
-                navigate("/login");
+                setAlerta({ tipo: "success", mensaje: "Sesión cerrada correctamente." });
+                setTimeout(() => {
+                  localStorage.removeItem("usuario");
+                  localStorage.removeItem("carrito");
+                  setUsuario(null);
+
+                  // Disparar evento global para notificar al Navbar
+                  window.dispatchEvent(new Event("usuarioCambiado"));
+
+                  navigate("/");
+                }, 1200);
               }}
             >
               Cerrar sesión
@@ -183,6 +199,18 @@ export default function Perfil() {
           )}
         </div>
       </div>
+
+      {/* Alerta de sesión cerrada */}
+      {alerta && (
+        <div
+          className={`alert alert-${alerta.tipo} position-fixed top-0 end-0 m-3`}
+          style={{ zIndex: 9999 }}
+          role="alert"
+        >
+          {alerta.mensaje}
+        </div>
+      )}
+
       <Footer />
     </>
   );

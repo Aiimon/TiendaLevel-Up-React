@@ -1,28 +1,30 @@
 import { useState, useEffect } from "react";
 import CryptoJS from "crypto-js";
 import { useNavigate } from "react-router-dom"; 
-import usuariosData from "../data/usuarios.json"; // <-- importar JSON
+import usuariosData from "../data/usuarios.json";
 
 const claveSecreta = "miClaveFijaParaAES";
 
-export default function LoginForm({ onClose, onUsuarioChange }) { // 🔹 agregamos prop onUsuarioChange
+export default function LoginForm({ onClose, onUsuarioChange }) { 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errores, setErrores] = useState({});
   const [alerta, setAlerta] = useState(null);
   const navigate = useNavigate();
 
-  // --- Cargar usuarios desde JSON si localStorage está vacío ---
   useEffect(() => {
-    const usuariosLS = JSON.parse(localStorage.getItem("usuarios")) || [];
-    if (usuariosLS.length === 0) {
-      // Encriptar rut y password antes de guardar
+    // Traer usuarios de localStorage
+    let usuariosLS = JSON.parse(localStorage.getItem("usuarios"));
+
+    // Si no existen o están vacíos, cargamos desde JSON
+    if (!usuariosLS || usuariosLS.length === 0) {
       const usuariosEncriptados = usuariosData.map(u => ({
         ...u,
         rut: CryptoJS.AES.encrypt(u.rut, claveSecreta).toString(),
         password: CryptoJS.AES.encrypt(u.password, claveSecreta).toString()
       }));
       localStorage.setItem("usuarios", JSON.stringify(usuariosEncriptados));
+      usuariosLS = usuariosEncriptados;
     }
   }, []);
 
@@ -82,12 +84,17 @@ export default function LoginForm({ onClose, onUsuarioChange }) { // 🔹 agrega
 
       mostrarAlerta("success", `Bienvenido, ${usuario.nombre}`);
 
-      // 🔹 Notificar a Layout que el usuario cambió
       if (onUsuarioChange) onUsuarioChange();
 
       setTimeout(() => {
-        onClose(); // cerrar modal
-        navigate("/"); // ir a inicio
+        onClose();
+
+        // 🔹 Redirigir según rol
+        if (usuarioSesion.rol === "admin") {
+          navigate("/homeadmin");
+        } else {
+          navigate("/"); // usuario normal
+        }
       }, 1000);
 
     } catch {

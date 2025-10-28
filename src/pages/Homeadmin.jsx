@@ -1,6 +1,3 @@
-// src/pages/Homeadmin.jsx
-
-import React from 'react';
 import SidebarAdmin from "../components/SidebarAdmin"; 
 import DashboardContent from "../components/DashboardContent"; 
 import Footer from "../components/Footer";
