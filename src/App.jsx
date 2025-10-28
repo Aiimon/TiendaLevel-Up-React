@@ -27,6 +27,8 @@ import Categoriaadmin from "./pages/Categoria_admin";
 import EditarUser from "./pages/Editaruser";
 import EditarProducto from './pages/EditarProducto';
 import Perfil from "./pages/Perfil";
+import Ordenes from "./pages/Ordenes";
+import Reporte from "./pages/Reporte";
 
 function Layout() {
   const location = useLocation();
@@ -191,13 +193,19 @@ function Layout() {
         case "/editarproducto":
           document.title = "Level-Up · Editar Producto";
           break;
+        case "/ordenes":
+          document.title = "Level-Up · Órdenes";
+          break;
+        case "/reporte":
+          document.title = "Level-Up · Reporte";
+          break;
         default:
           document.title = "Level-Up";
       }
     }
   }, [location.pathname]);
 
-  const hideNavbarRoutes = ["/auth", "/productosadmin", "/nuevoproducto", "/usuariosadmin", "/nuevousuario", "/homeadmin","/perfiladmin", "/categoria_admin", "/editaruser", "/editarproducto",];
+  const hideNavbarRoutes = ["/auth", "/productosadmin", "/nuevoproducto", "/usuariosadmin", "/nuevousuario", "/homeadmin","/perfiladmin", "/categoria_admin", "/editaruser", "/editarproducto", "/ordenes","/reporte"];
   const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
   const shouldShowBotonWsp = !hideNavbarRoutes.includes(location.pathname);
 
@@ -262,6 +270,8 @@ function Layout() {
         <Route path="/categoria_admin" element={<Categoriaadmin />} />
         <Route path="/editaruser/:id" element={<EditarUser />} />
         <Route path="/editarproducto/:id" element={<EditarProducto />} />
+        <Route path="/ordenes" element={<Ordenes />} />
+        <Route path="/reporte" element={<Reporte />} />
         <Route
           path="/detalles/:id"
           element={

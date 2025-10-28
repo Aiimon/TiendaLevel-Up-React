@@ -81,14 +81,14 @@ function DashboardContent() {
 
     const featureCardsTop = [
         { title: 'Dashboard', id: 'feature-dashboard-top', icon: 'fas fa-tachometer-alt', path: '/homeadmin', desc: 'Visión general de todas las métricas y estadísticas clave del sistema.' },
-        { title: 'Órdenes', id: 'feature-ordenes-top', icon: 'fas fa-clipboard-list', path: '/ordenesadmin', desc: 'Gestión y seguimiento de todas las órdenes de compra realizadas.' },
+        { title: 'Órdenes', id: 'feature-ordenes-top', icon: 'fas fa-clipboard-list', path: '/ordenes', desc: 'Gestión y seguimiento de todas las órdenes de compra realizadas.' },
         { title: 'Productos', id: 'feature-productos-top', icon: 'fas fa-cubes', path: '/productosadmin', desc: 'Administrar inventario y detalles de los productos disponibles.' },
-        { title: 'Categorías', id: 'feature-categorias-top', icon: 'fas fa-tags', path: '/categoriasadmin', desc: 'Organizar productos en categorías para facilitar su navegación.' },
+        { title: 'Categorías', id: 'feature-categorias-top', icon: 'fas fa-tags', path: '/categoria_admin', desc: 'Organizar productos en categorías para facilitar su navegación.' },
     ];
 
     const featureCardsBottom = [
         { title: 'Usuarios', id: 'feature-usuarios-bottom', icon: 'fas fa-user-friends', path: '/usuariosadmin', desc: 'Gestión de cuentas de usuario y sus roles dentro del sistema.' },
-        { title: 'Reportes', id: 'feature-reportes-bottom', icon: 'fas fa-file-alt', path: '/reportesadmin', desc: 'Generación de informes detallados sobre las operaciones del sistema.' },
+        { title: 'Reportes', id: 'feature-reportes-bottom', icon: 'fas fa-file-alt', path: '/reporte', desc: 'Generación de informes detallados sobre las operaciones del sistema.' },
         { title: 'Perfil', id: 'feature-perfil-bottom', icon: 'fas fa-user-circle', path: '/perfiladmin', desc: 'Administración de la información personal y configuraciones de cuenta.' },
         { title: 'Tienda', id: 'feature-tienda-bottom', icon: 'fas fa-store', path: '/', desc: 'Visualiza tu tienda en tiempo real, Visualiza los reportes de los usuarios.' },
     ];

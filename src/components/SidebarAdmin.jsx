@@ -45,11 +45,11 @@ export const StockNotification = ({ products }) => {
 export const Sidebar = () => {
     const navItems = [
         { name: 'Dashboard',  path: '/homeadmin' }, 
-        { name: 'Órdenes', path: '/ordenesadmin' },
+        { name: 'Órdenes', path: '/ordenes' },
         { name: 'Productos', path: '/productosadmin' },
         { name: 'Categorías', path: '/categoria_admin' },
         { name: 'Usuarios', path: '/usuariosadmin' },
-        { name: 'Reportes', path: '/reportesadmin' },
+        { name: 'Reportes', path: '/reporte' },
     ];
 
     const [hoveredNav, setHoveredNav] = useState(null);
@@ -82,7 +82,6 @@ export const Sidebar = () => {
                             }
                             style={({ isActive }) => ({ 
                                 ...hoverStyle,
-                                backgroundColor: isActive && item.name === 'Dashboard' ? '#007bff' : 'transparent',
                                 borderRadius: '5px',
                                 boxShadow: hoveredNav === item.name ? `0 0 10px ${GREEN_LIGHT}` : 'none'
                             })}
