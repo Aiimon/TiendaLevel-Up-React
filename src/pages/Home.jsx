@@ -37,7 +37,7 @@ function Home({ carritoOpen, setCarritoOpen, cantidad, setCantidad }) {
             <span className="badge badge-neon">puntos LevelUp</span> por compras y referidos.
           </>
         }
-        btn1={{ link: "/productos", clase: "btn-accent", icon: "bi-lightning-charge", text: "Explorar Productos" }}
+        btn1={{ link: "/categoria", clase: "btn-accent", icon: "bi-lightning-charge", text: "Explorar Productos" }}
         btn2={{ link: "/auth", clase: "btn-outline-light", icon: "bi-stars", text: "Únete" }}
       />
 

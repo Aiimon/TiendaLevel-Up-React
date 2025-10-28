@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import CryptoJS from "crypto-js";
 import regionesData from "../data/regiones.json";
+import Swal from "sweetalert2"; 
+import "sweetalert2/dist/sweetalert2.min.css"; 
 
 const claveSecreta = "miClaveFijaParaAES";
 
-export default function RegistroForm({ onClose, onUsuarioChange }) {
+export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) { // 🔹 agregamos abrirLogin
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [rut, setRut] = useState("");
@@ -66,7 +68,7 @@ export default function RegistroForm({ onClose, onUsuarioChange }) {
     }
   };
 
-  // --- Submit ---
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -111,21 +113,29 @@ export default function RegistroForm({ onClose, onUsuarioChange }) {
     usuarios.push(nuevoUsuario);
     localStorage.setItem("usuarios", JSON.stringify(usuarios));
 
-    // 🔹 Guardar usuario en sesión y notificar a Layout
     localStorage.setItem("usuario", JSON.stringify(nuevoUsuario));
     if (onUsuarioChange) onUsuarioChange();
 
-    alert("Registro exitoso!");
+    Swal.fire({
+      title: "¡Registro exitoso!",
+      text: "Tu cuenta ha sido creada correctamente.",
+      icon: "success",
+      confirmButtonText: "Ir al login",
+      background: "#2c2c2c", 
+      color: "#fff",
+      confirmButtonColor: "#1E90FF"
+    }).then(() => {
+      onClose();  
+      if(abrirLogin) abrirLogin();
+    });
+
     // reset
     setNombre(""); setApellido(""); setRut(""); setEmail(""); setPassword(""); setFecha(""); setRegion(""); setComuna(""); setTelefono("");
     setErrores({});
-    onClose();
   };
 
-  // --- Render ---
   return (
     <form onSubmit={handleSubmit} className="row g-3">
-
       {/** NOMBRE **/}
       <div className="col-md-6">
         <label className="form-label">Nombre</label>

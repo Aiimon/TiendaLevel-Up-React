@@ -22,7 +22,6 @@ function Boleta() {
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", padding: "50px 0", fontFamily: "Arial, sans-serif" }}>
       <div style={{ maxWidth: 900, margin: "0 auto", color: "#fff" }}>
-        {/* Card principal */}
         <div style={{ borderRadius: 10, overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>
           {/* Header */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 20, backgroundColor: "#1e1e1e" }}>
@@ -82,9 +81,12 @@ function Boleta() {
             </div>
           </div>
 
-          {/* Botón */}
+          {/* Botón Finalizar */}
           <div style={{ padding: 20, textAlign: "center", backgroundColor: "#1e1e1e" }}>
-            <button className="btn btn-success w-50" onClick={() => navigate("/")}>
+            <button
+              className="btn btn-success w-50 btn-neon-accent"
+              onClick={() => navigate("/perfil", { state: { nuevaBoleta: ultimaBoleta } })}
+            >
               Finalizar
             </button>
           </div>

@@ -26,7 +26,13 @@ npm install @fontsource/roboto @fontsource/orbitron
 npm install --save-dev vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom
 npm install @paypal/react-paypal-js
 npm install crypto-js
+npm install sweetalert2
 
 
+paypal
+
+sb-wxuwa47149727@personal.example.com
+
+{b^9Mv<*
 
 */

@@ -6,6 +6,10 @@ function Auth() {
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
 
+  const abrirLogin = () => {
+    setShowLogin(true);
+  };
+
   return (
     <section className="banner-auth">
       <div className="banner-left d-flex flex-column justify-content-center align-items-center text-center">
@@ -67,6 +71,7 @@ function Auth() {
                   <RegistroForm
                     onClose={() => setShowRegister(false)}
                     onUsuarioChange={() => window.dispatchEvent(new Event("usuarioCambiado"))} // 🔔 Notifica a Layout
+                    abrirLogin={abrirLogin} // 🔹 Pasamos la función a RegistroForm
                   />
                 </div>
               </div>

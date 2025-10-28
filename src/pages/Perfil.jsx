@@ -11,7 +11,6 @@ export default function Perfil() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Obtener usuario activo
     const usuarioActivo =
       JSON.parse(localStorage.getItem("usuario")) ||
       JSON.parse(localStorage.getItem("usuarioActual"));
@@ -22,14 +21,17 @@ export default function Perfil() {
     }
     setUsuario(usuarioActivo);
 
-    // Cargar boletas y reseñas del usuario
     const todasBoletas = JSON.parse(localStorage.getItem("boletas")) || [];
-    const todasResenias = JSON.parse(localStorage.getItem("resenias")) || [];
-
     setBoletas(todasBoletas.filter(b => b.email === usuarioActivo.email));
-    setResenias(todasResenias.filter(r => r.email === usuarioActivo.email));
 
-    // Cargar incidencias/soportes del usuario
+    const todasResenias = JSON.parse(localStorage.getItem("resenias")) || [];
+    // Filtrar por email del usuario y eliminar duplicados por id o fecha ISO
+    const filtradas = todasResenias.filter(r => r.email === usuarioActivo.email);
+    const únicas = filtradas.filter((r, index, arr) => {
+      return arr.findIndex(item => item.fecha === r.fecha && item.productoId === r.productoId) === index;
+    });
+    setResenias(únicas);
+
     const todosSoportes = JSON.parse(localStorage.getItem("mensajesSoporte")) || {};
     setIncidencias(todosSoportes[usuarioActivo.email] || []);
   }, []);
@@ -38,7 +40,7 @@ export default function Perfil() {
     return (
       <div className="text-center py-5 text-white">
         <h4>{error}</h4>
-        <button className="btn btn-primary mt-3" onClick={() => navigate("/login")}>
+        <button className="btn btn-primary mt-3" onClick={() => navigate("/auth")}>
           Ir a iniciar sesión
         </button>
       </div>
@@ -60,12 +62,8 @@ export default function Perfil() {
         <div className="card shadow-lg border-0 p-4 mb-4" style={{ backgroundColor: "#1e1e1e", borderRadius: "16px" }}>
           <div className="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3" style={{ borderColor: "#333" }}>
             <div>
-              <h3 className="fw-bold mb-1">
-                Bienvenido, {usuario.nombre} {usuario.apellido}
-              </h3>
-              <small className="text-muted" style={{ color: "#aaa" }}>
-                {usuario.email}
-              </small>
+              <h3 className="fw-bold mb-1">Bienvenido, {usuario.nombre} {usuario.apellido}</h3>
+              <small className="text-muted" style={{ color: "#aaa" }}>{usuario.email}</small>
             </div>
             <button
               className="btn btn-outline-danger"
@@ -98,10 +96,21 @@ export default function Perfil() {
               {boletas.map((b, i) => (
                 <div key={i} className="list-group-item d-flex justify-content-between align-items-center" style={{ backgroundColor: "#1e1e1e", color: "#fff", borderColor: "#333" }}>
                   <div>
-                    <strong>#{b.idTransaccion}</strong> — {new Date(b.fechaCompra || b.fecha).toLocaleDateString()} <br />
-                    <small>{b.productosComprados?.length || 0} productos</small>
+                    <strong>#{b.idTransaccionPayPal}</strong> — {new Date(b.fecha).toLocaleDateString()} <br />
+                    <small>{b.items?.length || 0} productos</small>
                   </div>
-                  <div><strong>${b.totalOrden?.toLocaleString()}</strong></div>
+                  <div className="d-flex gap-2">
+                    <strong>${b.totalPrecio?.toLocaleString()}</strong>
+                    <button
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={() => {
+                        localStorage.setItem("ultimaBoleta", JSON.stringify(b));
+                        navigate("/boleta");
+                      }}
+                    >
+                      Ver
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -114,13 +123,43 @@ export default function Perfil() {
           {resenias.length === 0 ? (
             <p className="text-muted">Aún no has dejado reseñas.</p>
           ) : (
-            resenias.map((r, i) => (
-              <div key={i} className="border-bottom py-2" style={{ borderColor: "#333" }}>
-                <strong>{r.producto}</strong>
-                <p className="mb-1">{r.comentario}</p>
-                <small className="text-muted">Puntaje: {r.puntaje}/5</small>
-              </div>
-            ))
+            <div className="list-group">
+              {resenias.map((r, i) => (
+                <div
+                  key={i}
+                  className="list-group-item d-flex justify-content-between align-items-start"
+                  style={{ backgroundColor: "#1e1e1e", color: "#fff", borderColor: "#333" }}
+                >
+                  <div className="d-flex align-items-center gap-3">
+                    <img
+                      src={r.imagen}
+                      alt={r.producto}
+                      style={{ width: 60, height: 60, objectFit: "contain", borderRadius: 6 }}
+                    />
+                    <div>
+                      <strong>{r.producto}</strong>
+                      <p className="mb-1">{r.texto}</p>
+                      <small className="text-secondary">Puntaje: {r.rating}/5</small>
+                    </div>
+                  </div>
+
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() => {
+                      const copia = [...resenias];
+                      copia.splice(i, 1);
+                      setResenias(copia);
+
+                      const todas = JSON.parse(localStorage.getItem("resenias")) || [];
+                      const filtradas = todas.filter(item => !(item.email === r.email && item.fecha === r.fecha && item.productoId === r.productoId));
+                      localStorage.setItem("resenias", JSON.stringify(filtradas));
+                    }}
+                  >
+                    🗑
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 

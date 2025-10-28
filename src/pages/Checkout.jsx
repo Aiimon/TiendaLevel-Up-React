@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import Footer from "../components/Footer";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 function Checkout({ carrito, onActualizarCantidad, onCompraExitosa }) {
   const navigate = useNavigate();
@@ -113,6 +115,7 @@ function Checkout({ carrito, onActualizarCantidad, onCompraExitosa }) {
                     "client-id":
                       "AdPk7nylxq-_Cjepu-zLtkRcs6MXPi9RkPJ6MOJKGA-5hF9IHIy-WCsEc5y0NHnSXUb5H_bsZMkIWauw",
                     currency: "USD",
+                    intent: "capture",
                   }}
                 >
                   <PayPalButtons
@@ -170,20 +173,60 @@ function Checkout({ carrito, onActualizarCantidad, onCompraExitosa }) {
                           payer: order.payer || null,
                         };
 
+                        // Usuario activo
+                        const usuarioActivo = JSON.parse(localStorage.getItem("usuario")) || JSON.parse(localStorage.getItem("usuarioActual"));
+
+                        // Guardar en "ultimaBoleta"
                         localStorage.setItem("ultimaBoleta", JSON.stringify(boleta));
+
+                        // Guardar en "boletas" con email del usuario de la página
+                        const todasBoletas = JSON.parse(localStorage.getItem("boletas")) || [];
+                        todasBoletas.push({
+                          ...boleta,
+                          email: usuarioActivo.email,
+                        });
+                        localStorage.setItem("boletas", JSON.stringify(todasBoletas));
 
                         if (onCompraExitosa) onCompraExitosa();
 
-                        alert("¡Compra exitosa!");
-                        navigate("/boleta");
+                        Swal.fire({
+                          title: "¡Compra exitosa!",
+                          text: "Tu pago fue procesado correctamente.",
+                          icon: "success",
+                          confirmButtonText: "Ver boleta",
+                          confirmButtonColor: "#3085d6",
+                        }).then(() => {
+                          navigate("/boleta");
+                        });
                       } catch (err) {
                         console.error("Error capturando orden:", err);
-                        alert("Hubo un error al finalizar el pago. Revisa la consola.");
+                        Swal.fire({
+                          title: "Error en el pago",
+                          text: "Hubo un problema al procesar tu compra. Intenta nuevamente.",
+                          icon: "error",
+                          confirmButtonText: "Aceptar",
+                          confirmButtonColor: "#d33",
+                        });
                       }
+                    }}
+                    onCancel={() => {
+                      Swal.fire({
+                        title: "Pago rechazado",
+                        text: "Cancelaste el pago o cerraste la ventana de PayPal.",
+                        icon: "warning",
+                        confirmButtonText: "Aceptar",
+                        confirmButtonColor: "#f39c12",
+                      });
                     }}
                     onError={(err) => {
                       console.error("Error en el pago:", err);
-                      alert("El pago fue rechazado o hubo un error. Intenta nuevamente.");
+                      Swal.fire({
+                        title: "Pago rechazado",
+                        text: "El pago fue rechazado o hubo un error. Intenta nuevamente.",
+                        icon: "warning",
+                        confirmButtonText: "Reintentar",
+                        confirmButtonColor: "#f39c12",
+                      });
                     }}
                   />
                 </PayPalScriptProvider>

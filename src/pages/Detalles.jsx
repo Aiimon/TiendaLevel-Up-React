@@ -4,31 +4,38 @@ import Especificacion from "../components/Especificacion";
 import Resenia from "../components/Resenia";
 import Footer from "../components/Footer";
 import ReseniaForm from "../components/ReseniaForm";
+import productosData from "../data/productos.json";
 
-export default function Detalles({ productos, usuario, onAgregarCarrito }) {
+export default function Detalles({ productos = productosData, usuario, onAgregarCarrito }) {
   const { id } = useParams();
   const producto = productos.find(p => p.id === id);
 
-  const [resenias, setResenias] = useState([
-    { nombre: "Juan", texto: "Excelente producto", rating: 5, fecha: new Date() }
-  ]);
-
-  // Stock inicial desde localStorage
+  const [resenias, setResenias] = useState([]);
   const [stock, setStock] = useState(() => {
     const stockLS = localStorage.getItem(`stock_${producto?.id}`);
     return stockLS !== null ? Number(stockLS) : producto?.stock || 0;
   });
 
   useEffect(() => {
-    if (producto) {
-      const stockLS = localStorage.getItem(`stock_${producto.id}`);
-      setStock(stockLS !== null ? Number(stockLS) : producto.stock);
-    }
+    if (!producto) return;
+
+    const stockLS = localStorage.getItem(`stock_${producto.id}`);
+    setStock(stockLS !== null ? Number(stockLS) : producto.stock);
+
+    // Cargar reseñas del producto desde localStorage
+    const todasResenias = JSON.parse(localStorage.getItem("resenias")) || [];
+    const filtradas = todasResenias.filter(r => r.productoId === producto.id);
+
+    // Eliminar duplicados por email + fecha + productoId
+    const únicas = filtradas.filter((r, index, arr) => {
+      return arr.findIndex(item => item.email === r.email && item.fecha === r.fecha && item.productoId === r.productoId) === index;
+    });
+
+    setResenias(únicas);
   }, [producto]);
 
   if (!producto) return <p>Producto no encontrado</p>;
 
-  // Precio final considerando descuento y DUOC
   let precioFinal = producto.precio;
   const descuento = producto.descuento || 0;
   const tieneDescuento = descuento > 0 || usuario?.esDuoc;
@@ -46,13 +53,31 @@ export default function Detalles({ productos, usuario, onAgregarCarrito }) {
     });
   };
 
-  const handleAgregarResenia = (resenia) => {
-    setResenias(prev => [...prev, { ...resenia, fecha: new Date() }]);
+  const handleAgregarResenia = (resenaParcial) => {
+    if (!usuario) return;
+
+    const nuevaResena = {
+      ...resenaParcial,
+      productoId: producto.id,
+      producto: producto.nombre,
+      imagen: producto.imagen ? `/${producto.imagen.split("/").pop()}` : "/logo.png",
+      fecha: new Date().toISOString(),
+    };
+
+    const todasResenias = JSON.parse(localStorage.getItem("resenias")) || [];
+    todasResenias.push(nuevaResena);
+    localStorage.setItem("resenias", JSON.stringify(todasResenias));
+
+    // Actualizar solo las reseñas del producto eliminando duplicados
+    const filtradas = todasResenias.filter(r => r.productoId === producto.id);
+    const únicas = filtradas.filter((r, index, arr) => {
+      return arr.findIndex(item => item.email === r.email && item.fecha === r.fecha && item.productoId === r.productoId) === index;
+    });
+    setResenias(únicas);
   };
 
-  // Imagen desde public/
   const nombreArchivo = producto.imagen.split("/").pop();
-  const srcImg = `/${nombreArchivo}`; // solo public/
+  const srcImg = `/${nombreArchivo}`;
 
   return (
     <>
@@ -102,7 +127,7 @@ export default function Detalles({ productos, usuario, onAgregarCarrito }) {
         </div>
 
         <div className="mt-5">
-          <ReseniaForm onAgregarResenia={handleAgregarResenia} />
+          <ReseniaForm usuario={usuario} onAgregarReseña={handleAgregarResenia} />
           <Resenia resenias={resenias} />
         </div>
       </div>

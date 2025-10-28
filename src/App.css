@@ -28,6 +28,38 @@ body, html, #root, .card, .btn, .dropdown-item, h1, h2, h3, h4, h5, h6, p, span,
 }
 
 /* =========================
+   SweetAlert2 custom
+   ========================= */
+.swal2-popup {
+  background-color: #2c2c2c !important; /* gris oscuro similar a tus cards */
+  color: #fff !important;               /* texto blanco */
+  border-radius: 16px !important;
+  font-family: 'Roboto', sans-serif !important;
+}
+
+.swal2-title {
+  color: var(--accent-blue) !important; /* título en azul neon */
+  font-weight: 700 !important;
+}
+
+.swal2-content {
+  color: #d3d3d3 !important;            /* texto gris claro */
+}
+
+.swal2-confirm {
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-green)) !important;
+  color: #000 !important;
+  font-weight: 700;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1rem !important;
+}
+
+.swal2-confirm:hover {
+  filter: brightness(1.1) !important;
+}
+
+/* =========================
    Fuentes especiales
    ========================= */
 .brand, .section-title {
