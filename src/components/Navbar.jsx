@@ -12,6 +12,7 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
   const dropdownRef = useRef(null);
   const usuarioRef = useRef(null);
   const navRef = useRef(null);
+  const collapseRef = useRef(null);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleProductos = () => setProductosOpen(!productosOpen);
@@ -35,7 +36,6 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
       if (usuarioRef.current && !usuarioRef.current.contains(event.target)) {
         setUsuarioOpen(false);
       }
-
       if (navRef.current && !navRef.current.contains(event.target)) {
         setMenuOpen(false);
       }
@@ -52,6 +52,22 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
     };
     window.addEventListener("usuarioCambiado", handleUsuarioCambiado);
     return () => window.removeEventListener("usuarioCambiado", handleUsuarioCambiado);
+  }, []);
+
+  // Cierra el menú cuando se hace click en cualquier link dentro del navbar-collapse
+  useEffect(() => {
+    const collapseEl = collapseRef.current;
+    const handleLinkClick = (e) => {
+      if (e.target.tagName === "A" || e.target.closest("a")) {
+        setMenuOpen(false);
+      }
+    };
+    if (collapseEl) {
+      collapseEl.addEventListener("click", handleLinkClick);
+    }
+    return () => {
+      if (collapseEl) collapseEl.removeEventListener("click", handleLinkClick);
+    };
   }, []);
 
   return (
@@ -76,7 +92,11 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className={`collapse navbar-collapse ${menuOpen ? "show" : ""}`} id="nav">
+        <div
+          ref={collapseRef}
+          className={`collapse navbar-collapse ${menuOpen ? "show" : ""}`}
+          id="nav"
+        >
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             {/* Dropdown de categorías */}
             <li className="nav-item position-relative" ref={dropdownRef}>
