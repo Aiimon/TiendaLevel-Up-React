@@ -213,7 +213,6 @@ function Layout() {
   }, [location.pathname]);
 
   const hideNavbarRoutes = [
-    "/auth",
     "/productosadmin",
     "/nuevoproducto",
     "/usuariosadmin",
