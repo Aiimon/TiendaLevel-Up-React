@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import productosD from "../data/productos.json"; 
+import productosD from "../data/productos.json"; // ✅ Import JSON corregido
 
 // --- Configuración Global ---
 const LOCAL_STORAGE_KEY_PRODUCTS = 'productos_maestro';
@@ -20,29 +20,22 @@ const getMasterProducts = () => {
     return storedProducts || [];
 };
 
-
 function FormularioProductoEdit({ productId }) {
     
     const navigate = useNavigate();
-    // Estado local para los datos del producto
     const [formData, setFormData] = useState(null); 
     const [isLoading, setIsLoading] = useState(true);
 
-
-    // --- Efecto para cargar los datos del producto al inicio ---
+    // --- Cargar datos del producto al inicio ---
     useEffect(() => {
         const products = getMasterProducts();
-        // Buscar el producto por ID
         const productToEdit = products.find(p => p.id === productId);
 
         if (productToEdit) {
-            // Convertir el objeto 'detalles' a una cadena JSON para mostrarlo en el textarea
             const detallesString = JSON.stringify(productToEdit.detalles, null, 2) || '{}';
-            
             setFormData({
                 ...productToEdit,
-                detalles: detallesString, // Usamos la cadena JSON
-                // Aseguramos que los valores sean strings para los inputs
+                detalles: detallesString,
                 precio: String(productToEdit.precio),
                 stock: String(productToEdit.stock),
                 stockCritico: String(productToEdit.stockCritico),
@@ -55,19 +48,15 @@ function FormularioProductoEdit({ productId }) {
         setIsLoading(false);
     }, [productId, navigate]);
 
-
     const handleChange = (e) => {
         const { name, value } = e.target;
-        
         setFormData(prev => ({ ...prev, [name]: value }));
     };
-    
-    
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!formData) return;
 
-        // --- VALIDACIONES ---
         const priceValue = parseFloat(formData.precio);
         const stockValue = parseInt(formData.stock, 10);
         const stockCriticoValue = parseInt(formData.stockCritico, 10);
@@ -90,15 +79,14 @@ function FormularioProductoEdit({ productId }) {
         try {
             parsedDetalles = JSON.parse(formData.detalles || '{}');
         } catch (error) {
+            console.error(error); // ✅ Evita el error de variable no usada
             alert("Error: El campo 'Detalles (JSON)' no tiene un formato JSON válido.");
             return;
         }
-        // -----------------------------
 
-        // 1. Crear el objeto actualizado
         const productoActualizado = {
             ...formData,
-            id: productId, // El ID se mantiene
+            id: productId,
             precio: priceValue,
             stock: stockValue,
             stockCritico: stockCriticoValue,
@@ -106,7 +94,6 @@ function FormularioProductoEdit({ productId }) {
             detalles: parsedDetalles,
         };
 
-        // 2. Actualizar el array en localStorage
         const masterProducts = getMasterProducts();
         const updatedProducts = masterProducts.map(p => 
             p.id === productId ? productoActualizado : p
@@ -115,23 +102,20 @@ function FormularioProductoEdit({ productId }) {
         localStorage.setItem(LOCAL_STORAGE_KEY_PRODUCTS, JSON.stringify(updatedProducts));
 
         alert(`Producto ${formData.nombre} (${productId}) actualizado correctamente.`);
-        navigate('/productosadmin'); // Volver a la lista después de guardar
+        navigate('/productosadmin');
     };
     
     if (isLoading || !formData) {
         return <div className="text-light p-5 text-center">Cargando datos del producto...</div>;
     }
-    
 
     return (
         <div className="p-4" style={{ backgroundColor: '#212529', borderRadius: '8px', color: 'white' }}>
             <form onSubmit={handleSubmit}>
-                
                 {/* Fila 1: ID, Nombre, Categoría */}
                 <div className="row mb-3">
                     <div className="col-md-3 mb-3">
                         <label className="form-label">ID del Producto</label>
-                        {/* ID es inmutable en edición */}
                         <div className="form-control bg-dark text-warning border-secondary fw-bold">
                             {formData.id}
                         </div>
@@ -185,8 +169,6 @@ function FormularioProductoEdit({ productId }) {
                         <textarea className="form-control bg-dark text-white border-secondary" id="descripcion" name="descripcion" rows="3" value={formData.descripcion} onChange={handleChange}></textarea>
                     </div>
                 </div>
-                
-                
 
                 {/* Botones de Acción */}
                 <button type="submit" className="btn btn-success me-3">
@@ -195,7 +177,6 @@ function FormularioProductoEdit({ productId }) {
                 <button type="button" onClick={() => navigate('/productosadmin')} className="btn btn-secondary">
                     <i className="fas fa-times me-2"></i> Cancelar
                 </button>
-                
             </form>
         </div>
     );

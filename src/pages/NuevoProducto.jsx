@@ -2,7 +2,7 @@ import React from 'react';
 import SidebarAdmin from "../components/SidebarAdmin"; 
 import Footer from "../components/Footer";
 import { Link } from 'react-router-dom';
-import FormularioProductoNV from "../components/FormularioProductoNv";
+import FormularioProductoNV from "../components/FormularioProductoNV"; 
 import Notiadmn from '../components/Notiadmn';
 
 
@@ -19,6 +19,7 @@ function NuevoProducto() {
                 <i className="fas fa-arrow-left me-2"></i> Volver al Listado
             </Link>
 
+            {/* Renderizar el Formulario importado */}
             <FormularioProductoNV />
             
            
