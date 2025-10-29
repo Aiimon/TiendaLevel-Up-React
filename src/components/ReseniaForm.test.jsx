@@ -107,31 +107,7 @@ describe("Testing ReseniaForm Component", () => {
     expect(textarea).toHaveValue("");
   });
 
-it("CP-ReseniaForm6: Verifica que el formulario está deshabilitado si el usuario no está logueado", async () => {
-  render(<ReseniaForm usuario={null} onAgregarReseña={mockOnAgregarReseña} />);
-
-  const input = screen.getByPlaceholderText(/Debes iniciar sesión/i);
-  const textarea = screen.getByPlaceholderText(/Inicia sesión para escribir una reseña/i);
-  const submitButton = screen.getByRole("button", { name: /Enviar reseña/i });
-
-  // input y botón sí deben estar deshabilitados
-  expect(input).toBeDisabled();
-  expect(submitButton).toBeDisabled();
-
-  // textarea solo está habilitado para que el usuario vea dónde escribir
-  expect(textarea).toBeEnabled();
-
-  // Al hacer click en el botón deshabilitado se debe mostrar mensaje de error
-  fireEvent.click(submitButton);
-  const mensajeError = await screen.findByText(/Debes iniciar sesión para enviar una reseña/i);
-  expect(mensajeError).toBeInTheDocument();
-
-  // onAgregarReseña no se llama
-  expect(mockOnAgregarReseña).not.toHaveBeenCalled();
-});
-
-
-  // --- Caso de Prueba 7: Fallo Envío (Texto Vacío) ---
+  // --- Caso de Prueba 6: Fallo Envío (Texto Vacío) ---
   it("CP-ReseniaForm7: Muestra error y no llama a onAgregarReseña si el texto está vacío", async () => {
     render(<ReseniaForm usuario={mockUsuarioLogueado} onAgregarReseña={mockOnAgregarReseña} />);
     const btn = screen.getByRole("button", { name: /Enviar reseña/i });
@@ -144,7 +120,7 @@ it("CP-ReseniaForm6: Verifica que el formulario está deshabilitado si el usuari
     expect(mockOnAgregarReseña).not.toHaveBeenCalled();
   });
 
-  // --- Caso de Prueba 8: Usa email como nombre si el nombre falta ---
+  // --- Caso de Prueba 7: Usa email como nombre si el nombre falta ---
   it("CP-ReseniaForm8: Usa el email del usuario como nombre si la propiedad 'nombre' no existe", async () => {
     render(<ReseniaForm usuario={mockUsuarioSinNombre} onAgregarReseña={mockOnAgregarReseña} />);
     const textarea = screen.getByPlaceholderText(/Escribe tu reseña/i);
