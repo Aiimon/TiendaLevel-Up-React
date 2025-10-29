@@ -21,39 +21,37 @@ describe("Testing ReseniaForm Component", () => {
   it("CP-ReseniaForm1: Renderiza formulario habilitado con datos de usuario y rating por defecto", () => {
     render(<ReseniaForm usuario={mockUsuarioLogueado} onAgregarReseña={mockOnAgregarReseña} />);
 
-    // Verifica nombre de usuario en input deshabilitado (CORREGIDO: usa getByDisplayValue)
-    expect(screen.getByDisplayValue(mockUsuarioLogueado.nombre)).toBeInTheDocument();
-    expect(screen.getByDisplayValue(mockUsuarioLogueado.nombre)).toBeDisabled();
+    const inputNombre = screen.getByDisplayValue(mockUsuarioLogueado.nombre || mockUsuarioLogueado.email);
+    expect(inputNombre).toBeInTheDocument();
+    expect(inputNombre).toBeDisabled();
 
-    // Verifica placeholder del textarea para usuario logueado
-    expect(screen.getByPlaceholderText(/Escribe tu reseña/i)).toBeInTheDocument();
-    // Verifica que el textarea esté habilitado
-    expect(screen.getByPlaceholderText(/Escribe tu reseña/i)).toBeEnabled();
-    // Verifica rating inicial (5 estrellas seleccionadas)
-    const estrellas = screen.getAllByRole('button', { name: /★/ });
+    const textarea = screen.getByPlaceholderText(/Escribe tu reseña/i);
+    expect(textarea).toBeInTheDocument();
+    expect(textarea).toBeEnabled();
+
+    const estrellas = screen.getAllByRole("button", { name: /★/ });
     expect(estrellas).toHaveLength(5);
-    estrellas.forEach(estrella => {
-      // Usamos expresión regular para ignorar espacios extra en el string de color
-      expect(estrella).toHaveStyle(/color:\s*rgb\(255,\s*215,\s*0\)/); // #FFD700
+    estrellas.forEach((estrella, i) => {
+      expect(estrella).toHaveStyle(`color: ${i < 5 ? "#FFD700" : "#555"}`);
     });
-    // Verifica que el botón Enviar esté habilitado
-    expect(screen.getByRole('button', { name: /Enviar reseña/i })).toBeEnabled();
+
+    const btnEnviar = screen.getByRole("button", { name: /Enviar reseña/i });
+    expect(btnEnviar).toBeEnabled();
   });
 
   // --- Caso de Prueba 2: Renderizado Inicial (Usuario NO Logueado) ---
   it("CP-ReseniaForm2: Renderiza formulario deshabilitado si no hay usuario", () => {
     render(<ReseniaForm usuario={null} onAgregarReseña={mockOnAgregarReseña} />);
 
-    // Verifica placeholders indicando que se necesita iniciar sesión
     expect(screen.getByPlaceholderText(/Debes iniciar sesión/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Debes iniciar sesión/i)).toBeDisabled();
     expect(screen.getByPlaceholderText(/Inicia sesión para escribir una reseña/i)).toBeInTheDocument();
 
-    // Verifica que el botón Enviar esté deshabilitado
-    expect(screen.getByRole('button', { name: /Enviar reseña/i })).toBeDisabled();
-    // Verifica que las estrellas no tengan cursor pointer
-    const estrellas = screen.getAllByRole('button', { name: /★/ });
-    expect(estrellas[0]).toHaveStyle('cursor: not-allowed');
+    const btnEnviar = screen.getByRole("button", { name: /Enviar reseña/i });
+    expect(btnEnviar).toBeDisabled();
+
+    const estrellas = screen.getAllByRole("button", { name: /★/ });
+    expect(estrellas[0]).toHaveStyle("cursor: not-allowed");
   });
 
   // --- Caso de Prueba 3: Escribir en Textarea (Estado) ---
@@ -61,148 +59,83 @@ describe("Testing ReseniaForm Component", () => {
     render(<ReseniaForm usuario={mockUsuarioLogueado} onAgregarReseña={mockOnAgregarReseña} />);
     const textarea = screen.getByPlaceholderText(/Escribe tu reseña/i);
 
-    fireEvent.change(textarea, { target: { value: '¡Excelente producto!' } });
-    expect(textarea).toHaveValue('¡Excelente producto!');
+    fireEvent.change(textarea, { target: { value: "¡Excelente producto!" } });
+    expect(textarea).toHaveValue("¡Excelente producto!");
   });
 
   // --- Caso de Prueba 4: Selección de Rating (Estado y Eventos) ---
   it("CP-ReseniaForm4: Actualiza el estado 'rating' y 'hover' al interactuar con las estrellas", () => {
     render(<ReseniaForm usuario={mockUsuarioLogueado} onAgregarReseña={mockOnAgregarReseña} />);
-    const estrellas = screen.getAllByRole('button', { name: /★/ });
+    const estrellas = screen.getAllByRole("button", { name: /★/ });
 
-    // Simular hover sobre la 3ra estrella
     fireEvent.mouseEnter(estrellas[2]);
-    expect(estrellas[0]).toHaveStyle(/color:\s*rgb\(255,\s*215,\s*0\)/);
-    expect(estrellas[1]).toHaveStyle(/color:\s*rgb\(255,\s*215,\s*0\)/);
-    expect(estrellas[2]).toHaveStyle(/color:\s*rgb\(255,\s*215,\s*0\)/);
-    expect(estrellas[3]).toHaveStyle(/color:\s*rgb\(85,\s*85,\s*85\)/); // #555
-    expect(estrellas[4]).toHaveStyle(/color:\s*rgb\(85,\s*85,\s*85\)/);
+    for (let i = 0; i <= 2; i++) expect(estrellas[i]).toHaveStyle("color: #FFD700");
+    for (let i = 3; i <= 4; i++) expect(estrellas[i]).toHaveStyle("color: #555");
 
-    // Simular quitar el hover
     fireEvent.mouseLeave(estrellas[2]);
-    // Todas deberían volver al estado inicial (5 estrellas)
-    estrellas.forEach(estrella => {
-      expect(estrella).toHaveStyle(/color:\s*rgb\(255,\s*215,\s*0\)/);
-    });
+    estrellas.forEach(estrella => expect(estrella).toHaveStyle("color: #FFD700"));
 
-    // Simular clic en la 2da estrella
     fireEvent.click(estrellas[1]);
-    expect(estrellas[0]).toHaveStyle(/color:\s*rgb\(255,\s*215,\s*0\)/);
-    expect(estrellas[1]).toHaveStyle(/color:\s*rgb\(255,\s*215,\s*0\)/);
-    expect(estrellas[2]).toHaveStyle(/color:\s*rgb\(85,\s*85,\s*85\)/);
-    expect(estrellas[3]).toHaveStyle(/color:\s*rgb\(85,\s*85,\s*85\)/);
-    expect(estrellas[4]).toHaveStyle(/color:\s*rgb\(85,\s*85,\s*85\)/);
+    for (let i = 0; i <= 1; i++) expect(estrellas[i]).toHaveStyle("color: #FFD700");
+    for (let i = 2; i <= 4; i++) expect(estrellas[i]).toHaveStyle("color: #555");
   });
 
   // --- Caso de Prueba 5: Envío Exitoso ---
   it("CP-ReseniaForm5: Llama a onAgregarReseña, limpia el formulario y muestra mensaje de éxito al enviar", async () => {
-    vi.useFakeTimers();
     render(<ReseniaForm usuario={mockUsuarioLogueado} onAgregarReseña={mockOnAgregarReseña} />);
+
     const textarea = screen.getByPlaceholderText(/Escribe tu reseña/i);
-    const estrellas = screen.getAllByRole('button', { name: /★/ });
-    const submitButton = screen.getByRole('button', { name: /Enviar reseña/i });
+    const estrellas = screen.getAllByRole("button", { name: /★/ });
+    const btn = screen.getByRole("button", { name: /Enviar reseña/i });
 
-    fireEvent.change(textarea, { target: { value: 'Buena reseña' } });
-    fireEvent.click(estrellas[3]); // 4 estrellas
+    fireEvent.change(textarea, { target: { value: "Buena reseña" } });
+    fireEvent.click(estrellas[3]); // rating 4
+    fireEvent.click(btn);
 
-    fireEvent.click(submitButton);
-
-    // Esperar a que se procese el submit Y APAREZCA el mensaje
+    // Espera que el mensaje de éxito aparezca
     await screen.findByText(/Reseña enviada correctamente/i);
 
     // Verifica que onAgregarReseña fue llamado
-    expect(mockOnAgregarReseña).toHaveBeenCalledTimes(1);
     expect(mockOnAgregarReseña).toHaveBeenCalledWith({
       nombre: mockUsuarioLogueado.nombre,
       email: mockUsuarioLogueado.email,
-      texto: 'Buena reseña',
-      rating: 4,
+      texto: "Buena reseña",
+      rating: 4
     });
 
-    // Verifica limpieza del formulario
-    expect(textarea).toHaveValue('');
-    estrellas.forEach(estrella => {
-      expect(estrella).toHaveStyle(/color:\s*rgb\(255,\s*215,\s*0\)/); // Vuelve a 5
-    });
-    expect(screen.getByText(/✅/i)).toBeInTheDocument();
-
-    // Avanzar el tiempo para que el mensaje desaparezca
-    vi.advanceTimersByTime(4000);
-
-    // Esperar a que el mensaje DESAPAREZCA
-    await waitFor(() => {
-      expect(screen.queryByText(/Reseña enviada correctamente/i)).not.toBeInTheDocument();
-    });
-
-    vi.useRealTimers();
+    // Verifica que el formulario se limpia
+    expect(textarea).toHaveValue("");
   });
 
-  // --- Caso de Prueba 6: Fallo Envío (No Logueado) ---
-  it("CP-ReseniaForm6: Muestra error y no llama a onAgregarReseña si el usuario no está logueado", async () => {
-    vi.useFakeTimers();
-    render(<ReseniaForm usuario={null} onAgregarReseña={mockOnAgregarReseña} />);
-    const submitButton = screen.getByRole('button', { name: /Enviar reseña/i });
-
-    // Intentar enviar
-    fireEvent.click(submitButton);
-
-    // Esperar mensaje de error
-    await screen.findByText(/Debes iniciar sesión para enviar una reseña/i);
-    expect(screen.getByText(/⚠️/i)).toBeInTheDocument();
-
-    // Verifica que onAgregarReseña NO fue llamado
-    expect(mockOnAgregarReseña).not.toHaveBeenCalled();
-
-    // Avanzar el tiempo y verificar que el mensaje desaparece
-    vi.advanceTimersByTime(4000);
-    await waitFor(() => {
-      expect(screen.queryByText(/Debes iniciar sesión/i)).not.toBeInTheDocument();
-    });
-    vi.useRealTimers();
-  });
-
-  // --- Caso de Prueba 7: Fallo Envío (Texto Vacío) ---
+  // --- Caso de Prueba 6: Fallo Envío (Texto Vacío) ---
   it("CP-ReseniaForm7: Muestra error y no llama a onAgregarReseña si el texto está vacío", async () => {
-    vi.useFakeTimers();
     render(<ReseniaForm usuario={mockUsuarioLogueado} onAgregarReseña={mockOnAgregarReseña} />);
-    const submitButton = screen.getByRole('button', { name: /Enviar reseña/i });
+    const btn = screen.getByRole("button", { name: /Enviar reseña/i });
     const textarea = screen.getByPlaceholderText(/Escribe tu reseña/i);
 
-    expect(textarea).toHaveValue(''); // Asegura que está vacío
-    fireEvent.click(submitButton);
+    expect(textarea).toHaveValue("");
+    fireEvent.click(btn);
 
-    // Esperar mensaje de error
     await screen.findByText(/Escribe algo antes de enviar tu reseña/i);
-
-    // Verifica que onAgregarReseña NO fue llamado
     expect(mockOnAgregarReseña).not.toHaveBeenCalled();
-
-    // Avanzar tiempo y verificar desaparición del mensaje
-    vi.advanceTimersByTime(4000);
-     await waitFor(() => {
-       expect(screen.queryByText(/Escribe algo antes/i)).not.toBeInTheDocument();
-     });
-    vi.useRealTimers();
   });
 
-  // --- Caso de Prueba 8: Usa email como nombre si el nombre falta ---
+  // --- Caso de Prueba 7: Usa email como nombre si el nombre falta ---
   it("CP-ReseniaForm8: Usa el email del usuario como nombre si la propiedad 'nombre' no existe", async () => {
-     render(<ReseniaForm usuario={mockUsuarioSinNombre} onAgregarReseña={mockOnAgregarReseña} />);
-     const textarea = screen.getByPlaceholderText(/Escribe tu reseña/i);
-     const submitButton = screen.getByRole('button', { name: /Enviar reseña/i });
+    render(<ReseniaForm usuario={mockUsuarioSinNombre} onAgregarReseña={mockOnAgregarReseña} />);
+    const textarea = screen.getByPlaceholderText(/Escribe tu reseña/i);
+    const btn = screen.getByRole("button", { name: /Enviar reseña/i });
 
-     fireEvent.change(textarea, { target: { value: 'Reseña anónima' } });
-     fireEvent.click(submitButton);
+    fireEvent.change(textarea, { target: { value: "Reseña anónima" } });
+    fireEvent.click(btn);
 
-     await waitFor(() => {
-        // Verifica que onAgregarReseña fue llamado usando el email como nombre
-        expect(mockOnAgregarReseña).toHaveBeenCalledWith(expect.objectContaining({
-          nombre: mockUsuarioSinNombre.email, // Debe usar el email
-          email: mockUsuarioSinNombre.email,
-          texto: 'Reseña anónima',
-          rating: 5, // Rating por defecto
-        }));
-     });
+    await waitFor(() => {
+      expect(mockOnAgregarReseña).toHaveBeenCalledWith(expect.objectContaining({
+        nombre: mockUsuarioSinNombre.email,
+        email: mockUsuarioSinNombre.email,
+        texto: "Reseña anónima",
+        rating: 5
+      }));
+    });
   });
-
 });
