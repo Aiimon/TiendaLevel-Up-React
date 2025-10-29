@@ -35,4 +35,9 @@ sb-wxuwa47149727@personal.example.com
 
 {b^9Mv<*
 
+Para ver los test exitosos o fallidos (En CMD)
+
+npx vitest run --reporter verbose 2>nul
+
+
 */
