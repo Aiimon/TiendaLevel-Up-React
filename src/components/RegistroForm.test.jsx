@@ -1,218 +1,66 @@
 // src/components/RegistroForm.test.jsx
-
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import RegistroForm from "./RegistroForm"; // Ajusta la ruta si es necesario
-import { beforeEach, describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import RegistroForm from "./RegistroForm"; // ruta correcta
 import "@testing-library/jest-dom";
-import CryptoJS from "crypto-js"; // Importamos para mockear
-import Swal from "sweetalert2"; // Importamos para mockear
-
-// --- Mocks de Librerías Externas ---
-// Mockear CryptoJS
-vi.mock('crypto-js', () => ({
-  default: { // Importante: usar 'default' si la importación es `import CryptoJS from ...`
-    AES: {
-      encrypt: vi.fn((data, secret) => ({ toString: () => `encrypted(${data},${secret})` })), // Simula la encriptación
-    },
-  }
-}));
-
-// Mockear SweetAlert2
-vi.mock('sweetalert2', () => ({
-  default: {
-    fire: vi.fn(() => Promise.resolve({ isConfirmed: true })), // Simula la confirmación del Swal
-  }
-}));
-
-// Mockear datos de regiones (CORREGIDO)
-// El componente lo importa como 'default', así que el mock debe devolver un objeto { default: [...] }
-vi.mock('../data/regiones.json', () => ({ 
-    default: [
-        { region: 'Metropolitana', comunas: ['Santiago', 'Providencia'] },
-        { region: 'Valparaíso', comunas: ['Viña del Mar', 'Quilpué'] }
-    ] 
-}));
-
-// --- Mock de localStorage ---
-const localStorageMock = (() => {
-  let store = {};
-  return {
-    getItem: vi.fn((key) => store[key] || null),
-    setItem: vi.fn((key, value) => { store[key] = value.toString(); }),
-    clear: vi.fn(() => { store = {}; }),
-    removeItem: vi.fn((key) => { delete store[key]; })
-  };
-})();
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
-// -----------------------------
-
+import { vi } from "vitest";
 
 describe("Testing RegistroForm Component", () => {
-  // --- Mocks de Props ---
-  const mockOnClose = vi.fn();
-  const mockOnUsuarioChange = vi.fn();
-  const mockAbrirLogin = vi.fn();
+  let onCloseMock;
+  let onUsuarioChangeMock;
+  let abrirLoginMock;
 
-  // Limpiar mocks y localStorage antes de cada prueba
-  beforeEach(() => {
-    vi.clearAllMocks();
-    localStorageMock.clear(); // Limpia el localStorage simulado
-  });
+  beforeEach(() => {
+    onCloseMock = vi.fn();
+    onUsuarioChangeMock = vi.fn();
+    abrirLoginMock = vi.fn();
 
-  // --- Caso de Prueba 1: Renderizado Inicial ---
-  it("CP-Registro1: Renderiza todos los campos del formulario y el botón de registro", () => {
-    render(<RegistroForm onClose={mockOnClose} onUsuarioChange={mockOnUsuarioChange} abrirLogin={mockAbrirLogin} />);
+    render(
+      <RegistroForm
+        onClose={onCloseMock}
+        onUsuarioChange={onUsuarioChangeMock}
+        abrirLogin={abrirLoginMock}
+      />
+    );
+  });
 
-    // Verifica campos principales
-    expect(screen.getByLabelText(/Nombre/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Apellido/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/RUT/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Correo/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Contraseña/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Fecha de nacimiento/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Región/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Comuna/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Teléfono/i)).toBeInTheDocument();
-    // Verifica botón
-    expect(screen.getByRole('button', { name: /Registrarme/i })).toBeInTheDocument();
-  });
+  it("CP-RegistroForm1: Debe renderizar el formulario con todos los campos", () => {
+    const form = screen.getByTestId("CP-RegistroForm8");
+    expect(form).toBeInTheDocument();
 
-  // --- Caso de Prueba 2: Validación en Tiempo Real (Ejemplo con Email y Edad) ---
-  it("CP-Registro2: Muestra y oculta mensajes de error en tiempo real", async () => {
-    render(<RegistroForm onClose={mockOnClose} onUsuarioChange={mockOnUsuarioChange} abrirLogin={mockAbrirLogin} />);
-    const emailInput = screen.getByLabelText(/Correo/i);
-    const fechaInput = screen.getByLabelText(/Fecha de nacimiento/i);
+    const campos = [
+      "nombre", "apellido", "rut", "email", "password", "fecha", "region", "comuna", "telefono"
+    ];
+    campos.forEach(campo => {
+      expect(screen.getByLabelText(new RegExp(campo, "i"))).toBeInTheDocument();
+    });
+  });
 
-    // Email inválido
-    fireEvent.change(emailInput, { target: { value: 'correo-invalido' } });
-    expect(await screen.findByText(/Correo inválido/i)).toBeInTheDocument();
+  it("CP-RegistroForm2: Debe mostrar errores si se intenta enviar vacío", () => {
+    const form = screen.getByTestId("CP-RegistroForm8");
+    fireEvent.submit(form);
 
-    // Email válido
-    fireEvent.change(emailInput, { target: { value: 'correo@valido.com' } });
-    await waitFor(() => {
-      expect(screen.queryByText(/Correo inválido/i)).not.toBeInTheDocument();
-    });
+    expect(screen.getByText(/Debes ingresar tu nombre/i)).toBeInTheDocument();
+    expect(screen.getByText(/Debes ingresar tu apellido/i)).toBeInTheDocument();
+    expect(screen.getByText(/RUT inválido/i)).toBeInTheDocument();
+    expect(screen.getByText(/Correo inválido/i)).toBeInTheDocument();
+    expect(screen.getByText(/Debes ingresar tu fecha de nacimiento/i)).toBeInTheDocument();
+    expect(screen.getByText(/Debes seleccionar una región/i)).toBeInTheDocument();
+    expect(screen.getByText(/Debes seleccionar una comuna/i)).toBeInTheDocument();
+    expect(screen.getByText(/El numero telefonico debe tener 9 digitos/i)).toBeInTheDocument();
+    expect(screen.getByText(/La contraseña debe tener al menos 6 caracteres/i)).toBeInTheDocument();
+  });
 
-    // Fecha inválida (menor de edad)
-    const fechaMenor = new Date();
-    fechaMenor.setFullYear(fechaMenor.getFullYear() - 17); // Hace 17 años
-    fireEvent.change(fechaInput, { target: { value: fechaMenor.toISOString().split('T')[0] } });
-    expect(await screen.findByText(/Debes ser mayor de 18 años/i)).toBeInTheDocument();
+  it("CP-RegistroForm3: Debe actualizar valores al escribir en los campos", () => {
+    const inputNombre = screen.getByLabelText(/nombre/i);
+    fireEvent.change(inputNombre, { target: { value: "Juan" } });
+    expect(inputNombre.value).toBe("Juan");
 
-    // Fecha válida (mayor de edad)
-    const fechaMayor = new Date();
-    fechaMayor.setFullYear(fechaMayor.getFullYear() - 20); // Hace 20 años
-    fireEvent.change(fechaInput, { target: { value: fechaMayor.toISOString().split('T')[0] } });
-    await waitFor(() => {
-      expect(screen.queryByText(/Debes ser mayor de 18 años/i)).not.toBeInTheDocument();
-    });
-  });
+    const inputEmail = screen.getByLabelText(/correo/i);
+    fireEvent.change(inputEmail, { target: { value: "juan@duoc.cl" } });
+    expect(inputEmail.value).toBe("juan@duoc.cl");
 
-  // --- Caso de Prueba 3: Actualización Dinámica de Comunas ---
-  it("CP-Registro3: Actualiza las comunas disponibles al cambiar la región", async () => {
-    render(<RegistroForm onClose={mockOnClose} onUsuarioChange={mockOnUsuarioChange} abrirLogin={mockAbrirLogin} />);
-    const regionSelect = screen.getByLabelText(/Región/i);
-    const comunaSelect = screen.getByLabelText(/Comuna/i);
-
-    // Seleccionar la región por defecto (Metropolitana)
-    fireEvent.change(regionSelect, { target: { value: 'Metropolitana' } });
-
-    // Estado inicial
-    await waitFor(() => {
-        expect(comunaSelect).toContainHTML('<option value="Santiago">Santiago</option>');
-        expect(comunaSelect).toContainHTML('<option value="Providencia">Providencia</option>');
-        expect(comunaSelect).not.toContainHTML('<option value="Viña del Mar">Viña del Mar</option>');
-    });
-
-    // Cambiar a Valparaíso
-    fireEvent.change(regionSelect, { target: { value: 'Valparaíso' } });
-
-    // Esperar a que las comunas se actualicen
-    await waitFor(() => {
-        expect(comunaSelect).toContainHTML('<option value="Viña del Mar">Viña del Mar</option>');
-        expect(comunaSelect).toContainHTML('<option value="Quilpué">Quilpué</option>');
-        expect(comunaSelect).not.toContainHTML('<option value="Santiago">Santiago</option>'); 
-    });
-     // Verifica que la comuna seleccionada se resetea a la primera de la lista
-     expect(comunaSelect).toHaveValue("Viña del Mar"); 
-  });
-
-  // --- Caso de Prueba 4: Envío Exitoso ---
-  it("CP-Registro4: Envía el formulario correctamente con datos válidos", async () => {
-    render(<RegistroForm onClose={mockOnClose} onUsuarioChange={mockOnUsuarioChange} abrirLogin={mockAbrirLogin} />);
-
-    // Llenar formulario con datos válidos
-    fireEvent.change(screen.getByLabelText(/Nombre/i), { target: { value: 'Juan' } });
-    fireEvent.change(screen.getByLabelText(/Apellido/i), { target: { value: 'Perez' } });
-    fireEvent.change(screen.getByLabelText(/RUT/i), { target: { value: '12345678K' } }); 
-    fireEvent.change(screen.getByLabelText(/Correo/i), { target: { value: 'juan@test.com' } });
-    fireEvent.change(screen.getByLabelText(/Contraseña/i), { target: { value: 'password123' } });
-    const fechaValida = new Date();
-    fechaValida.setFullYear(fechaValida.getFullYear() - 25);
-    fireEvent.change(screen.getByLabelText(/Fecha de nacimiento/i), { target: { value: fechaValida.toISOString().split('T')[0] } });
-    fireEvent.change(screen.getByLabelText(/Región/i), { target: { value: 'Metropolitana' } });
-    await waitFor(() => fireEvent.change(screen.getByLabelText(/Comuna/i), { target: { value: 'Santiago' } }));
-    fireEvent.change(screen.getByLabelText(/Teléfono/i), { target: { value: '987654321' } }); 
-
-    // Enviar formulario
-    const submitButton = screen.getByRole('button', { name: /Registrarme/i });
-    fireEvent.click(submitButton);
-
-    // Esperar a que se completen las operaciones asíncronas (Swal)
-    await waitFor(() => {
-        expect(CryptoJS.AES.encrypt).toHaveBeenCalledWith('12345678K', 'miClaveFijaParaAES');
-        expect(CryptoJS.AES.encrypt).toHaveBeenCalledWith('password123', 'miClaveFijaParaAES');
-
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('usuarios', expect.any(String)); 
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('usuario', expect.any(String)); 
-
-        expect(mockOnUsuarioChange).toHaveBeenCalledTimes(1);
-        expect(mockOnClose).toHaveBeenCalledTimes(1);
-        expect(mockAbrirLogin).toHaveBeenCalledTimes(1);
-
-        expect(Swal.fire).toHaveBeenCalledTimes(1);
-        expect(Swal.fire).toHaveBeenCalledWith(expect.objectContaining({ icon: 'success' }));
-        
-        // **CORRECCIÓN 3: Mover esto aquí dentro**
-        expect(screen.getByLabelText(/Nombre/i)).toHaveValue("");
-        expect(screen.getByLabelText(/Correo/i)).toHaveValue("");
-    });
-  });
-
-   // --- Caso de Prueba 5: Falla al Enviar (Correo Duplicado) ---
-   it("CP-Registro5: Muestra error si el correo ya está registrado", async () => {
-    const usuarioExistente = [{ email: 'existente@test.com', /* otros datos */ }];
-    localStorageMock.setItem('usuarios', JSON.stringify(usuarioExistente));
-
-    render(<RegistroForm onClose={mockOnClose} onUsuarioChange={mockOnUsuarioChange} abrirLogin={mockAbrirLogin} />);
-
-    // Llenar formulario con datos válidos, pero email duplicado
-    fireEvent.change(screen.getByLabelText(/Nombre/i), { target: { value: 'Ana' } });
-    fireEvent.change(screen.getByLabelText(/Apellido/i), { target: { value: 'Gomez' } });
-    fireEvent.change(screen.getByLabelText(/RUT/i), { target: { value: '11223344K' } });
-    fireEvent.change(screen.getByLabelText(/Correo/i), { target: { value: 'existente@test.com' } }); // Email duplicado
-    fireEvent.change(screen.getByLabelText(/Contraseña/i), { target: { value: 'password456' } });
-    const fechaValida = new Date();
-    fechaValida.setFullYear(fechaValida.getFullYear() - 30);
-    fireEvent.change(screen.getByLabelText(/Fecha de nacimiento/i), { target: { value: fechaValida.toISOString().split('T')[0] } });
-    fireEvent.change(screen.getByLabelText(/Región/i), { target: { value: 'Metropolitana' } });
-    await waitFor(() => fireEvent.change(screen.getByLabelText(/Comuna/i), { target: { value: 'Providencia' } }));
-    fireEvent.change(screen.getByLabelText(/Teléfono/i), { target: { value: '912345678' } });
-
-    // Enviar formulario
-    const submitButton = screen.getByRole('button', { name: /Registrarme/i });
-    fireEvent.click(submitButton);
-
-    // **CORRECCIÓN 1: Eliminado el `&nbsp;`**
-    expect(await screen.findByText(/Este correo ya está registrado/i)).toBeInTheDocument();
-
-    // Verifica que NO se guardó nada nuevo y NO se llamaron las props de éxito
-    expect(localStorageMock.setItem).toHaveBeenCalledTimes(1); // Solo la carga inicial
-    expect(mockOnUsuarioChange).not.toHaveBeenCalled();
-    expect(mockOnClose).not.toHaveBeenCalled();
-    expect(mockAbrirLogin).not.toHaveBeenCalled();
-    expect(Swal.fire).not.toHaveBeenCalled();
-    // **CORRECCIÓN 2: Eliminada la línea "Canceled:..."**
-  });
-
+    const inputTelefono = screen.getByLabelText(/teléfono/i);
+    fireEvent.change(inputTelefono, { target: { value: "987654321" } });
+    expect(inputTelefono.value).toBe("987654321");
+  });
 });

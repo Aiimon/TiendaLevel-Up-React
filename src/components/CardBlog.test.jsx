@@ -19,8 +19,7 @@ window.bootstrap = {
 
 // --- Mock Global de APIs del Navegador ---
 // Guardamos las implementaciones originales para restaurarlas si es necesario
-const originalNavigatorShare = navigator.share;
-const originalNavigatorClipboard = navigator.clipboard;
+
 
 // Mock para navigator.share
 navigator.share = vi.fn(() => Promise.resolve()); // Simula éxito

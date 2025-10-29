@@ -136,84 +136,117 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
 
   return (
     <form onSubmit={handleSubmit} className="row g-3">
-      {/** NOMBRE **/}
-      <div className="col-md-6">
-        <label className="form-label">Nombre</label>
-        <input type="text" className={`form-control ${errores.nombre ? "is-invalid" : (nombre ? "is-valid" : "")}`} value={nombre} onChange={e => handleChange("nombre", e.target.value)} />
-        {errores.nombre && <div className="text-danger">{errores.nombre}</div>}
-      </div>
+{/** NOMBRE **/}
+<div className="col-md-6">
+  <label htmlFor="nombre" className="form-label">Nombre</label>
+  <input
+    id="nombre"
+    type="text"
+    className={`form-control ${errores.nombre ? "is-invalid" : (nombre ? "is-valid" : "")}`}
+    value={nombre}
+    onChange={e => handleChange("nombre", e.target.value)}
+  />
+  {errores.nombre && <div className="text-danger">{errores.nombre}</div>}
+</div>
 
-      {/** APELLIDO **/}
-      <div className="col-md-6">
-        <label className="form-label">Apellido</label>
-        <input type="text" className={`form-control ${errores.apellido ? "is-invalid" : (apellido ? "is-valid" : "")}`} value={apellido} onChange={e => handleChange("apellido", e.target.value)} />
-        {errores.apellido && <div className="text-danger">{errores.apellido}</div>}
-      </div>
+{/** APELLIDO **/}
+<div className="col-md-6">
+  <label htmlFor="apellido" className="form-label">Apellido</label>
+  <input
+    id="apellido"
+    type="text"
+    className={`form-control ${errores.apellido ? "is-invalid" : (apellido ? "is-valid" : "")}`}
+    value={apellido}
+    onChange={e => handleChange("apellido", e.target.value)}
+  />
+  {errores.apellido && <div className="text-danger">{errores.apellido}</div>}
+</div>
 
-      {/** RUT **/}
-      <div className="col-md-6">
-        <label className="form-label">RUT</label>
-        <input type="text" className={`form-control ${errores.rut ? "is-invalid" : (rut ? "is-valid" : "")}`} value={rut} onChange={e => handleChange("rut", e.target.value)} />
-        {errores.rut && <div className="text-danger">{errores.rut}</div>}
-      </div>
+{/** RUT **/}
+<div className="col-md-6">
+  <label htmlFor="rut" className="form-label">RUT</label>
+  <input
+    id="rut"
+    type="text"
+    className={`form-control ${errores.rut ? "is-invalid" : (rut ? "is-valid" : "")}`}
+    value={rut}
+    onChange={e => handleChange("rut", e.target.value)}
+  />
+  {errores.rut && <div className="text-danger">{errores.rut}</div>}
+</div>
 
-      {/** EMAIL **/}
-      <div className="col-md-6">
-        <label className="form-label">Correo</label>
-        <input
-          type="email"
-          className={`form-control ${errores.email ? "is-invalid" : (email ? "is-valid" : "")}`}
-          value={email}
-          onChange={e => handleChange("email", e.target.value)}
-        />
-        {errores.email && <div className="text-danger">{errores.email}</div>}
+{/** EMAIL **/}
+<div className="col-md-6">
+  <label htmlFor="email" className="form-label">Correo</label>
+  <input
+    id="email"
+    type="email"
+    className={`form-control ${errores.email ? "is-invalid" : (email ? "is-valid" : "")}`}
+    value={email}
+    onChange={e => handleChange("email", e.target.value)}
+  />
+  {errores.email && <div className="text-danger">{errores.email}</div>}
+  <span className="form-hint">
+    <i className="bi bi-gift-fill me-1"></i>Usa un correo <strong>@duoc.cl</strong> y obtén 20% de descuento.
+  </span>
+</div>
 
-        {/* Mensaje promocional debajo del correo */}
-        <span className="form-hint">
-          <i className="bi bi-gift-fill me-1"></i>Usa un correo <strong>@duoc.cl</strong> y obtén 20% de descuento.
-        </span>
-      </div>
+{/** REGIÓN **/}
+<div className="col-md-6">
+  <label htmlFor="region" className="form-label">Región</label>
+  <select
+    id="region"
+    className={`form-select ${errores.region ? "is-invalid" : (region ? "is-valid" : "")}`}
+    value={region}
+    onChange={e => handleChange("region", e.target.value)}
+  >
+    <option value="">Selecciona Región</option>
+    {regionesData.map(r => <option key={r.region} value={r.region}>{r.region}</option>)}
+  </select>
+  {errores.region && <div className="text-danger">{errores.region}</div>}
+</div>
 
-      {/** REGIÓN **/}
-      <div className="col-md-6">
-        <label className="form-label">Región</label>
-        <select className={`form-select ${errores.region ? "is-invalid" : (region ? "is-valid" : "")}`} value={region} onChange={e => handleChange("region", e.target.value)}>
-          <option value="">Selecciona Región</option>
-          {regionesData.map(r => <option key={r.region} value={r.region}>{r.region}</option>)}
-        </select>
-        {errores.region && <div className="text-danger">{errores.region}</div>}
-      </div>
+{/** COMUNA **/}
+<div className="col-md-6">
+  <label htmlFor="comuna" className="form-label">Comuna</label>
+  <select
+    id="comuna"
+    className={`form-select ${errores.comuna ? "is-invalid" : (comuna ? "is-valid" : "")}`}
+    value={comuna}
+    onChange={e => handleChange("comuna", e.target.value)}
+  >
+    <option value="">Selecciona Comuna</option>
+    {comunasDisponibles.map(c => <option key={c} value={c}>{c}</option>)}
+  </select>
+  {errores.comuna && <div className="text-danger">{errores.comuna}</div>}
+</div>
 
-      {/** COMUNA **/}
-      <div className="col-md-6">
-        <label className="form-label">Comuna</label>
-        <select className={`form-select ${errores.comuna ? "is-invalid" : (comuna ? "is-valid" : "")}`} value={comuna} onChange={e => handleChange("comuna", e.target.value)}>
-          <option value="">Selecciona Comuna</option>
-          {comunasDisponibles.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
-        {errores.comuna && <div className="text-danger">{errores.comuna}</div>}
-      </div>
+{/** CONTRASEÑA **/}
+<div className="col-md-6">
+  <label htmlFor="password" className="form-label">Contraseña</label>
+  <input
+    id="password"
+    type="password"
+    className={`form-control ${errores.password ? "is-invalid" : (password ? "is-valid" : "")}`}
+    value={password}
+    onChange={e => handleChange("password", e.target.value)}
+  />
+  {errores.password && <div className="text-danger">{errores.password}</div>}
+</div>
 
-      {/** TELEFONO **/}
-      <div className="col-md-6">
-        <label className="form-label">Teléfono</label>
-        <input type="tel" className={`form-control ${errores.telefono ? "is-invalid" : (telefono ? "is-valid" : "")}`} value={telefono} onChange={e => handleChange("telefono", e.target.value)} />
-        {errores.telefono && <div className="text-danger">{errores.telefono}</div>}
-      </div>
+{/** FECHA **/}
+<div className="col-md-6">
+  <label htmlFor="fecha" className="form-label">Fecha de nacimiento</label>
+  <input
+    id="fecha"
+    type="date"
+    className={`form-control ${errores.fecha ? "is-invalid" : (fecha ? "is-valid" : "")}`}
+    value={fecha}
+    onChange={e => handleChange("fecha", e.target.value)}
+  />
+  {errores.fecha && <div className="text-danger">{errores.fecha}</div>}
+</div>
 
-      {/** PASSWORD **/}
-      <div className="col-md-6">
-        <label className="form-label">Contraseña</label>
-        <input type="password" className={`form-control ${errores.password ? "is-invalid" : (password ? "is-valid" : "")}`} value={password} onChange={e => handleChange("password", e.target.value)} />
-        {errores.password && <div className="text-danger">{errores.password}</div>}
-      </div>
-
-      {/** FECHA **/}
-      <div className="col-md-6">
-        <label className="form-label">Fecha de nacimiento</label>
-        <input type="date" className={`form-control ${errores.fecha ? "is-invalid" : (fecha ? "is-valid" : "")}`} value={fecha} onChange={e => handleChange("fecha", e.target.value)} />
-        {errores.fecha && <div className="text-danger">{errores.fecha}</div>}
-      </div>
 
       <div className="col-12">
         <button type="submit" className="btn btn-accent w-100">Registrarme</button>

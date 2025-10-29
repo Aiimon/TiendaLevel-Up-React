@@ -2,7 +2,7 @@ import React from 'react';
 import SidebarAdmin from "../components/SidebarAdmin"; 
 import Footer from "../components/Footer";
 import { Link } from 'react-router-dom';
-import FormularioProductoNV from "../components/FormularioProductoNV";
+import FormularioProductoNV from "../components/FormularioProductoNv";
 import Notiadmn from '../components/Notiadmn';
 
 
