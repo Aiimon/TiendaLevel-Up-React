@@ -1,22 +1,20 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import AgregarCarrito from "./AgregarCarrito"; // Asegúrate que la ruta sea correcta
-import { beforeEach, describe, it, expect, vi } from "vitest";
-import "@testing-library/jest-dom"; // Para usar matchers como toBeInTheDocument
+import { render, screen, fireEvent } from "@testing-library/react";
+import AgregarCarrito from "./AgregarCarrito"; // Ajusta la ruta si es necesario
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import "@testing-library/jest-dom";
 
 describe("Testing AgregarCarrito Component", () => {
-  // --- Mocks y Datos de Prueba ---
   const mockOnAgregar = vi.fn();
   const mockUsuarioNormal = { esDuoc: false };
   const mockUsuarioDuoc = { esDuoc: true };
   const stockInicial = 10;
   const precioProducto = 5000;
 
-  // Limpiar mocks antes de cada prueba
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  // --- Caso de Prueba 1: Renderizado Inicial Correcto ---
+  // --- CP-1: Renderizado inicial ---
   it("CP-AgregarCarrito1: Muestra stock, precio normal y cantidad inicial correctamente", () => {
     render(
       <AgregarCarrito
@@ -27,33 +25,31 @@ describe("Testing AgregarCarrito Component", () => {
       />
     );
 
-    // Verifica el stock inicial
     expect(screen.getByText(/10 unidades disponibles/i)).toBeInTheDocument();
-    // Verifica el precio normal
     expect(screen.getByText(/Precio normal - \$5,000/i)).toBeInTheDocument();
-    // Verifica que el input de cantidad inicie en 1
-    const cantidadInput = screen.getByLabelText(/Cantidad:/i);
+
+    const cantidadInput = screen.getByRole("spinbutton");
     expect(cantidadInput).toHaveValue(1);
-    // Verifica que el botón esté habilitado
-    expect(screen.getByRole("button", { name: /Agregar al carrito/i })).toBeEnabled();
+
+    const agregarButton = screen.getByRole("button", { name: /Agregar al carrito/i });
+    expect(agregarButton).toBeEnabled();
   });
 
-  // --- Caso de Prueba 2: Muestra Descuento Duoc ---
+  // --- CP-2: Descuento Duoc ---
   it("CP-AgregarCarrito2: Muestra mensaje de descuento si el usuario es Duoc", () => {
     render(
       <AgregarCarrito
         stockInicial={stockInicial}
         onAgregar={mockOnAgregar}
-        usuario={mockUsuarioDuoc} // Usuario Duoc
+        usuario={mockUsuarioDuoc}
         precio={precioProducto}
       />
     );
 
-    // Verifica el mensaje de descuento
     expect(screen.getByText(/¡Descuento aplicado! - \$5,000/i)).toBeInTheDocument();
   });
 
-   // --- Caso de Prueba 3: Llama a onAgregar al hacer clic ---
+  // --- CP-3: Llamada a onAgregar ---
   it("CP-AgregarCarrito3: Llama a onAgregar con la cantidad correcta al hacer clic", () => {
     render(
       <AgregarCarrito
@@ -64,61 +60,73 @@ describe("Testing AgregarCarrito Component", () => {
       />
     );
 
-    const cantidadInput = screen.getByLabelText(/Cantidad:/i);
+    const cantidadInput = screen.getByRole("spinbutton");
     const agregarButton = screen.getByRole("button", { name: /Agregar al carrito/i });
 
-    // Cambiar la cantidad a 3
     fireEvent.change(cantidadInput, { target: { value: '3' } });
-    expect(cantidadInput).toHaveValue(3); // Verifica que el input cambió
+    expect(cantidadInput).toHaveValue(3);
 
-    // Hacer clic en agregar
     fireEvent.click(agregarButton);
 
-    // Verifica que onAgregar fue llamado una vez con la cantidad 3
     expect(mockOnAgregar).toHaveBeenCalledTimes(1);
     expect(mockOnAgregar).toHaveBeenCalledWith(3);
 
-    // Verifica que la cantidad se resetea a 1 y el stock se actualiza visualmente
     expect(cantidadInput).toHaveValue(1);
     expect(screen.getByText(/7 unidades disponibles/i)).toBeInTheDocument();
   });
 
-  // --- Caso de Prueba 4: Estado Agotado ---
+  // --- CP-4: Stock agotado ---
   it("CP-AgregarCarrito4: Muestra 'Agotado' y deshabilita controles si stockInicial es 0", () => {
     render(
       <AgregarCarrito
-        stockInicial={0} // Stock Agotado
+        stockInicial={0}
         onAgregar={mockOnAgregar}
         usuario={mockUsuarioNormal}
         precio={precioProducto}
       />
     );
 
-    // Verifica mensaje "Agotado"
     expect(screen.getByText(/Agotado/i)).toBeInTheDocument();
-    // Verifica que el input está deshabilitado
-    expect(screen.getByLabelText(/Cantidad:/i)).toBeDisabled();
-    // Verifica que el botón está deshabilitado
+    expect(screen.getByRole("spinbutton")).toBeDisabled();
     expect(screen.getByRole("button", { name: /Agregar al carrito/i })).toBeDisabled();
   });
 
-   // --- Caso de Prueba 5: Límite de Cantidad por Stock ---
+  // --- CP-5: Limite de cantidad ---
   it("CP-AgregarCarrito5: No permite seleccionar cantidad mayor al stock disponible", () => {
     render(
       <AgregarCarrito
-        stockInicial={3} // Stock bajo
+        stockInicial={3}
         onAgregar={mockOnAgregar}
         usuario={mockUsuarioNormal}
         precio={precioProducto}
       />
     );
 
-    const cantidadInput = screen.getByLabelText(/Cantidad:/i);
-
-    // Intentar poner una cantidad mayor al stock
+    const cantidadInput = screen.getByRole("spinbutton");
     fireEvent.change(cantidadInput, { target: { value: '5' } });
-
-    // Verifica que el valor se limita al stock máximo (3)
     expect(cantidadInput).toHaveValue(3);
+  });
+
+  // --- CP-6: No permitir stock negativo ---
+  it("CP-AgregarCarrito6: No permite que el stock baje de 0 al hacer clic varias veces", () => {
+    render(
+      <AgregarCarrito
+        stockInicial={2}
+        onAgregar={mockOnAgregar}
+        usuario={mockUsuarioNormal}
+        precio={precioProducto}
+      />
+    );
+
+    const cantidadInput = screen.getByRole("spinbutton");
+    const agregarButton = screen.getByRole("button", { name: /Agregar al carrito/i });
+
+    fireEvent.change(cantidadInput, { target: { value: '1' } });
+    fireEvent.click(agregarButton);
+    fireEvent.click(agregarButton);
+    fireEvent.click(agregarButton); // Intentar pasar de 0
+
+    expect(screen.getByText(/Agotado/i)).toBeInTheDocument();
+    expect(agregarButton).toBeDisabled();
   });
 });
