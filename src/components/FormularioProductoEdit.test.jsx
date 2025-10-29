@@ -4,8 +4,6 @@ import { beforeEach, describe, it, expect, vi } from "vitest";
 import "@testing-library/jest-dom";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
-// --- Mock de datos JSON (CORREGIDO) ---
-// Los datos del mock se definen DENTRO de la función de vi.mock
 vi.mock('../data/productos.json', () => ({ 
     default: {
         productos: [
@@ -14,32 +12,28 @@ vi.mock('../data/productos.json', () => ({
         ]
     } 
 }));
-// ------------------------------------
 
-// --- Mock de localStorage ---
 const localStorageMock = (() => {
-  let store = {};
-  return {
-    getItem: vi.fn((key) => store[key] || null),
-    setItem: vi.fn((key, value) => { store[key] = value.toString(); }),
-    clear: vi.fn(() => { store = {}; }),
-    removeItem: vi.fn((key) => { delete store[key]; })
-  };
+ let store = {};
+ return {
+ getItem: vi.fn((key) => store[key] || null),
+ setItem: vi.fn((key, value) => { store[key] = value.toString(); }),
+ clear: vi.fn(() => { store = {}; }),
+ removeItem: vi.fn((key) => { delete store[key]; })
+ };
 })();
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 // -----------------------------
 
-// --- Mock de react-router-dom (useNavigate y useParams) ---
-// (Nota: Tu componente usa props, no useParams, pero el mock de navigate sigue siendo necesario)
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async (importOriginal) => {
-  const actual = await importOriginal();
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
+ const actual = await importOriginal();
+ return {
+ ...actual,
+useNavigate: () => mockNavigate,
     // useParams no es usado por este componente, pero lo dejamos por si acaso
-    useParams: () => ({ id: 'P1' }) 
-  };
+ useParams: () => ({ id: 'P1' }) 
+ };
 });
 // --------------------------------------------
 
@@ -50,41 +44,41 @@ window.alert = vi.fn();
 
 describe("Testing FormularioProductoEdit Component", () => {
 
-  const productIdToEdit = 'P1'; 
+ const productIdToEdit = 'P1'; 
   const mockProductosData = [ // Datos que esperamos que localStorage tenga
     { id: "P1", categoria: "CatA", nombre: "Producto Original", precio: 100, stock: 10, stockCritico: 5, rating: 4, descripcion: "Desc Orig", imagen: "img.jpg", detalles: { Marca: "Orig" } },
     { id: "P2", categoria: "CatB", nombre: "Otro Producto", precio: 200, stock: 20, stockCritico: 8, rating: 5, descripcion: "Desc Otro", imagen: "img2.jpg", detalles: { Color: "Azul" } },
   ];
 
-  // Función helper para renderizar con Router
-  const renderComponent = (productId = productIdToEdit, initialLocalStorageData = mockProductosData) => {
-    localStorageMock.setItem('productos_maestro', JSON.stringify(initialLocalStorageData));
-     return render(
-       <MemoryRouter initialEntries={[`/productosadmin/editar/${productId}`]}>
-            <Routes>
-                <Route path="/productosadmin/editar/:id" element={<FormularioProductoEdit productId={productId} />} />
-                <Route path="/productosadmin" element={<div>Lista de Productos</div>} />
-            </Routes>
-       </MemoryRouter>
-     );
+ // Función helper para renderizar con Router
+ const renderComponent = (productId = productIdToEdit, initialLocalStorageData = mockProductosData) => {
+ localStorageMock.setItem('productos_maestro', JSON.stringify(initialLocalStorageData));
+return render(
+<MemoryRouter initialEntries={[`/productosadmin/editar/${productId}`]}>
+ <Routes>
+ <Route path="/productosadmin/editar/:id" element={<FormularioProductoEdit productId={productId} />} />
+ <Route path="/productosadmin" element={<div>Lista de Productos</div>} />
+ </Routes>
+</MemoryRouter>
+);
 };
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    localStorageMock.clear();
+ beforeEach(() => {
+ vi.clearAllMocks();
+ localStorageMock.clear();
     // Pre-cargamos localStorage CADA VEZ
     localStorageMock.setItem('productos_maestro', JSON.stringify(mockProductosData));
-  });
+ });
 
-  // --- Caso de Prueba 1: Carga Inicial y Renderizado de Datos ---
-  it("CP-FormEditProd1: Muestra 'Cargando...' y luego renderiza el formulario con los datos del producto", async () => {
-    renderComponent(productIdToEdit);
+ // --- Caso de Prueba 1: Carga Inicial y Renderizado de Datos ---
+ it("CP-FormEditProd1: Muestra 'Cargando...' y luego renderiza el formulario con los datos del producto", async () => {
+ renderComponent(productIdToEdit);
 
-    // Verifica estado de carga inicial
-    expect(screen.getByText(/Cargando datos del producto/i)).toBeInTheDocument();
+ // Verifica estado de carga inicial
+ expect(screen.getByText(/Cargando datos del producto/i)).toBeInTheDocument();
 
-    // Espera a que el useEffect termine
-    await waitFor(() => {
+ // Espera a que el useEffect termine
+  await waitFor(() => {
       expect(screen.queryByText(/Cargando datos del producto/i)).not.toBeInTheDocument();
       // Verifica campos llenos con datos de P1
       expect(screen.getByLabelText(/Nombre/i)).toHaveValue('Producto Original');
@@ -199,5 +193,5 @@ describe("Testing FormularioProductoEdit Component", () => {
 
     expect(mockNavigate).toHaveBeenCalledWith('/productosadmin');
   });
-
+//hola
 });
