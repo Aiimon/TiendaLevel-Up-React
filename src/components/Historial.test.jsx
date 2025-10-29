@@ -1,15 +1,17 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+// src/components/Historial.test.jsx
+
+import { fireEvent, render, screen, within } from "@testing-library/react"; // <-- 'within' AÑADIDO
 import Historial from "./Historial"; // Ajusta la ruta si es necesario
 import { beforeEach, describe, it, expect, vi } from "vitest";
 import "@testing-library/jest-dom";
 
-// --- Mock de datos de historial.json ---
-// Simulamos la estructura necesaria
-const mockHistorialD = [
+// --- Mock de datos de historial.json (CORREGIDO) ---
+
+// 1. Define los datos para que EL TEST los use (scope local)
+const mockHistorialData = [
   {
     "idTransaccion": "T001",
-    "userId": "U001", // Usuario A
-    "usuarioNombreCompleto": "Admin Sistema", // Este dato viene del componente padre, pero lo incluimos para el mock
+    "userId": "U001", 
     "fechaCompra": "2025-09-15",
     "totalOrden": 249900,
     "productosComprados": [
@@ -19,8 +21,7 @@ const mockHistorialD = [
   },
   {
     "idTransaccion": "T002",
-    "userId": "U002", // Usuario B
-    "usuarioNombreCompleto": "Usuario Normal",
+    "userId": "U002", 
     "fechaCompra": "2025-10-01",
     "totalOrden": 549990,
     "productosComprados": [
@@ -29,8 +30,7 @@ const mockHistorialD = [
   },
    {
     "idTransaccion": "T003",
-    "userId": "U001", // Otra compra del Usuario A
-    "usuarioNombreCompleto": "Admin Sistema",
+    "userId": "U001", 
     "fechaCompra": "2025-10-10",
     "totalOrden": 29990,
     "productosComprados": [
@@ -38,8 +38,31 @@ const mockHistorialD = [
     ]
   }
 ];
+
+// 2. Mockea el módulo. Esta función se "eleva" (hoist)
+// Debe contener sus propios datos (copia de los de arriba) para que EL COMPONENTE los use
 vi.mock('../data/historial.json', () => ({
-  default: mockHistorialD // Exportamos el array mockeado directamente
+  default: [ // El JSON es un array, así que el mock devuelve un array
+    {
+      "idTransaccion": "T001", "userId": "U001", "fechaCompra": "2025-09-15", "totalOrden": 249900,
+      "productosComprados": [
+        { "idProducto": "KB001", "nombreProducto": "Teclado Wooting", "cantidad": 1, "subtotal": 179990 },
+        { "idProducto": "MS001", "nombreProducto": "Mouse Logitech", "cantidad": 1, "subtotal": 49990 },
+      ]
+    },
+    {
+      "idTransaccion": "T002", "userId": "U002", "fechaCompra": "2025-10-01", "totalOrden": 549990,
+      "productosComprados": [
+        { "idProducto": "CO001", "nombreProducto": "PlayStation 5", "cantidad": 1, "subtotal": 549990 }
+      ]
+    },
+    {
+      "idTransaccion": "T003", "userId": "U001", "fechaCompra": "2025-10-10", "totalOrden": 29990,
+      "productosComprados": [
+        { "idProducto": "JM001", "nombreProducto": "Catan", "cantidad": 1, "subtotal": 29990 }
+      ]
+    }
+  ]
 }));
 // ------------------------------------
 
@@ -83,7 +106,7 @@ describe("Testing Historial Component (Modal)", () => {
     render(<Historial userId={userIdConHistorial} userName={userNameConHistorial} onClose={mockOnClose} />);
 
     // Busca la primera orden (T001) y verifica su contenido
-    const ordenT001 = screen.getByText(/Orden #T001/i).closest('div'); // Encuentra el div padre de la orden
+    const ordenT001 = screen.getByText(/Orden #T001/i).closest('div.mb-3'); // Encuentra el div padre de la orden
     expect(ordenT001).toBeInTheDocument();
 
     const withinOrden = within(ordenT001); // Limita la búsqueda a esta orden
@@ -108,7 +131,6 @@ describe("Testing Historial Component (Modal)", () => {
     expect(totalElement).toBeInTheDocument();
 
     // Busca el valor del total (puede estar en un span hermano o padre)
-    // Usamos `closest` para subir y `querySelector` para encontrar el valor
     const totalValueElement = totalElement.closest('div').querySelector('span:last-child');
     expect(totalValueElement).toHaveTextContent(`$${totalEsperado.toLocaleString('es-CL')}`);
   });
@@ -130,9 +152,6 @@ describe("Testing Historial Component (Modal)", () => {
     render(<Historial userId={userIdConHistorial} userName={userNameConHistorial} onClose={mockOnClose} />);
 
     // El overlay es el div más externo con position: fixed
-    // Podemos buscarlo por su estilo o por testid si lo añadiéramos
-    // O simplemente hacer clic en el 'document.body' (simula clic fuera del modal)
-    // Para ser más precisos, busquemos el div con el fondo semi-transparente
     const overlay = screen.getByRole('dialog').parentElement; // El div que tiene el estilo del overlay
     
     fireEvent.click(overlay);
