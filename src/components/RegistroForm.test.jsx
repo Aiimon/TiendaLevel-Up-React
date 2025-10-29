@@ -27,10 +27,10 @@ vi.mock('sweetalert2', () => ({
 // Mockear datos de regiones (CORREGIDO)
 // El componente lo importa como 'default', así que el mock debe devolver un objeto { default: [...] }
 vi.mock('../data/regiones.json', () => ({ 
-    default: [
-        { region: 'Metropolitana', comunas: ['Santiago', 'Providencia'] },
-        { region: 'Valparaíso', comunas: ['Viña del Mar', 'Quilpué'] }
-    ] 
+    default: [
+        { region: 'Metropolitana', comunas: ['Santiago', 'Providencia'] },
+        { region: 'Valparaíso', comunas: ['Viña del Mar', 'Quilpué'] }
+    ] 
 }));
 
 // --- Mock de localStorage ---
@@ -114,15 +114,15 @@ describe("Testing RegistroForm Component", () => {
     const regionSelect = screen.getByLabelText(/Región/i);
     const comunaSelect = screen.getByLabelText(/Comuna/i);
 
-    // Seleccionar la región por defecto (Metropolitana)
-    fireEvent.change(regionSelect, { target: { value: 'Metropolitana' } });
+    // Seleccionar la región por defecto (Metropolitana)
+    fireEvent.change(regionSelect, { target: { value: 'Metropolitana' } });
 
     // Estado inicial
     await waitFor(() => {
-        expect(comunaSelect).toContainHTML('<option value="Santiago">Santiago</option>');
-        expect(comunaSelect).toContainHTML('<option value="Providencia">Providencia</option>');
-        expect(comunaSelect).not.toContainHTML('<option value="Viña del Mar">Viña del Mar</option>');
-    });
+        expect(comunaSelect).toContainHTML('<option value="Santiago">Santiago</option>');
+        expect(comunaSelect).toContainHTML('<option value="Providencia">Providencia</option>');
+        expect(comunaSelect).not.toContainHTML('<option value="Viña del Mar">Viña del Mar</option>');
+    });
 
     // Cambiar a Valparaíso
     fireEvent.change(regionSelect, { target: { value: 'Valparaíso' } });
@@ -172,10 +172,11 @@ describe("Testing RegistroForm Component", () => {
 
         expect(Swal.fire).toHaveBeenCalledTimes(1);
         expect(Swal.fire).toHaveBeenCalledWith(expect.objectContaining({ icon: 'success' }));
+        
+        // **CORRECCIÓN 3: Mover esto aquí dentro**
+        expect(screen.getByLabelText(/Nombre/i)).toHaveValue("");
+        expect(screen.getByLabelText(/Correo/i)).toHaveValue("");
     });
-
-     expect(screen.getByLabelText(/Nombre/i)).toHaveValue("");
-     expect(screen.getByLabelText(/Correo/i)).toHaveValue("");
   });
 
    // --- Caso de Prueba 5: Falla al Enviar (Correo Duplicado) ---
@@ -202,8 +203,8 @@ describe("Testing RegistroForm Component", () => {
     const submitButton = screen.getByRole('button', { name: /Registrarme/i });
     fireEvent.click(submitButton);
 
-    // Esperar a que aparezca el mensaje de error de correo duplicado
-nbsp;   expect(await screen.findByText(/Este correo ya está registrado/i)).toBeInTheDocument();
+    // **CORRECCIÓN 1: Eliminado el `&nbsp;`**
+    expect(await screen.findByText(/Este correo ya está registrado/i)).toBeInTheDocument();
 
     // Verifica que NO se guardó nada nuevo y NO se llamaron las props de éxito
     expect(localStorageMock.setItem).toHaveBeenCalledTimes(1); // Solo la carga inicial
@@ -211,7 +212,7 @@ nbsp;   expect(await screen.findByText(/Este correo ya está registrado/i)).toB
     expect(mockOnClose).not.toHaveBeenCalled();
     expect(mockAbrirLogin).not.toHaveBeenCalled();
     expect(Swal.fire).not.toHaveBeenCalled();
-Canceled: Not supported in the current context.
+    // **CORRECCIÓN 2: Eliminada la línea "Canceled:..."**
   });
 
 });

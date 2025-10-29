@@ -1,5 +1,3 @@
-// src/components/formularioproductonv.jsx
-
 import React, { useState } from 'react';
 import productosD from "../data/productos.json"; 
 
