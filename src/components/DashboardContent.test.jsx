@@ -4,18 +4,24 @@ import { beforeEach, describe, it, expect, vi } from "vitest";
 import "@testing-library/jest-dom";
 import { MemoryRouter } from "react-router-dom"; // Necesario para testear <Link>
 
-// --- Mock de datos JSON ---
-const mockProductosD = {
-  productos: [
-    { id: "P1", categoria: "CatA", nombre: "Producto 1", precio: 10000, stock: 8, stockCritico: 5, rating: 4 },
-    { id: "P2", categoria: "CatB", nombre: "Producto 2", precio: 25000, stock: 3, stockCritico: 5, rating: 5 }, // Crítico
-    { id: "P3", categoria: "CatA", nombre: "Producto 3", precio: 5000, stock: 15, stockCritico: 10, rating: 3 },
+
+vi.mock('../data/productos.json', () => ({ 
+  default: {
+    productos: [
+      { id: "P1", categoria: "CatA", nombre: "Producto 1", precio: 10000, stock: 8, stockCritico: 5, rating: 4 },
+      { id: "P2", categoria: "CatB", nombre: "Producto 2", precio: 25000, stock: 3, stockCritico: 5, rating: 5 }, // Crítico
+      { id: "P3", categoria: "CatA", nombre: "Producto 3", precio: 5000, stock: 15, stockCritico: 10, rating: 3 },
+    ]
+  }
+}));
+vi.mock('../data/usuarios.json', () => ({ 
+  default: [ // Asumimos que usuarios.json es un array
+    { id: "U1", nombre: "User A" },
+    { id: "U2", nombre: "User B" },
   ]
-};
-const mockUsuariosD = [
-  { id: "U1", nombre: "User A" },
-  { id: "U2", nombre: "User B" },
-];
+}));
+// ----------------------------
+// ... (resto del test sin cambios) ...
 vi.mock('../data/productos.json', () => ({ default: mockProductosD }));
 vi.mock('../data/usuarios.json', () => ({ default: mockUsuariosD }));
 // ----------------------------
