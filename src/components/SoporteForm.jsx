@@ -31,7 +31,7 @@ function SoporteForm({ usuario, onActualizar }) {
     setAsunto("");
     setMensaje("");
 
-    if (onActualizar) onActualizar(); // notifica al perfil o componente padre
+    if (onActualizar) onActualizar();
   };
 
   return (
@@ -42,8 +42,9 @@ function SoporteForm({ usuario, onActualizar }) {
       <h5 className="mb-3 text-accent">Enviar solicitud de soporte</h5>
 
       <div className="mb-3">
-        <label className="form-label">Tipo de Mensaje</label>
+        <label className="form-label" htmlFor="tipo">Tipo de Mensaje</label>
         <select
+          id="tipo"
           className="form-select"
           value={tipo}
           onChange={(e) => setTipo(e.target.value)}
@@ -55,8 +56,9 @@ function SoporteForm({ usuario, onActualizar }) {
       </div>
 
       <div className="mb-3">
-        <label className="form-label">Asunto</label>
+        <label className="form-label" htmlFor="asunto">Asunto</label>
         <input
+          id="asunto"
           type="text"
           className="form-control"
           placeholder="Ej: Problema con producto o sugerencia"
@@ -67,8 +69,9 @@ function SoporteForm({ usuario, onActualizar }) {
       </div>
 
       <div className="mb-3">
-        <label className="form-label">Mensaje</label>
+        <label className="form-label" htmlFor="mensaje">Mensaje</label>
         <textarea
+          id="mensaje"
           className="form-control"
           rows="4"
           value={mensaje}
