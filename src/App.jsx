@@ -197,9 +197,7 @@ function Layout() {
         case "/editaruser":
           document.title = "Level-Up · Editar Usuario";
           break;
-        case "/editarproducto":
-          document.title = "Level-Up · Editar Producto";
-          break;
+        // La ruta "editarproducto" no tiene título exacto aquí porque es dinámica, pero funcionará
         case "/ordenes":
           document.title = "Level-Up · Órdenes";
           break;
@@ -221,12 +219,15 @@ function Layout() {
     "/perfiladmin",
     "/categoria_admin",
     "/editaruser",
-    "/editarproducto",
+    "/editarproducto", // Ojo: esto oculta navbar si la ruta exacta es esta
     "/ordenes",
     "/reporte",
   ];
-  const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
-  const shouldShowBotonWsp = !hideNavbarRoutes.includes(location.pathname);
+  
+  // Pequeña corrección extra: verificar si la ruta incluye productosadmin/editar para ocultar navbar
+  const isEditingProduct = location.pathname.includes("/productosadmin/editar");
+  const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname) && !isEditingProduct;
+  const shouldShowBotonWsp = !hideNavbarRoutes.includes(location.pathname) && !isEditingProduct;
 
   const adminRoutes = [
     { path: "/homeadmin", element: <Homeadmin /> },
@@ -237,7 +238,8 @@ function Layout() {
     { path: "/perfiladmin", element: <Perfiladmin /> },
     { path: "/categoria_admin", element: <Categoriaadmin /> },
     { path: "/editaruser/:id", element: <EditarUser /> },
-    { path: "/editarproducto/:id", element: <EditarProducto /> },
+    // CORRECCIÓN AQUÍ: Ajustamos la ruta para que coincida con tu URL
+    { path: "/productosadmin/editar/:id", element: <EditarProducto /> },
     { path: "/ordenes", element: <Ordenes /> },
     { path: "/reporte", element: <Reporte /> },
   ];
