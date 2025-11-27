@@ -6,19 +6,19 @@ import "sweetalert2/dist/sweetalert2.min.css";
 
 const claveSecreta = "miClaveFijaParaAES";
 
-export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) { // 🔹 agregamos abrirLogin
+export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [rut, setRut] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fecha, setFecha] = useState("");
   const [region, setRegion] = useState("");
   const [comuna, setComuna] = useState("");
   const [telefono, setTelefono] = useState("");
   const [comunasDisponibles, setComunasDisponibles] = useState([]);
 
-  // --- errores ---
   const [errores, setErrores] = useState({});
 
   // --- Actualizar comunas según región ---
@@ -30,14 +30,16 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
     }
   }, [region]);
 
+  // --- Validaciones ---
   const validarCampo = {
     nombre: val => val.trim() !== "" || "Debes ingresar tu nombre",
     apellido: val => val.trim() !== "" || "Debes ingresar tu apellido",
     rut: val => /^[0-9]{8}[0-9Kk]$/.test(val) || "RUT inválido (9 caracteres)",
     email: val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || "Correo inválido",
     password: val => val.length >= 6 || "La contraseña debe tener al menos 6 caracteres",
+    confirmPassword: val => val === password || "Las contraseñas no coinciden",
     fecha: val => {
-      if(!val) return "Debes ingresar tu fecha de nacimiento";
+      if (!val) return "Debes ingresar tu fecha de nacimiento";
       const nacimiento = new Date(val);
       const hoy = new Date();
       let edad = hoy.getFullYear() - nacimiento.getFullYear();
@@ -47,12 +49,13 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
     },
     region: val => val !== "" || "Debes seleccionar una región",
     comuna: val => val !== "" || "Debes seleccionar una comuna",
-    telefono: val => val.length >= 9  || "El numero telefonico debe tener 9 digitos"
+    telefono: val => val.length >= 9 || "El número debe tener mínimo 9 dígitos",
   };
 
   // --- Validación en tiempo real ---
   const handleChange = (campo, valor) => {
     const valid = validarCampo[campo](valor);
+
     setErrores(prev => ({ ...prev, [campo]: valid === true ? "" : valid }));
 
     switch(campo){
@@ -60,7 +63,17 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
       case "apellido": setApellido(valor); break;
       case "rut": setRut(valor); break;
       case "email": setEmail(valor); break;
-      case "password": setPassword(valor); break;
+      case "password": 
+        setPassword(valor);
+        // Validar confirmPassword si ya tiene algo escrito
+        if (confirmPassword) {
+          setErrores(prev => ({
+            ...prev,
+            confirmPassword: valor === confirmPassword ? "" : "Las contraseñas no coinciden"
+          }));
+        }
+      break;
+      case "confirmPassword": setConfirmPassword(valor); break;
       case "fecha": setFecha(valor); break;
       case "region": setRegion(valor); break;
       case "comuna": setComuna(valor); break;
@@ -68,27 +81,30 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
     }
   };
 
-
+  // --- Submit ---
   const handleSubmit = (e) => {
     e.preventDefault();
 
     let hayError = false;
     let nuevoErrores = {};
+
+    const campos = { nombre, apellido, rut, email, password, confirmPassword, fecha, region, comuna, telefono };
+
     Object.keys(validarCampo).forEach(campo => {
-      const valor = { nombre, apellido, rut, email, password, fecha, region, comuna, telefono }[campo];
-      const valid = validarCampo[campo](valor);
+      const valid = validarCampo[campo](campos[campo]);
       if (valid !== true) {
         nuevoErrores[campo] = valid;
         hayError = true;
       }
     });
-    if(hayError){
+
+    if (hayError) {
       setErrores(nuevoErrores);
       return;
     }
 
     let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-    if(usuarios.some(u => u.email === email)){
+    if (usuarios.some(u => u.email === email)) {
       setErrores(prev => ({ ...prev, email: "Este correo ya está registrado" }));
       return;
     }
@@ -97,23 +113,24 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
     const rutEncriptado = CryptoJS.AES.encrypt(rut, claveSecreta).toString();
     const passwordEncriptada = CryptoJS.AES.encrypt(password, claveSecreta).toString();
 
-    const nuevoUsuario = { 
-      nombre, 
-      apellido, 
-      rut: rutEncriptado, 
-      email, 
-      password: passwordEncriptada, 
-      fecha, 
-      region, 
-      comuna, 
-      telefono, 
-      esDuoc: email.endsWith("@duoc.cl"), 
-      rol: "usuario" 
+    const nuevoUsuario = {
+      nombre,
+      apellido,
+      rut: rutEncriptado,
+      email,
+      password: passwordEncriptada,
+      fecha,
+      region,
+      comuna,
+      telefono,
+      esDuoc: email.endsWith("@duoc.cl"),
+      rol: "usuario"
     };
+
     usuarios.push(nuevoUsuario);
     localStorage.setItem("usuarios", JSON.stringify(usuarios));
-
     localStorage.setItem("usuario", JSON.stringify(nuevoUsuario));
+
     if (onUsuarioChange) onUsuarioChange();
 
     Swal.fire({
@@ -121,133 +138,167 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
       text: "Tu cuenta ha sido creada correctamente.",
       icon: "success",
       confirmButtonText: "Ir al login",
-      background: "#2c2c2c", 
+      background: "#2c2c2c",
       color: "#fff",
       confirmButtonColor: "#1E90FF"
     }).then(() => {
-      onClose();  
-      if(abrirLogin) abrirLogin();
+      onClose();
+      if (abrirLogin) abrirLogin();
     });
 
-    // reset
-    setNombre(""); setApellido(""); setRut(""); setEmail(""); setPassword(""); setFecha(""); setRegion(""); setComuna(""); setTelefono("");
+    setNombre(""); 
+    setApellido(""); 
+    setRut(""); 
+    setEmail(""); 
+    setPassword(""); 
+    setConfirmPassword("");
+    setFecha(""); 
+    setRegion(""); 
+    setComuna(""); 
+    setTelefono("");
     setErrores({});
   };
 
   return (
     <form onSubmit={handleSubmit} className="row g-3">
-{/** NOMBRE **/}
-<div className="col-md-6">
-  <label htmlFor="nombre" className="form-label">Nombre</label>
-  <input
-    id="nombre"
-    type="text"
-    className={`form-control ${errores.nombre ? "is-invalid" : (nombre ? "is-valid" : "")}`}
-    value={nombre}
-    onChange={e => handleChange("nombre", e.target.value)}
-  />
-  {errores.nombre && <div className="text-danger">{errores.nombre}</div>}
-</div>
 
-{/** APELLIDO **/}
-<div className="col-md-6">
-  <label htmlFor="apellido" className="form-label">Apellido</label>
-  <input
-    id="apellido"
-    type="text"
-    className={`form-control ${errores.apellido ? "is-invalid" : (apellido ? "is-valid" : "")}`}
-    value={apellido}
-    onChange={e => handleChange("apellido", e.target.value)}
-  />
-  {errores.apellido && <div className="text-danger">{errores.apellido}</div>}
-</div>
+      {/* NOMBRE */}
+      <div className="col-md-6">
+        <label className="form-label">Nombre</label>
+        <input
+          type="text"
+          className={`form-control ${errores.nombre ? "is-invalid" : (nombre ? "is-valid" : "")}`}
+          value={nombre}
+          onChange={e => handleChange("nombre", e.target.value)}
+        />
+        {errores.nombre && <div className="text-danger">{errores.nombre}</div>}
+      </div>
 
-{/** RUT **/}
-<div className="col-md-6">
-  <label htmlFor="rut" className="form-label">RUT</label>
-  <input
-    id="rut"
-    type="text"
-    className={`form-control ${errores.rut ? "is-invalid" : (rut ? "is-valid" : "")}`}
-    value={rut}
-    onChange={e => handleChange("rut", e.target.value)}
-  />
-  {errores.rut && <div className="text-danger">{errores.rut}</div>}
-</div>
+      {/* APELLIDO */}
+      <div className="col-md-6">
+        <label className="form-label">Apellido</label>
+        <input
+          type="text"
+          className={`form-control ${errores.apellido ? "is-invalid" : (apellido ? "is-valid" : "")}`}
+          value={apellido}
+          onChange={e => handleChange("apellido", e.target.value)}
+        />
+        {errores.apellido && <div className="text-danger">{errores.apellido}</div>}
+      </div>
 
-{/** EMAIL **/}
-<div className="col-md-6">
-  <label htmlFor="email" className="form-label">Correo</label>
-  <input
-    id="email"
-    type="email"
-    className={`form-control ${errores.email ? "is-invalid" : (email ? "is-valid" : "")}`}
-    value={email}
-    onChange={e => handleChange("email", e.target.value)}
-  />
-  {errores.email && <div className="text-danger">{errores.email}</div>}
-  <span className="form-hint">
-    <i className="bi bi-gift-fill me-1"></i>Usa un correo <strong>@duoc.cl</strong> y obtén 20% de descuento.
-  </span>
-</div>
+      {/* RUT */}
+      <div className="col-md-6">
+        <label className="form-label">RUT</label>
+        <input
+          type="text"
+          className={`form-control ${errores.rut ? "is-invalid" : (rut ? "is-valid" : "")}`}
+          value={rut}
+          onChange={e => handleChange("rut", e.target.value)}
+        />
+        {errores.rut && <div className="text-danger">{errores.rut}</div>}
+      </div>
 
-{/** REGIÓN **/}
-<div className="col-md-6">
-  <label htmlFor="region" className="form-label">Región</label>
-  <select
-    id="region"
-    className={`form-select ${errores.region ? "is-invalid" : (region ? "is-valid" : "")}`}
-    value={region}
-    onChange={e => handleChange("region", e.target.value)}
-  >
-    <option value="">Selecciona Región</option>
-    {regionesData.map(r => <option key={r.region} value={r.region}>{r.region}</option>)}
-  </select>
-  {errores.region && <div className="text-danger">{errores.region}</div>}
-</div>
+      {/* EMAIL */}
+      <div className="col-md-6">
+        <label className="form-label">Correo</label>
+        <input
+          type="email"
+          className={`form-control ${errores.email ? "is-invalid" : (email ? "is-valid" : "")}`}
+          value={email}
+          onChange={e => handleChange("email", e.target.value)}
+        />
+        {errores.email && <div className="text-danger">{errores.email}</div>}
+        <span className="form-hint">
+          <i className="bi bi-gift-fill me-1"></i> Usa un correo <strong>@duoc.cl</strong> y obtén 20% de descuento.
+        </span>
+      </div>
 
-{/** COMUNA **/}
-<div className="col-md-6">
-  <label htmlFor="comuna" className="form-label">Comuna</label>
-  <select
-    id="comuna"
-    className={`form-select ${errores.comuna ? "is-invalid" : (comuna ? "is-valid" : "")}`}
-    value={comuna}
-    onChange={e => handleChange("comuna", e.target.value)}
-  >
-    <option value="">Selecciona Comuna</option>
-    {comunasDisponibles.map(c => <option key={c} value={c}>{c}</option>)}
-  </select>
-  {errores.comuna && <div className="text-danger">{errores.comuna}</div>}
-</div>
+      {/* REGIÓN */}
+      <div className="col-md-6">
+        <label className="form-label">Región</label>
+        <select
+          className={`form-select ${errores.region ? "is-invalid" : (region ? "is-valid" : "")}`}
+          value={region}
+          onChange={e => handleChange("region", e.target.value)}
+        >
+          <option value="">Selecciona Región</option>
+          {regionesData.map(r => (
+            <option key={r.region} value={r.region}>{r.region}</option>
+          ))}
+        </select>
+        {errores.region && <div className="text-danger">{errores.region}</div>}
+      </div>
 
-{/** CONTRASEÑA **/}
-<div className="col-md-6">
-  <label htmlFor="password" className="form-label">Contraseña</label>
-  <input
-    id="password"
-    type="password"
-    className={`form-control ${errores.password ? "is-invalid" : (password ? "is-valid" : "")}`}
-    value={password}
-    onChange={e => handleChange("password", e.target.value)}
-  />
-  {errores.password && <div className="text-danger">{errores.password}</div>}
-</div>
+      {/* COMUNA */}
+      <div className="col-md-6">
+        <label className="form-label">Comuna</label>
+        <select
+          className={`form-select ${errores.comuna ? "is-invalid" : (comuna ? "is-valid" : "")}`}
+          value={comuna}
+          onChange={e => handleChange("comuna", e.target.value)}
+        >
+          <option value="">Selecciona Comuna</option>
+          {comunasDisponibles.map(c => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+        {errores.comuna && <div className="text-danger">{errores.comuna}</div>}
+      </div>
 
-{/** FECHA **/}
-<div className="col-md-6">
-  <label htmlFor="fecha" className="form-label">Fecha de nacimiento</label>
-  <input
-    id="fecha"
-    type="date"
-    className={`form-control ${errores.fecha ? "is-invalid" : (fecha ? "is-valid" : "")}`}
-    value={fecha}
-    onChange={e => handleChange("fecha", e.target.value)}
-  />
-  {errores.fecha && <div className="text-danger">{errores.fecha}</div>}
-</div>
+            {/* FECHA */}
+      <div className="col-md-6">
+        <label className="form-label">Fecha de nacimiento</label>
+        <input
+          type="date"
+          className={`form-control ${errores.fecha ? "is-invalid" : (fecha ? "is-valid" : "")}`}
+          value={fecha}
+          onChange={e => handleChange("fecha", e.target.value)}
+        />
+        {errores.fecha && <div className="text-danger">{errores.fecha}</div>}
+      </div>
+
+      {/* TELEFONO */}
+      <div className="col-md-6">
+        <label className="form-label">Teléfono</label>
+        <input
+          type="text"
+          maxLength="9"
+          className={`form-control ${errores.telefono ? "is-invalid" : (telefono ? "is-valid" : "")}`}
+          value={telefono}
+          onChange={e => {
+            const soloNumeros = e.target.value.replace(/[^0-9]/g, "");
+            handleChange("telefono", soloNumeros);
+          }}
+        />
+        {errores.telefono && <div className="text-danger">{errores.telefono}</div>}
+      </div>
 
 
+      {/* CONTRASEÑA */}
+      <div className="col-md-6">
+        <label className="form-label">Contraseña</label>
+        <input
+          type="password"
+          className={`form-control ${errores.password ? "is-invalid" : (password ? "is-valid" : "")}`}
+          value={password}
+          onChange={e => handleChange("password", e.target.value)}
+        />
+        {errores.password && <div className="text-danger">{errores.password}</div>}
+      </div>
+
+      {/* CONFIRMAR CONTRASEÑA */}
+      <div className="col-md-6">
+        <label className="form-label">Confirmar Contraseña</label>
+        <input
+          type="password"
+          className={`form-control ${errores.confirmPassword ? "is-invalid" : (confirmPassword ? "is-valid" : "")}`}
+          value={confirmPassword}
+          onChange={e => handleChange("confirmPassword", e.target.value)}
+        />
+        {errores.confirmPassword && <div className="text-danger">{errores.confirmPassword}</div>}
+      </div>
+
+      {/* BOTÓN */}
       <div className="col-12">
         <button type="submit" className="btn btn-accent w-100">Registrarme</button>
       </div>
