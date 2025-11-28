@@ -1,31 +1,34 @@
+import { useEffect, useState } from "react";
 import Hero from "../components/Hero";
 import Card from "../components/Card";
 import Carrito from "../components/Carrito";
 import Footer from "../components/Footer";
-import productosD from "../data/productos.json";
+import { getProductos } from "../utils/apihelper";
 
-// Map de imágenes desde public/
-const imagenesMap = {
-  "Wooting60HE.png": "/Wooting60HE.png",
-  "AuricularesHyperXCloudII.png": "/AuricularesHyperXCloudII.png",
-  "MouseLogitech.png": "/MouseLogitech.png",
-};
+function Home({ carritoOpen, setCarritoOpen, cantidad, setCantidad, onAgregarCarrito }) {
+  const [productos, setProductos] = useState([]);
 
-const descripciones = {
-  KB001: "Teclado mecánico para gaming con switches magnéticos y tecnología Rapid Trigger.",
-  AC002: "Sonido envolvente 7.1, micrófono retráctil y comodidad total para horas de juego.",
-  MS001: "Sensor óptico de alta precisión, iluminación RGB personalizable y diseño ergonómico."
-};
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        const todos = await getProductos();
+        const iniciales = todos.map((p) => ({
+          ...p,
+          stock: localStorage.getItem(`stock_${p.id}`) !== null
+            ? Number(localStorage.getItem(`stock_${p.id}`))
+            : p.stock,
+        }));
+        setProductos(iniciales);
+      } catch (error) {
+        console.error("Error al cargar productos:", error);
+      }
+    };
 
-function Home({ carritoOpen, setCarritoOpen, cantidad, setCantidad }) {
-  const productos = productosD.productos;
+    fetchProductos();
+  }, []);
 
-  // Filtramos los destacados según la imagen
-  const productosDestacados = productos.filter((producto) =>
-    ["Wooting60HE.png", "AuricularesHyperXCloudII.png", "MouseLogitech.png"].includes(
-      producto.imagen.split("/").pop()
-    )
-  );
+  // Filtramos los destacados según un flag en la base de datos, por ejemplo `destacado: true`
+  const productosDestacados = productos.filter((producto) => producto.destacado);
 
   return (
     <>
@@ -43,9 +46,8 @@ function Home({ carritoOpen, setCarritoOpen, cantidad, setCantidad }) {
 
       <Card
         productosDestacados={productosDestacados}
-        imagenesMap={imagenesMap}
-        descripciones={descripciones}
         setCantidad={setCantidad}
+        onAgregarCarrito={onAgregarCarrito}
       />
 
       <Carrito

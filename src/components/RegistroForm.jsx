@@ -153,7 +153,7 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
 
     // Enviar al backend (Spring Boot)
     try {
-      const res = await fetch("http://localhost:8082/v1/usuarios/crear", {
+      const res = await fetch("http://localhost:8082/v2/usuarios/crear", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(nuevoUsuario)

@@ -3,9 +3,9 @@ import { useLocation } from "react-router-dom";
 import ProductoCard from "../components/ProductoCard";
 import BuscadorAvanzado from "../components/BuscadorAvanzado";
 import Footer from "../components/Footer";
-import productosD from "../data/productos.json";
+import { getProductos } from "../utils/apihelper"; 
 
-function Categoria({ productos: productosApp, usuario, onAgregarCarrito }) {
+function Categoria({ usuario, onAgregarCarrito }) {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const categoriaUrl = params.get("categoria") || "Todas";
@@ -14,24 +14,39 @@ function Categoria({ productos: productosApp, usuario, onAgregarCarrito }) {
   const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [categorias, setCategorias] = useState([]);
 
-  // Inicializar productos y filtrar por categoría
+  // Traer productos desde API
   useEffect(() => {
-    const iniciales = productosApp.map((p) => ({
-      ...p,
-      stock: localStorage.getItem(`stock_${p.id}`) !== null
-        ? Number(localStorage.getItem(`stock_${p.id}`))
-        : p.stock,
-    }));
+    const fetchProductos = async () => {
+      try {
+        const todos = await getProductos();
 
-    setProductos(iniciales);
-    setCategorias(["Todas", ...productosD.categorias]);
+        // Inicializar stock desde localStorage si existe
+        const iniciales = todos.map((p) => ({
+          ...p,
+          stock: localStorage.getItem(`stock_${p.id}`) !== null
+            ? Number(localStorage.getItem(`stock_${p.id}`))
+            : p.stock,
+        }));
 
-    const filtrados =
-      categoriaUrl === "Todas"
-        ? iniciales
-        : iniciales.filter((p) => p.categoria === categoriaUrl);
-    setProductosFiltrados(filtrados);
-  }, [categoriaUrl, productosApp]);
+        setProductos(iniciales);
+
+        // Extraer categorías únicas
+        const cats = Array.from(new Set(iniciales.map((p) => p.categoria)));
+        setCategorias(["Todas", ...cats]);
+
+        // Filtrar según categoría en URL
+        const filtrados =
+          categoriaUrl === "Todas"
+            ? iniciales
+            : iniciales.filter((p) => p.categoria === categoriaUrl);
+        setProductosFiltrados(filtrados);
+      } catch (error) {
+        console.error("Error al cargar productos:", error);
+      }
+    };
+
+    fetchProductos();
+  }, [categoriaUrl]);
 
   // Función para actualizar stock local
   const actualizarStock = (idProducto, cantidad = 1) => {
@@ -59,8 +74,8 @@ function Categoria({ productos: productosApp, usuario, onAgregarCarrito }) {
 
   const handleAgregar = (producto) => {
     if (producto.stock <= 0) return;
-    onAgregarCarrito(producto.id, 1); // Avanza el carrito en App.jsx
-    actualizarStock(producto.id, 1);   // Reduce stock en tiempo real
+    onAgregarCarrito(producto.id, 1);
+    actualizarStock(producto.id, 1);
   };
 
   return (
