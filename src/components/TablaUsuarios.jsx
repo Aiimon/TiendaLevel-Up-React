@@ -1,65 +1,40 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Aseguramos que Link esté importado
+import { Link } from 'react-router-dom'; 
 import usuariosD from "../data/usuarios.json"; 
 import Historial from './Historial'; 
 
-// Clave para manejar los usuarios persistentes en localStorage
 const LOCAL_STORAGE_KEY_USERS = 'usuarios_maestro';
 
-// Función para obtener todos los usuarios (JSON inicial + localStorage)
+// --- Carga de usuarios ---
 const getAllUsers = () => {
-    // 1. OBTENER LA LISTA DEL JSON INICIAL
-    const initialUsers = Array.isArray(usuariosD) ? usuariosD : [];
-    
-    // 2. Obtener la lista guardada en localStorage
     const storedUsers = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_USERS));
-    
-    // 3. Inicializar el localStorage si está vacío, usando la data del JSON.
-    if (!storedUsers || storedUsers.length === 0) {
-        // Asignamos IDs temporales U001, U002... a los usuarios del JSON si no tienen
-        const usersWithIds = initialUsers.map((u, index) => ({ 
-            ...u, 
-            id: u.id || `U${(index + 1).toString().padStart(3, '0')}` 
-        }));
-        
-        localStorage.setItem(LOCAL_STORAGE_KEY_USERS, JSON.stringify(usersWithIds));
-        return usersWithIds;
-    }
-    
-    // Si ya hay datos en localStorage, los devolvemos.
-    return storedUsers;
-};
+    if (storedUsers && storedUsers.length > 0) return storedUsers;
 
+    const initialUsers = Array.isArray(usuariosD) ? usuariosD : [];
+    const usersWithIds = initialUsers.map((u, index) => ({ 
+        ...u, 
+        id: u.id || `U${(index + 1).toString().padStart(3, '0')}` 
+    }));
+    localStorage.setItem(LOCAL_STORAGE_KEY_USERS, JSON.stringify(usersWithIds));
+    return usersWithIds;
+};
 
 function TablaUsuarios() {
     
     const [usersArray, setUsersArray] = useState(getAllUsers());
     const [selectedUser, setSelectedUser] = useState(null); 
-    
-    // Lógica para Borrar Usuario
+
+    // Función de borrado
     const handleDelete = (id, name) => {
-        if (window.confirm(`¿Estás seguro de que quieres eliminar al usuario ${name} (ID: ${id})?`)) {
+        if (window.confirm(`¿Estás seguro de que quieres eliminar al usuario ${name}?`)) {
             const updatedUsers = usersArray.filter(u => u.id !== id);
-            
-            // Actualizar localStorage
             localStorage.setItem(LOCAL_STORAGE_KEY_USERS, JSON.stringify(updatedUsers));
-            
-            // Actualizar el estado local para refrescar la tabla
             setUsersArray(updatedUsers);
         }
     };
 
-    // Eliminamos handleEdit ya que ahora usaremos Link directamente
-    // const handleEdit = (id) => { console.log(`Navegando a edición del usuario ID ${id} (simulado).`); };
-
-    const handleViewHistory = (user) => {
-        setSelectedUser(user);
-    };
-
-    const handleCloseModal = () => {
-        setSelectedUser(null);
-    };
-
+    const handleViewHistory = (user) => { setSelectedUser(user); };
+    const handleCloseModal = () => { setSelectedUser(null); };
 
     return (
         <div className="admin-content-wrapper p-4 flex-grow-1" style={{ backgroundColor: '#000000ff' }}>
@@ -67,7 +42,6 @@ function TablaUsuarios() {
             <h1 className="text-light h4 mb-1">Gestión de Usuarios</h1>
             <p className="text-muted mb-4">Listado, roles y gestión de cuentas de usuario.</p>
 
-            {/* Modal de Historial */}
             {selectedUser && (
                 <Historial
                     userId={selectedUser.id}
@@ -76,7 +50,6 @@ function TablaUsuarios() {
                 />
             )}
 
-            {/* Tabla de Listado de Usuarios */}
             <div className="table-responsive" style={{ backgroundColor: '#212529', borderRadius: '8px', padding: '10px' }}>
                 <table className="table table-dark table-striped table-hover align-middle" style={{ backgroundColor: 'transparent' }}>
                     
@@ -94,54 +67,60 @@ function TablaUsuarios() {
                     </thead>
 
                     <tbody>
-                        {usersArray.map((user) => (
-                            <tr key={user.id}> 
-                                <th scope="row">{user.id}</th>
-                                <td>{user.nombre} {user.apellido}</td>
-                                <td>{user.rut}</td>
-                                <td>{user.email}</td>
-                                <td>{user.telefono}</td>
-                                <td>
-                                    <span className={`badge bg-${user.rol === 'admin' ? 'warning' : 'info'}`}>
-                                        {user.rol || 'cliente'}
-                                    </span>
-                                </td>
-                                <td>
-                                    {/* Muestra el estado booleano de esDuoc */}
-                                    <i className={`fas fa-${user.esDuoc ? 'check-circle text-success' : 'times-circle text-danger'}`}></i>
-                                </td>
-                                
-                                {/* Columna de Acciones */}
-                                <td>
-                                    {/* 1. Editar (Usando Link a EditarUser.jsx con el ID) */}
-                                    <Link 
-                                        to={`/editaruser/${user.id}`} // RUTA A LA PÁGINA DE EDICIÓN
-                                        className="btn btn-sm btn-primary me-1"
-                                        title="Editar Usuario"
-                                    >
-                                        <i className="fas fa-edit"></i>
-                                    </Link>
+                        {usersArray.map((user) => {
+                            
+                            // --- VALIDACIÓN SOLO POR ROL ---
+                            // Convertimos a minúsculas y quitamos espacios para evitar errores humanos
+                            const rolNormalizado = String(user.rol || '').toLowerCase().trim();
+                            const esAdmin = rolNormalizado === 'admin'; 
+
+                            return (
+                                <tr key={user.id}> 
+                                    <th scope="row">{user.id}</th>
+                                    <td>{user.nombre} {user.apellido}</td>
+                                    <td>{user.rut}</td>
+                                    <td>{user.email}</td>
+                                    <td>{user.telefono}</td>
+                                    <td>
+                                        <span className={`badge bg-${esAdmin ? 'warning' : 'info'}`}>
+                                            {user.rol || 'cliente'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <i className={`fas fa-${user.esDuoc ? 'check-circle text-success' : 'times-circle text-danger'}`}></i>
+                                    </td>
                                     
-                                    {/* 2. Ver Historial de Compras */}
-                                    <button 
-                                        onClick={() => handleViewHistory(user)} 
-                                        className="btn btn-sm btn-info me-1"
-                                        title="Ver Historial de Compras"
-                                    >
-                                        <i className="fas fa-history"></i>
-                                    </button>
-                                    
-                                    {/* 3. Eliminar */}
-                                    <button 
-                                        onClick={() => handleDelete(user.id, user.nombre)} 
-                                        className="btn btn-sm btn-danger"
-                                        title="Eliminar Usuario"
-                                    >
-                                        <i className="fas fa-trash-alt"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                                    <td>
+                                        <Link 
+                                            to={`/editaruser/${user.id}`}
+                                            className="btn btn-sm btn-primary me-1"
+                                            title="Editar Usuario"
+                                        >
+                                            <i className="fas fa-edit"></i>
+                                        </Link>
+                                        
+                                        <button 
+                                            onClick={() => handleViewHistory(user)} 
+                                            className="btn btn-sm btn-info me-1"
+                                            title="Ver Historial"
+                                        >
+                                            <i className="fas fa-history"></i>
+                                        </button>
+                                        
+                                        {/* EL BOTÓN SOLO APARECE SI 'esAdmin' ES FALSO */}
+                                        {!esAdmin && (
+                                            <button 
+                                                onClick={() => handleDelete(user.id, user.nombre)} 
+                                                className="btn btn-sm btn-danger"
+                                                title="Eliminar Usuario"
+                                            >
+                                                <i className="fas fa-trash-alt"></i>
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
                 {usersArray.length === 0 && (
@@ -150,8 +129,6 @@ function TablaUsuarios() {
                     </p>
                 )}
             </div>
-            
-         
         </div>
     );
 }
