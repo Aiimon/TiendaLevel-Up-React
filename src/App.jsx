@@ -1,6 +1,7 @@
-import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./App.css";
+import { getProductos } from "./utils/apihelper";
 import Navbar from "./components/Navbar";
 import CarritoSidebar from "./components/CarritoSidebar";
 import BotonWsp from "./components/BotonWsp";
@@ -15,31 +16,11 @@ import Soporte from "./pages/Soporte";
 import Detalles from "./pages/Detalles";
 import Termino from "./pages/Termino";
 import Privacidad from "./pages/Privacidad";
-import Homeadmin from "./pages/Homeadmin";
-import Productosadmin from "./pages/Productosadmin";
-import NuevoProducto from "./pages/NuevoProducto";
-import Usuariosadmin from "./pages/Usuariosadmin";
-import NuevoUsuario from "./pages/NuevoUsuario";
 import Checkout from "./pages/Checkout";
 import Carro from "./pages/Carro";
 import Boleta from "./pages/Boleta";
-import productosD from "./data/productos.json";
-import Perfiladmin from "./pages/Perfiladmin";
-import Categoriaadmin from "./pages/Categoria_admin";
-import EditarUser from "./pages/Editaruser";
-import EditarProducto from './pages/EditarProducto';
 import Perfil from "./pages/Perfil";
-import Ordenes from "./pages/Ordenes";
-import Reporte from "./pages/Reporte";
 import ProteccionUser from "./components/ProteccionUser";
-
-// Componente de protección Admin
-function ProteccionAdmin({ children, usuario }) {
-  if (!usuario || usuario.rol !== "admin") {
-    return <Navigate to="/" replace />;
-  }
-  return children;
-}
 
 function Layout() {
   const location = useLocation();
@@ -47,7 +28,7 @@ function Layout() {
   const [productos, setProductos] = useState([]);
   const [usuario, setUsuario] = useState(() => JSON.parse(localStorage.getItem("usuario")) || null);
 
-  // ✅ Escuchar eventos globales de cambio de usuario (Auth, logout, etc.)
+  // Escuchar cambios de usuario en localStorage
   useEffect(() => {
     const handleUsuarioCambiado = () => {
       const usuarioLS = JSON.parse(localStorage.getItem("usuario"));
@@ -57,16 +38,26 @@ function Layout() {
     return () => window.removeEventListener("usuarioCambiado", handleUsuarioCambiado);
   }, []);
 
-  // Inicializar productos y carrito
+  // Cargar productos al inicio
   useEffect(() => {
-    const carritoLS = JSON.parse(localStorage.getItem("carrito")) || [];
-    const iniciales = productosD.productos.map((p) => {
-      const itemCarrito = carritoLS.find((c) => c.id === p.id);
-      const cantidad = itemCarrito ? itemCarrito.cantidad : 0;
-      const stockLS = Number(localStorage.getItem(`stock_${p.id}`)) || p.stock;
-      return { ...p, stock: stockLS, cantidad };
-    });
-    setProductos(iniciales);
+    const fetchProductos = async () => {
+      try {
+        const productosAPI = await getProductos();
+        const carritoLS = JSON.parse(localStorage.getItem("carrito")) || [];
+
+        const iniciales = productosAPI.map((p) => {
+          const itemCarrito = carritoLS.find((c) => c.id === p.id);
+          const cantidad = itemCarrito ? itemCarrito.cantidad : 0;
+          const stockLS = Number(localStorage.getItem(`stock_${p.id}`)) || p.stock;
+          return { ...p, stock: stockLS, cantidad };
+        });
+
+        setProductos(iniciales);
+      } catch (error) {
+        console.error("Error cargando productos:", error);
+      }
+    };
+    fetchProductos();
   }, []);
 
   // Agregar al carrito
@@ -92,7 +83,7 @@ function Layout() {
     });
   };
 
-  // Actualizar cantidad en carrito y stock
+  // Actualizar cantidad en carrito
   const handleActualizarCantidad = (idProducto, cantidadNueva) => {
     setProductos((prev) => {
       const nuevos = prev.map((p) => {
@@ -115,7 +106,7 @@ function Layout() {
     });
   };
 
-  // Vaciar carrito tras compra exitosa
+  // Vaciar carrito tras compra
   const handleCompraExitosa = () => {
     setProductos((prev) =>
       prev.map((p) => ({
@@ -219,12 +210,11 @@ function Layout() {
     "/perfiladmin",
     "/categoria_admin",
     "/editaruser",
-    "/editarproducto", // Ojo: esto oculta navbar si la ruta exacta es esta
+    "/editarproducto",
     "/ordenes",
     "/reporte",
   ];
   
-  // Pequeña corrección extra: verificar si la ruta incluye productosadmin/editar para ocultar navbar
   const isEditingProduct = location.pathname.includes("/productosadmin/editar");
   const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname) && !isEditingProduct;
   const shouldShowBotonWsp = !hideNavbarRoutes.includes(location.pathname) && !isEditingProduct;
@@ -238,7 +228,6 @@ function Layout() {
     { path: "/perfiladmin", element: <Perfiladmin /> },
     { path: "/categoria_admin", element: <Categoriaadmin /> },
     { path: "/editaruser/:id", element: <EditarUser /> },
-    // CORRECCIÓN AQUÍ: Ajustamos la ruta para que coincida con tu URL
     { path: "/productosadmin/editar/:id", element: <EditarProducto /> },
     { path: "/ordenes", element: <Ordenes /> },
     { path: "/reporte", element: <Reporte /> },
@@ -250,7 +239,7 @@ function Layout() {
         <Navbar
           cantidad={productos.reduce((acc, p) => acc + (p.cantidad || 0), 0)}
           abrirCarrito={() => setCarritoOpen(true)}
-          usuario={usuario} // ahora siempre cargará desde localStorage si existe
+          usuario={usuario}
         />
       )}
 
@@ -262,7 +251,6 @@ function Layout() {
       />
 
       <Routes>
-        {/* Rutas públicas */}
         <Route
           path="/"
           element={
@@ -297,6 +285,7 @@ function Layout() {
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/eventos" element={<Eventos />} />
+        <Route path="/soporte" element={<Soporte usuario={usuario} />} />
         <Route
           path="/detalles/:id"
           element={
@@ -328,23 +317,10 @@ function Layout() {
             </ProteccionUser>
           }
         />
-        <Route path="/soporte" element={<Soporte usuario={usuario} />} />
         <Route path="/boleta" element={<Boleta />} />
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/termino" element={<Termino />} />
         <Route path="/privacidad" element={<Privacidad />} />
-        
-
-        {adminRoutes.map(({ path, element }) => (
-          <Route
-            key={path}
-            path={path}
-            element={
-              <ProteccionAdmin usuario={usuario}>{element}</ProteccionAdmin>
-            }
-          />
-        ))}
-        
       </Routes>
 
       {shouldShowBotonWsp && <BotonWsp />}
