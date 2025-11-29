@@ -1,140 +1,87 @@
-import { useState, useEffect } from "react";
-import CryptoJS from "crypto-js";
-import { useNavigate } from "react-router-dom"; 
-import usuariosData from "../data/usuarios.json";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const claveSecreta = "miClaveFijaParaAES";
+const API_USUARIOS = "http://localhost:8082/v2/usuarios";
 
-export default function LoginForm({ onClose, onUsuarioChange }) { 
+export default function LoginForm({ onClose, onUsuarioChange }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errores, setErrores] = useState({});
   const [alerta, setAlerta] = useState(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Traer usuarios de localStorage
-    let usuariosLS = JSON.parse(localStorage.getItem("usuarios"));
-
-    // Si no existen o están vacíos, cargamos desde JSON
-    if (!usuariosLS || usuariosLS.length === 0) {
-      const usuariosEncriptados = usuariosData.map(u => ({
-        ...u,
-        rut: CryptoJS.AES.encrypt(u.rut, claveSecreta).toString(),
-        password: CryptoJS.AES.encrypt(u.password, claveSecreta).toString()
-      }));
-      localStorage.setItem("usuarios", JSON.stringify(usuariosEncriptados));
-      usuariosLS = usuariosEncriptados;
-    }
-  }, []);
 
   const mostrarAlerta = (tipo, mensaje) => {
     setAlerta({ tipo, mensaje });
     setTimeout(() => setAlerta(null), 4000);
   };
 
-  // --- Validación en tiempo real ---
-  const handleChange = (campo, valor) => {
-    let mensajeError = "";
-
-    if (campo === "email") {
-      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!regex.test(valor)) mensajeError = "Correo inválido";
-      setEmail(valor);
-    }
-
-    if (campo === "password") {
-      if (valor.length < 6) mensajeError = "La contraseña debe tener al menos 6 caracteres";
-      setPassword(valor);
-    }
-
-    setErrores(prev => ({ ...prev, [campo]: mensajeError }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!email || !password || errores.email || errores.password) {
-      mostrarAlerta("danger", "Por favor, ingresa un correo valido.");
-      return;
-    }
-
-    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-    const usuario = usuarios.find(u => u.email === email.trim());
-
-    if (!usuario) {
-      mostrarAlerta("danger", "Este correo no está registrado.");
+    if (!email || !password) {
+      mostrarAlerta("danger", "Por favor, ingresa un correo y contraseña.");
       return;
     }
 
     try {
-      const bytesPass = CryptoJS.AES.decrypt(usuario.password, claveSecreta);
-      const passwordDec = bytesPass.toString(CryptoJS.enc.Utf8);
+      const resp = await fetch(`${API_USUARIOS}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
 
-      if (passwordDec !== password) {
-        mostrarAlerta("danger", "Contraseña incorrecta.");
+      if (!resp.ok) {
+        mostrarAlerta("danger", "Email o contraseña incorrectos.");
         return;
       }
 
-      const bytesRut = CryptoJS.AES.decrypt(usuario.rut, claveSecreta);
-      const rutDec = bytesRut.toString(CryptoJS.enc.Utf8);
-
-      const usuarioSesion = { ...usuario, rut: rutDec };
-      localStorage.setItem("usuario", JSON.stringify(usuarioSesion));
-
+      const usuario = await resp.json();
+      localStorage.setItem("usuario", JSON.stringify(usuario));
       mostrarAlerta("success", `Bienvenido, ${usuario.nombre}`);
 
       if (onUsuarioChange) onUsuarioChange();
 
       setTimeout(() => {
         onClose();
-
-        // 🔹 Redirigir según rol
-        if (usuarioSesion.rol === "admin") {
+        if (usuario.rol === "admin") {
           navigate("/homeadmin");
         } else {
-          navigate("/"); // usuario normal
+          navigate("/");
         }
       }, 1000);
 
-    } catch {
-      mostrarAlerta("danger", "Correo o contraseña incorrectos.");
+    } catch (error) {
+      console.error(error);
+      mostrarAlerta("danger", "Error al conectar con el servidor.");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="row g-3">
-      {alerta && (
-        <div className={`alert alert-${alerta.tipo} w-100`} role="alert">
-          {alerta.mensaje}
-        </div>
-      )}
+      {alerta && <div className={`alert alert-${alerta.tipo} w-100`}>{alerta.mensaje}</div>}
 
       <div className="col-12">
         <input
           type="email"
-          className={`form-control ${errores.email ? "is-invalid" : email ? "is-valid" : ""}`}
+          className="form-control"
           placeholder="Correo electrónico"
           value={email}
-          onChange={e => handleChange("email", e.target.value)}
+          onChange={e => setEmail(e.target.value)}
         />
-        {errores.email && <div className="text-danger mt-1">{errores.email}</div>}
       </div>
 
       <div className="col-12">
         <input
           type="password"
-          className={`form-control ${errores.password ? "is-invalid" : password ? "is-valid" : ""}`}
+          className="form-control"
           placeholder="Contraseña"
           value={password}
-          onChange={e => handleChange("password", e.target.value)}
+          onChange={e => setPassword(e.target.value)}
         />
-        {errores.password && <div className="text-danger mt-1">{errores.password}</div>}
       </div>
 
       <div className="col-12">
         <button type="submit" className="btn btn-accent w-100">
-          <i className="bi bi-door-open-fill me-2"></i>Entrar
+          Entrar
         </button>
       </div>
     </form>

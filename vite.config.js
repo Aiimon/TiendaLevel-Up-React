@@ -8,5 +8,12 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: "./src/setupTests.js"
+  },
+  server: {
+    proxy: {
+      // Todo lo que empiece con /v1 o /v2 se redirige al backend
+      '/v1': 'http://localhost:8082',
+      '/v2': 'http://localhost:8082',
+    }
   }
 })

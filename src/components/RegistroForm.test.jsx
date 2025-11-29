@@ -2,7 +2,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import RegistroForm from "./RegistroForm"; // ruta correcta
 import "@testing-library/jest-dom";
-import { vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("Testing RegistroForm Component", () => {
   let onCloseMock;

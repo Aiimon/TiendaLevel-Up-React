@@ -4,45 +4,57 @@ import Especificacion from "../components/Especificacion";
 import Resenia from "../components/Resenia";
 import Footer from "../components/Footer";
 import ReseniaForm from "../components/ReseniaForm";
-import productosData from "../data/productos.json";
+import { getProductoPorId } from "../utils/apihelper";
 
-export default function Detalles({ productos = productosData, usuario, onAgregarCarrito }) {
+export default function Detalles({ usuario, onAgregarCarrito }) {
   const { id } = useParams();
-  const producto = productos.find(p => p.id === id);
-
+  const [producto, setProducto] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [stock, setStock] = useState(0);
   const [resenias, setResenias] = useState([]);
-  const [stock, setStock] = useState(() => {
-    const stockLS = localStorage.getItem(`stock_${producto?.id}`);
-    return stockLS !== null ? Number(stockLS) : producto?.stock || 0;
-  });
 
+  // Traer producto desde la API
   useEffect(() => {
-    if (!producto) return;
+    const fetchProducto = async () => {
+      try {
+        const p = await getProductoPorId(id);
+        setProducto(p);
 
-    const stockLS = localStorage.getItem(`stock_${producto.id}`);
-    setStock(stockLS !== null ? Number(stockLS) : producto.stock);
+        // Stock inicial
+        const stockLS = localStorage.getItem(`stock_${p.id}`);
+        setStock(stockLS !== null ? Number(stockLS) : p.stock);
 
-    // Cargar reseñas del producto desde localStorage
-    const todasResenias = JSON.parse(localStorage.getItem("resenias")) || [];
-    const filtradas = todasResenias.filter(r => r.productoId === producto.id);
+        // Cargar reseñas del producto desde localStorage
+        const todasResenias = JSON.parse(localStorage.getItem("resenias")) || [];
+        const filtradas = todasResenias.filter(r => r.productoId === p.id);
 
-    // Eliminar duplicados por email + fecha + productoId
-    const únicas = filtradas.filter((r, index, arr) => {
-      return arr.findIndex(item => item.email === r.email && item.fecha === r.fecha && item.productoId === r.productoId) === index;
-    });
+        // Eliminar duplicados por email + fecha + productoId
+        const únicas = filtradas.filter((r, index, arr) => {
+          return arr.findIndex(item => item.email === r.email && item.fecha === r.fecha && item.productoId === r.productoId) === index;
+        });
 
-    setResenias(únicas);
-  }, [producto]);
+        setResenias(únicas);
+      } catch (error) {
+        console.error("Error al cargar producto:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchProducto();
+  }, [id]);
+
+  if (loading) return <p>Cargando producto...</p>;
   if (!producto) return <p>Producto no encontrado</p>;
 
+  // Precio final considerando descuento y beneficio Duoc
   let precioFinal = producto.precio;
   const descuento = producto.descuento || 0;
   const tieneDescuento = descuento > 0 || usuario?.esDuoc;
-
   if (descuento > 0) precioFinal = Math.round(precioFinal * (1 - descuento / 100));
   if (usuario?.esDuoc) precioFinal = Math.round(precioFinal * 0.8);
 
+  // Agregar al carrito
   const handleAgregar = () => {
     if (stock <= 0) return;
     onAgregarCarrito(producto.id, 1);
@@ -53,6 +65,7 @@ export default function Detalles({ productos = productosData, usuario, onAgregar
     });
   };
 
+  // Agregar reseña
   const handleAgregarResenia = (resenaParcial) => {
     if (!usuario) return;
 
@@ -68,7 +81,6 @@ export default function Detalles({ productos = productosData, usuario, onAgregar
     todasResenias.push(nuevaResena);
     localStorage.setItem("resenias", JSON.stringify(todasResenias));
 
-    // Actualizar solo las reseñas del producto eliminando duplicados
     const filtradas = todasResenias.filter(r => r.productoId === producto.id);
     const únicas = filtradas.filter((r, index, arr) => {
       return arr.findIndex(item => item.email === r.email && item.fecha === r.fecha && item.productoId === r.productoId) === index;
@@ -76,7 +88,7 @@ export default function Detalles({ productos = productosData, usuario, onAgregar
     setResenias(únicas);
   };
 
-  const nombreArchivo = producto.imagen.split("/").pop();
+  const nombreArchivo = producto.imagen ? producto.imagen.split("/").pop() : "logo.png";
   const srcImg = `/${nombreArchivo}`;
 
   return (
