@@ -118,120 +118,10 @@ function Layout() {
     localStorage.removeItem("carrito");
   };
 
-  // Títulos dinámicos
-  useEffect(() => {
-    if (!location.pathname.startsWith("/detalles/")) {
-      switch (location.pathname) {
-        case "/":
-          document.title = "Level-Up · Inicio";
-          break;
-        case "/categoria":
-          document.title = "Level-Up · Categoria";
-          break;
-        case "/ofertas":
-          document.title = "Level-Up · Ofertas";
-          break;
-        case "/auth":
-          document.title = "Level-Up · Acceso";
-          break;
-        case "/homeadmin":
-          document.title = "Level-Up · Admin";
-          break;
-        case "/nosotros":
-          document.title = "Level-Up · Nosotros";
-          break;
-        case "/blog":
-          document.title = "Level-Up · Blog";
-          break;
-        case "/eventos":
-          document.title = "Level-Up · Eventos";
-          break;
-        case "/soporte":
-          document.title = "Level-Up · Soporte";
-          break;
-        case "/productosadmin":
-          document.title = "Level-Up · Productos";
-          break;
-        case "/nuevoproducto":
-          document.title = "Level-Up · Nuevo Producto";
-          break;
-        case "/usuariosadmin":
-          document.title = "Level-Up · Usuarios";
-          break;
-        case "/nuevousuario":
-          document.title = "Level-Up · Nuevo Usuario";
-          break;
-        case "/checkout":
-          document.title = "Level-Up · Checkout";
-          break;
-        case "/carro":
-          document.title = "Level-Up · Carro";
-          break;
-        case "/boleta":
-          document.title = "Level-Up · Boleta";
-          break;
-        case "/perfil":
-          document.title = "Level-Up · Perfil";
-          break;
-        case "/termino":
-          document.title = "Level-Up · Termino";
-          break;
-        case "/privacidad":
-          document.title = "Level-Up · Privacidad";
-          break;
-        case "/perfiladmin":
-          document.title = "Level-Up · Perfil Admin";
-          break;
-        case "/categoria_admin":
-          document.title = "Level-Up · Admin de Categorías";
-          break;
-        case "/editaruser":
-          document.title = "Level-Up · Editar Usuario";
-          break;
-        // La ruta "editarproducto" no tiene título exacto aquí porque es dinámica, pero funcionará
-        case "/ordenes":
-          document.title = "Level-Up · Órdenes";
-          break;
-        case "/reporte":
-          document.title = "Level-Up · Reporte";
-          break;
-        default:
-          document.title = "Level-Up";
-      }
-    }
-  }, [location.pathname]);
-
-  const hideNavbarRoutes = [
-    "/productosadmin",
-    "/nuevoproducto",
-    "/usuariosadmin",
-    "/nuevousuario",
-    "/homeadmin",
-    "/perfiladmin",
-    "/categoria_admin",
-    "/editaruser",
-    "/editarproducto",
-    "/ordenes",
-    "/reporte",
-  ];
-  
-  const isEditingProduct = location.pathname.includes("/productosadmin/editar");
-  const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname) && !isEditingProduct;
-  const shouldShowBotonWsp = !hideNavbarRoutes.includes(location.pathname) && !isEditingProduct;
-
-  const adminRoutes = [
-    { path: "/homeadmin", element: <Homeadmin /> },
-    { path: "/productosadmin", element: <Productosadmin /> },
-    { path: "/usuariosadmin", element: <Usuariosadmin /> },
-    { path: "/nuevoproducto", element: <NuevoProducto /> },
-    { path: "/nuevousuario", element: <NuevoUsuario /> },
-    { path: "/perfiladmin", element: <Perfiladmin /> },
-    { path: "/categoria_admin", element: <Categoriaadmin /> },
-    { path: "/editaruser/:id", element: <EditarUser /> },
-    { path: "/productosadmin/editar/:id", element: <EditarProducto /> },
-    { path: "/ordenes", element: <Ordenes /> },
-    { path: "/reporte", element: <Reporte /> },
-  ];
+  // Mostrar navbar y botón de WhatsApp
+  const hideNavbarRoutes = ["/checkout", "/boleta"];
+  const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
+  const shouldShowBotonWsp = shouldShowNavbar;
 
   return (
     <>
@@ -328,6 +218,4 @@ function Layout() {
   );
 }
 
-export default function App() {
-  return <Layout />;
-}
+export default Layout;
