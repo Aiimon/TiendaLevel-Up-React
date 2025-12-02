@@ -4,12 +4,13 @@ function SoporteForm({ usuario, onActualizar }) {
   const [tipo, setTipo] = useState("soporte");
   const [asunto, setAsunto] = useState("");
   const [mensaje, setMensaje] = useState("");
-  const [respuesta, setRespuesta] = useState("");
+  const [alerta, setAlerta] = useState({ tipo: "", texto: "" }); // Para mensajes bonitos
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (!usuario) {
-      setRespuesta("⚠️ Debes iniciar sesión para enviar soporte.");
+      setAlerta({ tipo: "warning", texto: "⚠️ Debes iniciar sesión para enviar soporte." });
       return;
     }
 
@@ -27,11 +28,14 @@ function SoporteForm({ usuario, onActualizar }) {
 
     localStorage.setItem("mensajesSoporte", JSON.stringify(mensajesGlobal));
 
-    setRespuesta("✅ ¡Tu mensaje ha sido enviado con éxito!");
+    setAlerta({ tipo: "success", texto: "✅ ¡Tu mensaje ha sido enviado con éxito!" });
     setAsunto("");
     setMensaje("");
 
     if (onActualizar) onActualizar();
+
+    // Desaparece automáticamente después de 4 segundos
+    setTimeout(() => setAlerta({ tipo: "", texto: "" }), 4000);
   };
 
   return (
@@ -40,6 +44,13 @@ function SoporteForm({ usuario, onActualizar }) {
       className="bg-dark p-4 rounded-3 border border-secondary-subtle mb-4"
     >
       <h5 className="mb-3 text-accent">Enviar solicitud de soporte</h5>
+
+      {/* Mensaje bonito */}
+      {alerta.texto && (
+        <div className={`alert alert-${alerta.tipo} text-center`} role="alert">
+          {alerta.texto}
+        </div>
+      )}
 
       <div className="mb-3">
         <label className="form-label" htmlFor="tipo">Tipo de Mensaje</label>
@@ -83,8 +94,6 @@ function SoporteForm({ usuario, onActualizar }) {
       <button type="submit" className="btn btn-accent">
         Enviar mensaje
       </button>
-
-      {respuesta && <div className="mt-3 text-success fw-bold">{respuesta}</div>}
     </form>
   );
 }

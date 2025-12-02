@@ -5,7 +5,10 @@ import { getProductos, agregarAlCarrito } from "../utils/apihelper";
 
 function Ofertas({ usuario }) {
   const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [mensaje, setMensaje] = useState(""); // Para mostrar mensajes amigables
 
+  // Cargar productos en oferta
   useEffect(() => {
     const fetchProductos = async () => {
       try {
@@ -16,26 +19,56 @@ function Ofertas({ usuario }) {
         setProductos(productosConOferta);
       } catch (err) {
         console.error("Error al cargar productos:", err);
+        setMensaje("No se pudieron cargar los productos en oferta.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProductos();
   }, []);
 
+  // Agregar producto al carrito
   const handleAgregarCarrito = async (productoId) => {
+    if (!usuario?.id) {
+      setMensaje("🔒 Debes iniciar sesión para agregar productos al carrito.");
+      return;
+    }
+
+    const producto = productos.find((p) => p.id === productoId);
+    if (!producto) {
+      setMensaje("❌ Producto no encontrado.");
+      return;
+    }
+    if (producto.stock <= 0) {
+      setMensaje("⚠️ El producto está agotado.");
+      return;
+    }
+
     try {
       await agregarAlCarrito(usuario.id, productoId, 1);
 
-      // Actualizar stock localmente para reflejar la compra
       setProductos((prev) =>
         prev.map((p) =>
           p.id === productoId ? { ...p, stock: p.stock - 1 } : p
         )
       );
+
+      setMensaje(`✅ Se agregó "${producto.nombre}" al carrito.`);
+      setTimeout(() => setMensaje(""), 3000); // Desaparece después de 3 segundos
     } catch (err) {
       console.error("Error al agregar al carrito:", err);
+      setMensaje("❌ No se pudo agregar el producto al carrito.");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="container py-4 text-center">
+        <p>Cargando productos...</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -46,6 +79,13 @@ function Ofertas({ usuario }) {
             Productos con descuentos especiales por tiempo limitado
           </small>
         </div>
+
+        {/* Mensaje visual */}
+        {mensaje && (
+          <div className="alert alert-info text-center">
+            {mensaje}
+          </div>
+        )}
 
         {productos.length === 0 ? (
           <div className="text-center text-danger mt-3">

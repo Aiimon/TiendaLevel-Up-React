@@ -1,16 +1,23 @@
 // apihelper.js
 // http://localhost:8082/swagger-ui/index.html
 
-// Rutas relativas (Vite hará el proxy a localhost:8082)
-const API_USUARIOS = `/v2/usuarios`;
-const API_PRODUCTOS = `/v2/productos`;
-const API_CATEGORIAS = `/v2/categorias`;
-const API_CARRITO = `/v2/carrito`;
-const API_BOLETAS = `/v2/boletas`;
-const API_IMAGENES = `/v2/imagenes`;
 
-// Helper para headers con JWT si existe
-const getHeaders = () => {
+// Definir la URL del backend según el entorno
+const BACKEND_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:8082" // Backend local
+    : "https://tiendalevelup-springboot-production.up.railway.app"; // Backend en Railway
+
+// Endpoints
+export const API_USUARIOS = `${BACKEND_URL}/v2/usuarios`;
+export const API_PRODUCTOS = `${BACKEND_URL}/v2/productos`;
+export const API_CATEGORIAS = `${BACKEND_URL}/v2/categorias`;
+export const API_CARRITO = `${BACKEND_URL}/v2/carrito`;
+export const API_BOLETAS = `${BACKEND_URL}/v2/boletas`;
+export const API_IMAGENES = `${BACKEND_URL}/v2/imagenes`;
+
+// Headers con JWT si existe
+export const getHeaders = () => {
   const token = localStorage.getItem("token");
   return {
     "Content-Type": "application/json",
