@@ -1,57 +1,65 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import Hero from "../components/Hero";
+import Card from "../components/Card";
+import Carrito from "../components/Carrito";
+import Footer from "../components/Footer";
 
-function Card({ productosDestacados }) {
-  const navigate = useNavigate();
+function Home({ productos: productosProp, carritoOpen, setCarritoOpen, carrito, onAgregarCarrito }) {
+  const [cargando, setCargando] = useState(true);
 
-  const handleVerProducto = (id) => {
-    // Enviar el productoId por state en lugar de la URL
-    navigate("/detalles", { state: { productoId: id } });
-  };
+  // Filtrar solo productos destacados cada vez que cambian los productos de Layout
+  const productosDestacados = productosProp
+    .filter((p) => Boolean(p.destacado))
+    .slice(0, 3);
+
+  useEffect(() => {
+    setCargando(false);
+  }, [productosProp]);
 
   return (
-    <div className="row g-4">
-      {productosDestacados.map((producto) => {
-        const badge = producto.categoria?.nombre || "Destacado";
-        const imgSrc = producto.imagen || "/img/fallback.png";
+    <>
+      <Hero
+        titulo="Sube de nivel tu setup"
+        descripcion={
+          <>
+            Consolas, PC, periféricos y más. Gana{" "}
+            <span className="badge badge-neon">puntos LevelUp</span> por compras y referidos.
+          </>
+        }
+        btn1={{
+          link: "/categoria",
+          clase: "btn-accent",
+          icon: "bi-lightning-charge",
+          text: "Explorar Productos",
+        }}
+        btn2={{
+          link: "/auth",
+          clase: "btn-outline-light",
+          icon: "bi-stars",
+          text: "Únete",
+        }}
+      />
 
-        return (
-          <div key={producto.id} className="col-md-4">
-            <div className="card h-100 shadow-sm">
-              <div className="card-img-container">
-                <img
-                  src={imgSrc}
-                  alt={producto.nombre}
-                  className="card-img-top"
-                  onError={(e) => {
-                    if (!e.target.src.includes("fallback.png")) {
-                      e.target.src = "/img/fallback.png";
-                      console.log(
-                        "Error cargando imagen, usando fallback:",
-                        producto.imagen
-                      );
-                    }
-                  }}
-                />
-              </div>
-              <div className="card-body">
-                <span className="badge badge-neon mb-2">{badge}</span>
-                <h5 className="card-title">{producto.nombre}</h5>
-                <p className="card-text text-secondary">
-                  {producto.descripcion || "Sin descripción"}
-                </p>
-                <button
-                  className="btn btn-neon-accent w-100"
-                  onClick={() => handleVerProducto(producto.id)}
-                >
-                  <i className="bi bi-eye me-1"></i> Ver producto
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
+      <section className="container mx-auto py-12">
+        <h2 className="text-3xl font-bold mb-6 text-center">Productos Destacados</h2>
+
+        {cargando ? (
+          <p className="text-center">Cargando productos...</p>
+        ) : productosDestacados.length === 0 ? (
+          <p className="text-center">No hay productos destacados disponibles.</p>
+        ) : (
+          <Card
+            productosDestacados={productosDestacados}
+            onAgregarCarrito={onAgregarCarrito}
+          />
+        )}
+      </section>
+
+      <Carrito open={carritoOpen} setOpen={setCarritoOpen} carrito={carrito} />
+
+      <Footer />
+    </>
   );
 }
 
-export default Card;
+export default Home;

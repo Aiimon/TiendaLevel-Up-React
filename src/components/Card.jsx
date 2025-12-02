@@ -1,17 +1,20 @@
 import { useNavigate } from "react-router-dom";
 
-function Card({ productosDestacados }) {
+function Card({ productosDestacados = [] }) { // <-- valor por defecto
   const navigate = useNavigate();
 
   const handleVerProducto = (id) => {
-    navigate(`/detalles/${id}`);
+    navigate("/detalles", { state: { productoId: id } });
   };
+
+  if (productosDestacados.length === 0) {
+    return <p className="text-center text-secondary">No hay productos disponibles.</p>;
+  }
 
   return (
     <div className="row g-4">
       {productosDestacados.map((producto) => {
         const badge = producto.categoria?.nombre || "Destacado";
-
         const imgSrc = producto.imagen || "/img/fallback.png";
 
         return (
