@@ -1,10 +1,20 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./App.css";
-import { getProductos } from "./utils/apihelper";
+import {
+  getProductos,
+  getCategorias,
+  agregarAlCarrito,
+  obtenerCarrito,
+  actualizarItemCarrito,
+  eliminarItemCarrito,
+} from "./utils/apihelper";
+
 import Navbar from "./components/Navbar";
 import CarritoSidebar from "./components/CarritoSidebar";
 import BotonWsp from "./components/BotonWsp";
+import BuscadorAvanzado from "./components/BuscadorAvanzado";
+
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Categoria from "./pages/Categoria";
@@ -26,7 +36,11 @@ function Layout() {
   const location = useLocation();
   const [carritoOpen, setCarritoOpen] = useState(false);
   const [productos, setProductos] = useState([]);
-  const [usuario, setUsuario] = useState(() => JSON.parse(localStorage.getItem("usuario")) || null);
+  const [categorias, setCategorias] = useState([]);
+  const [usuario, setUsuario] = useState(
+    () => JSON.parse(localStorage.getItem("usuario")) || null
+  );
+  const [carrito, setCarrito] = useState([]);
 
   // Escuchar cambios de usuario en localStorage
   useEffect(() => {
@@ -38,106 +52,127 @@ function Layout() {
     return () => window.removeEventListener("usuarioCambiado", handleUsuarioCambiado);
   }, []);
 
-  // Cargar productos al inicio
+  // Cargar productos y categorías
   useEffect(() => {
-    const fetchProductos = async () => {
+    const fetchData = async () => {
       try {
         const productosAPI = await getProductos();
-        const carritoLS = JSON.parse(localStorage.getItem("carrito")) || [];
+        const categoriasAPI = await getCategorias();
+        setProductos(productosAPI);
 
-        const iniciales = productosAPI.map((p) => {
-          const itemCarrito = carritoLS.find((c) => c.id === p.id);
-          const cantidad = itemCarrito ? itemCarrito.cantidad : 0;
-          const stockLS = Number(localStorage.getItem(`stock_${p.id}`)) || p.stock;
-          return { ...p, stock: stockLS, cantidad };
-        });
-
-        setProductos(iniciales);
+        const cats = Array.isArray(categoriasAPI)
+          ? [{ id: 0, nombre: "Todas" }, ...categoriasAPI.map(c => ({ id: c.id, nombre: c.nombre }))]
+          : [{ id: 0, nombre: "Todas" }];
+        setCategorias(cats);
       } catch (error) {
-        console.error("Error cargando productos:", error);
+        console.error("Error cargando productos o categorías:", error);
+        setProductos([]);
+        setCategorias([{ id: 0, nombre: "Todas" }]);
       }
     };
-    fetchProductos();
+    fetchData();
   }, []);
 
-  // Agregar al carrito
-  const handleAgregarCarrito = (idProducto, cant = 1) => {
-    setProductos((prev) => {
-      const nuevos = prev.map((p) => {
-        if (p.id === idProducto && p.stock >= cant) {
-          const nuevoStock = p.stock - cant;
-          localStorage.setItem(`stock_${p.id}`, nuevoStock);
-          return {
-            ...p,
-            cantidad: (p.cantidad || 0) + cant,
-            stock: nuevoStock,
-          };
+  // Cargar carrito desde backend cuando hay usuario
+  useEffect(() => {
+    if (usuario) {
+      const fetchCarrito = async () => {
+        try {
+          const c = await obtenerCarrito(usuario.id);
+          setCarrito(c.items || []);
+        } catch (error) {
+          console.error("Error al obtener carrito:", error);
+          setCarrito([]);
         }
-        return p;
-      });
-      localStorage.setItem(
-        "carrito",
-        JSON.stringify(nuevos.filter((p) => p.cantidad > 0))
+      };
+      fetchCarrito();
+    } else {
+      setCarrito([]);
+    }
+  }, [usuario]);
+
+  // Agregar producto al carrito
+  const handleAgregarCarrito = async (producto) => {
+    if (!usuario) return alert("Debes iniciar sesión para agregar al carrito");
+
+    try {
+      const carritoActualizado = await agregarAlCarrito(usuario.id, producto.id, 1);
+      setCarrito(carritoActualizado.items || []);
+
+      // Ajustar stock local
+      setProductos(prev =>
+        prev.map(p => p.id === producto.id ? { ...p, stock: p.stock - 1 } : p)
       );
-      return nuevos;
-    });
+    } catch (error) {
+      console.error("Error agregando al carrito:", error);
+    }
   };
 
   // Actualizar cantidad en carrito
-  const handleActualizarCantidad = (idProducto, cantidadNueva) => {
-    setProductos((prev) => {
-      const nuevos = prev.map((p) => {
-        if (p.id === idProducto) {
-          const cantidadFinal = Math.max(
-            0,
-            Math.min(cantidadNueva, p.stock + p.cantidad)
-          );
-          const stockFinal = p.stock + p.cantidad - cantidadFinal;
-          localStorage.setItem(`stock_${p.id}`, stockFinal);
-          return { ...p, cantidad: cantidadFinal, stock: stockFinal };
-        }
-        return p;
-      });
-      localStorage.setItem(
-        "carrito",
-        JSON.stringify(nuevos.filter((p) => p.cantidad > 0))
-      );
-      return nuevos;
+  const actualizarCantidadCarrito = async (itemId, cantidad) => {
+    try {
+      const carritoActualizado = await actualizarItemCarrito(usuario.id, itemId, cantidad);
+      setCarrito(carritoActualizado.items || []);
+    } catch (error) {
+      console.error("Error al actualizar cantidad:", error);
+    }
+  };
+
+  // Eliminar item del carrito
+  const eliminarItemDelCarrito = async (itemId) => {
+    try {
+      const carritoActualizado = await eliminarItemCarrito(usuario.id, itemId);
+      setCarrito(carritoActualizado.items || []);
+    } catch (error) {
+      console.error("Error al eliminar item:", error);
+    }
+  };
+
+  // Filtrado de productos
+  const [productosFiltrados, setProductosFiltrados] = useState([]);
+  const handleFiltrarProductos = ({ q, cat, min, max }) => {
+    const filtrados = productos.filter(p => {
+      const matchCat = cat === "Todas" || p.categoria?.nombre === cat;
+      const matchQ = q ? p.nombre.toLowerCase().includes(q.toLowerCase()) : true;
+      const matchPrecio = p.precio >= min && p.precio <= max;
+      return matchCat && matchQ && matchPrecio;
     });
+    setProductosFiltrados(filtrados);
   };
 
-  // Vaciar carrito tras compra
-  const handleCompraExitosa = () => {
-    setProductos((prev) =>
-      prev.map((p) => ({
-        ...p,
-        cantidad: 0,
-        stock: Number(localStorage.getItem(`stock_${p.id}`)) || p.stock,
-      }))
-    );
-    localStorage.removeItem("carrito");
-  };
-
-  // Mostrar navbar y botón de WhatsApp
+  // Rutas donde no mostrar navbar
   const hideNavbarRoutes = ["/checkout", "/boleta"];
   const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
   const shouldShowBotonWsp = shouldShowNavbar;
 
+  // Mostrar buscador solo en /categoria y /ofertas
+  const mostrarBuscador = location.pathname.startsWith("/categoria") || location.pathname.startsWith("/ofertas");
+
   return (
     <>
       {shouldShowNavbar && (
-        <Navbar
-          cantidad={productos.reduce((acc, p) => acc + (p.cantidad || 0), 0)}
-          abrirCarrito={() => setCarritoOpen(true)}
-          usuario={usuario}
-        />
+        <>
+          <Navbar
+            cantidad={carrito.reduce((acc, item) => acc + item.cantidad, 0)}
+            abrirCarrito={() => setCarritoOpen(true)}
+            usuario={usuario}
+          />
+
+          {mostrarBuscador && (
+            <BuscadorAvanzado
+              categorias={categorias}
+              onFilter={handleFiltrarProductos}
+            />
+          )}
+        </>
       )}
 
       <CarritoSidebar
         abierto={carritoOpen}
         cerrar={() => setCarritoOpen(false)}
-        carrito={productos.filter((p) => p.cantidad > 0)}
-        onActualizarCantidad={handleActualizarCantidad}
+        carrito={carrito}
+        onActualizarCantidad={actualizarCantidadCarrito}
+        onEliminarItem={eliminarItemDelCarrito}
       />
 
       <Routes>
@@ -145,7 +180,7 @@ function Layout() {
           path="/"
           element={
             <Home
-              productos={productos}
+              productos={productosFiltrados.length ? productosFiltrados : productos}
               usuario={usuario}
               onAgregarCarrito={handleAgregarCarrito}
             />
@@ -155,7 +190,7 @@ function Layout() {
           path="/categoria"
           element={
             <Categoria
-              productos={productos}
+              productos={productosFiltrados.length ? productosFiltrados : productos}
               usuario={usuario}
               onAgregarCarrito={handleAgregarCarrito}
             />
@@ -165,7 +200,7 @@ function Layout() {
           path="/ofertas"
           element={
             <Ofertas
-              productos={productos}
+              productos={productosFiltrados.length ? productosFiltrados : productos}
               usuario={usuario}
               onAgregarCarrito={handleAgregarCarrito}
             />
@@ -190,8 +225,9 @@ function Layout() {
           path="/carro"
           element={
             <Carro
-              carrito={productos.filter((p) => p.cantidad > 0)}
-              onActualizarCantidad={handleActualizarCantidad}
+              carrito={carrito}
+              onActualizarCantidad={actualizarCantidadCarrito}
+              onEliminarItem={eliminarItemDelCarrito}
             />
           }
         />
@@ -200,9 +236,9 @@ function Layout() {
           element={
             <ProteccionUser usuario={usuario}>
               <Checkout
-                carrito={productos.filter((p) => p.cantidad > 0)}
-                onActualizarCantidad={handleActualizarCantidad}
-                onCompraExitosa={handleCompraExitosa}
+                carrito={carrito}
+                onActualizarCantidad={actualizarCantidadCarrito}
+                onCompraExitosa={() => setCarrito([])}
               />
             </ProteccionUser>
           }

@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import CardBlog from "../components/CardBlog";
 import Footer from "../components/Footer";
-import { getImagenesPorTipo } from "../utils/apihelper"; // Tu helper para traer imágenes
+import { getImagenesPorTipo } from "../utils/apihelper";
 
 function Blog() {
   const [imagenes, setImagenes] = useState([]);
 
   useEffect(() => {
-    // Traemos solo las imágenes de tipo 'blog'
     getImagenesPorTipo("blog")
       .then(data => setImagenes(data))
       .catch(err => console.error("Error cargando imágenes:", err));

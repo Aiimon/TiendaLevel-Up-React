@@ -9,15 +9,24 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
 
   const contenedorRef = useRef(null);
 
+  // Crear lista de categorías única y siempre incluir "Todas"
+  const categoriasUnicas = [
+    { id: "todas", nombre: "Todas" },
+    ...[...new Map(categorias.map(c => [c.nombre, c])).values()].filter(c => c.nombre !== "Todas")
+  ];
+
+  // Función de filtrado
   const aplicarFiltros = () => {
-    onFilter({
-      q,
-      cat,
+    const filtros = {
+      q: q.trim(),
+      cat: cat.trim(),
       min: Number(min) || 0,
       max: Number(max) || Infinity,
-    });
+    };
+    onFilter(filtros);
   };
 
+  // Limpiar filtros
   const limpiarFiltros = () => {
     setQ("");
     setCat("Todas");
@@ -26,6 +35,12 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
     onFilter({ q: "", cat: "Todas", min: 0, max: Infinity });
   };
 
+  // Filtrar automáticamente cuando cambian los inputs
+  useEffect(() => {
+    aplicarFiltros();
+  }, [q, cat, min, max]);
+
+  // Cerrar buscador al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (contenedorRef.current && !contenedorRef.current.contains(event.target)) {
@@ -33,9 +48,7 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -55,7 +68,7 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
       >
         <h5 className="orbitron mb-3">Búsqueda avanzada</h5>
         <div className="row g-2 align-items-end">
-          <div className="col-md-6">
+          <div className="col-12">
             <label className="form-label">Palabra clave</label>
             <input
               className="form-control"
@@ -64,24 +77,22 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
               placeholder="Ej. PlayStation, ROG, mouse"
             />
           </div>
-          <div className="col-md-6">
+
+          <div className="col-12">
             <label className="form-label">Categoría</label>
             <select
               className="form-select"
               value={cat}
               onChange={(e) => setCat(e.target.value)}
             >
-              {/* Siempre dejamos la opción "Todas" manual */}
-              <option value="Todas">Todas</option>
-              {categorias
-                .filter((c) => c !== "Todas") // filtramos por si accidentalmente viene en el arreglo
-                .map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
+              {categoriasUnicas.map(c => (
+                <option key={c.id} value={c.nombre}>
+                  {c.nombre}
+                </option>
+              ))}
             </select>
           </div>
+
           <div className="col-12">
             <label className="form-label">Rango de precio (CLP)</label>
             <div className="d-flex gap-2">

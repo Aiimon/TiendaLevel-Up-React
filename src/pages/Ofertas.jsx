@@ -1,34 +1,40 @@
 import { useEffect, useState } from "react";
 import ProductoCard from "../components/ProductoCard";
+import BuscadorAvanzado from "../components/BuscadorAvanzado";
 import Footer from "../components/Footer";
-import { getProductos, agregarAlCarrito } from "../utils/apihelper";
+import { getProductos, getCategorias, agregarAlCarrito } from "../utils/apihelper";
 
 function Ofertas({ usuario }) {
-  const [productos, setProductos] = useState([]);
+  const [productos, setProductos] = useState([]); // productos filtrados
+  const [productosOriginales, setProductosOriginales] = useState([]); // productos completos
+  const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [mensaje, setMensaje] = useState(""); // Para mostrar mensajes amigables
+  const [mensaje, setMensaje] = useState("");
 
-  // Cargar productos en oferta
   useEffect(() => {
-    const fetchProductos = async () => {
+    const fetchData = async () => {
       try {
         const allProductos = await getProductos();
         const productosConOferta = allProductos.filter(
           (p) => p.oferta === true || p.descuento > 0
         );
+
         setProductos(productosConOferta);
+        setProductosOriginales(productosConOferta); // Guardar copia original
+
+        const cats = await getCategorias();
+        setCategorias(cats);
       } catch (err) {
-        console.error("Error al cargar productos:", err);
-        setMensaje("No se pudieron cargar los productos en oferta.");
+        console.error(err);
+        setMensaje("No se pudieron cargar los productos o categorías.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProductos();
+    fetchData();
   }, []);
 
-  // Agregar producto al carrito
   const handleAgregarCarrito = async (productoId) => {
     if (!usuario?.id) {
       setMensaje("🔒 Debes iniciar sesión para agregar productos al carrito.");
@@ -47,17 +53,15 @@ function Ofertas({ usuario }) {
 
     try {
       await agregarAlCarrito(usuario.id, productoId, 1);
-
       setProductos((prev) =>
         prev.map((p) =>
           p.id === productoId ? { ...p, stock: p.stock - 1 } : p
         )
       );
-
       setMensaje(`✅ Se agregó "${producto.nombre}" al carrito.`);
-      setTimeout(() => setMensaje(""), 3000); // Desaparece después de 3 segundos
+      setTimeout(() => setMensaje(""), 3000);
     } catch (err) {
-      console.error("Error al agregar al carrito:", err);
+      console.error(err);
       setMensaje("❌ No se pudo agregar el producto al carrito.");
     }
   };
@@ -74,18 +78,28 @@ function Ofertas({ usuario }) {
     <>
       <div className="container py-4">
         <div className="d-flex justify-content-between align-items-center mb-3 mt-4">
-          <h2 className="section-title mb-0 neon">🔥 Ofertas Gamer</h2>
+          <h2 className="section-title mb-0 neon">🔥 Ofertas </h2>
           <small className="text-secondary">
             Productos con descuentos especiales por tiempo limitado
           </small>
         </div>
 
+        {/* Buscador avanzado */}
+        <BuscadorAvanzado
+          categorias={categorias}
+          onFilter={({ q, cat, min, max }) => {
+            const filtrados = productosOriginales.filter((p) => {
+              const matchQ = p.nombre.toLowerCase().includes(q.toLowerCase());
+              const matchCat = cat === "Todas" || p.categoria?.nombre === cat;
+              const matchPrecio = p.precio >= min && p.precio <= max;
+              return matchQ && matchCat && matchPrecio;
+            });
+            setProductos(filtrados);
+          }}
+        />
+
         {/* Mensaje visual */}
-        {mensaje && (
-          <div className="alert alert-info text-center">
-            {mensaje}
-          </div>
-        )}
+        {mensaje && <div className="alert alert-info text-center">{mensaje}</div>}
 
         {productos.length === 0 ? (
           <div className="text-center text-danger mt-3">
@@ -98,7 +112,7 @@ function Ofertas({ usuario }) {
                 <ProductoCard
                   producto={prod}
                   usuario={usuario}
-                  onAgregarCarrito={handleAgregarCarrito}
+                  onAgregarCarrito={() => handleAgregarCarrito(prod.id)}
                 />
               </div>
             ))}

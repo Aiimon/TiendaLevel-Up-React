@@ -3,91 +3,71 @@ import { useLocation } from "react-router-dom";
 import ProductoCard from "../components/ProductoCard";
 import BuscadorAvanzado from "../components/BuscadorAvanzado";
 import Footer from "../components/Footer";
-import { getProductos } from "../utils/apihelper"; 
+import { getCategorias } from "../utils/apihelper";
 
-function Categoria({ usuario, onAgregarCarrito }) {
+function Categoria({ usuario, onAgregarCarrito, productos }) {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const categoriaUrl = params.get("categoria") || "Todas";
 
-  const [productos, setProductos] = useState([]);
   const [productosFiltrados, setProductosFiltrados] = useState([]);
+  const [productosOriginales, setProductosOriginales] = useState([]);
   const [categorias, setCategorias] = useState([]);
+  const [mensaje, setMensaje] = useState("");
 
-  // Traer productos desde API
+  // Inicializar productos filtrados al cargar
   useEffect(() => {
-    const fetchProductos = async () => {
+    const inicial = categoriaUrl === "Todas"
+      ? productos
+      : productos.filter(p => p.categoria?.nombre === categoriaUrl);
+
+    setProductosOriginales(inicial);
+    setProductosFiltrados(inicial);
+  }, [categoriaUrl, productos]);
+
+  // Cargar categorías desde API
+  useEffect(() => {
+    const fetchCategorias = async () => {
       try {
-        const todos = await getProductos();
-
-        // Inicializar stock desde localStorage si existe
-        const iniciales = todos.map((p) => ({
-          ...p,
-          stock: localStorage.getItem(`stock_${p.id}`) !== null
-            ? Number(localStorage.getItem(`stock_${p.id}`))
-            : p.stock,
-        }));
-
-        setProductos(iniciales);
-
-        // Extraer categorías únicas
-        const cats = Array.from(new Set(iniciales.map((p) => p.categoria)));
-        setCategorias(["Todas", ...cats]);
-
-        // Filtrar según categoría en URL
-        const filtrados =
-          categoriaUrl === "Todas"
-            ? iniciales
-            : iniciales.filter((p) => p.categoria === categoriaUrl);
-        setProductosFiltrados(filtrados);
-      } catch (error) {
-        console.error("Error al cargar productos:", error);
+        const cats = await getCategorias();
+        // Eliminar duplicados y siempre agregar "Todas" al inicio
+        const categoriasUnicas = [
+          { id: "todas", nombre: "Todas" },
+          ...[...new Map(cats.map(c => [c.nombre, c])).values()].filter(c => c.nombre !== "Todas")
+        ];
+        setCategorias(categoriasUnicas);
+      } catch (err) {
+        console.error("Error al cargar categorías:", err);
       }
     };
-
-    fetchProductos();
-  }, [categoriaUrl]);
-
-  // Función para actualizar stock local
-  const actualizarStock = (idProducto, cantidad = 1) => {
-    setProductos((prev) =>
-      prev.map((p) => {
-        if (p.id === idProducto && p.stock >= cantidad) {
-          const nuevoStock = p.stock - cantidad;
-          localStorage.setItem(`stock_${p.id}`, nuevoStock);
-          return { ...p, stock: nuevoStock };
-        }
-        return p;
-      })
-    );
-
-    setProductosFiltrados((prev) =>
-      prev.map((p) => {
-        if (p.id === idProducto && p.stock >= cantidad) {
-          const nuevoStock = p.stock - cantidad;
-          return { ...p, stock: nuevoStock };
-        }
-        return p;
-      })
-    );
-  };
+    fetchCategorias();
+  }, []);
 
   const handleAgregar = (producto) => {
-    if (producto.stock <= 0) return;
+    if (!usuario?.id) {
+      setMensaje("🔒 Debes iniciar sesión para agregar productos al carrito.");
+      return;
+    }
+    if (producto.stock <= 0) {
+      setMensaje("⚠️ El producto está agotado.");
+      return;
+    }
+
     onAgregarCarrito(producto.id, 1);
-    actualizarStock(producto.id, 1);
+    setMensaje(`✅ Se agregó "${producto.nombre}" al carrito.`);
+    setTimeout(() => setMensaje(""), 3000);
   };
 
   return (
     <>
       <div className="container py-4">
+        {/* Buscador avanzado */}
         <BuscadorAvanzado
           categorias={categorias}
-          onFilter={(filtro) => {
-            const { q, cat, min, max } = filtro;
-            const filtrados = productos.filter((p) => {
+          onFilter={({ q, cat, min, max }) => {
+            const filtrados = productosOriginales.filter((p) => {
               const matchQ = p.nombre.toLowerCase().includes(q.toLowerCase());
-              const matchCat = cat === "Todas" || p.categoria === cat;
+              const matchCat = cat === "Todas" || p.categoria?.nombre === cat;
               const matchPrecio = p.precio >= min && p.precio <= max;
               return matchQ && matchCat && matchPrecio;
             });
@@ -100,6 +80,9 @@ function Categoria({ usuario, onAgregarCarrito }) {
             {categoriaUrl === "Todas" ? "Catálogo" : categoriaUrl}
           </h2>
         </div>
+
+        {/* Mensaje amigable */}
+        {mensaje && <div className="alert alert-info text-center">{mensaje}</div>}
 
         {productosFiltrados.length === 0 ? (
           <div className="text-center text-danger mt-3">
