@@ -1,9 +1,9 @@
-// src/components/DashboardContent.jsx (FINAL ADAPTADO)
+// src/components/DashboardContent.jsx (CÓDIGO CON PUERTO CORREGIDO)
 
 import React, { useState, useEffect, useCallback } from 'react'; 
 import { Link } from 'react-router-dom';
 
-const API_BASE_URL = 'http://localhost:8080/v2'; // Mantenemos 8080
+const API_BASE_URL = 'http://localhost:8082/v2'; // ✅ PUERTO CORREGIDO A 8082
 const STOCK_CRITICO = 5;
 
 // --- Componentes MetricCard y FeatureCard se mantienen iguales ---
@@ -23,13 +23,14 @@ function DashboardContent() {
         setLoading(true);
         setError(null);
         try {
-            // Petición de Productos (GET: /v2/productos/todos)
+            // Petición de Productos (GET: /v2/productos/todos) al puerto 8082
             const productosResponse = await fetch(`${API_BASE_URL}/productos/todos`);
-            // Petición de Usuarios (GET: /v2/usuarios/todos)
+            // Petición de Usuarios (GET: /v2/usuarios/todos) al puerto 8082
             const usuariosResponse = await fetch(`${API_BASE_URL}/usuarios/todos`); 
             
             if (!productosResponse.ok || !usuariosResponse.ok) {
-                throw new Error("Error al obtener datos de la API.");
+                // Si la conexión funciona, pero el servidor devuelve un error de lógica (404, 500)
+                throw new Error("Error al obtener datos de la API. Verifique los logs del servidor.");
             }
             
             const productosData = await productosResponse.json();
@@ -52,7 +53,7 @@ function DashboardContent() {
     const totalProductos = productos.length; 
     const inventarioActual = productos.reduce((sum, p) => sum + (p.stock || p.STOCK || 0), 0); 
     const totalUsuarios = usuarios.length; 
-    const nuevosUsuariosEsteMes = 120; // MOCK data, requiere un endpoint específico
+    const nuevosUsuariosEsteMes = 120; // MOCK data, ya que requiere un endpoint específico
 
     // Datos para las tarjetas (usando la data real)
     const metricCards = [
@@ -60,10 +61,10 @@ function DashboardContent() {
         { title: 'Productos', value: formatNumber(totalProductos), icon: 'fas fa-box', detail: `Inventario actual: ${formatNumber(inventarioActual)}`, color: '#1E90FF', textColor: 'text-black' },
         { title: 'Usuarios', value: formatNumber(totalUsuarios), icon: 'fas fa-users', detail: `Nuevos usuarios este mes: ${nuevosUsuariosEsteMes}`, color: '#39FF14', textColor: 'text-black' },
     ];
-    // Las featureCards deben usar las rutas anidadas correctas (ej: /adminhome/productosadmin)
+    // Las featureCards deben usar las rutas anidadas correctas
     const featureCardsTop = [
-        { title: 'Dashboard', id: 'feature-dashboard-top', icon: 'fas fa-tachometer-alt', path: '/adminhome', desc: 'Visión general de todas las métricas y estadísticas clave del sistema.' },
-        // ... (el resto de paths usan /adminhome/ruta)
+        { title: 'Dashboard', id: 'feature-dashboard-top', icon: 'fas fa-tachometer-alt', path: '/homeadmin', desc: 'Visión general de todas las métricas y estadísticas clave del sistema.' },
+        // ... (el resto de paths usan /homeadmin/ruta)
     ];
 
 
