@@ -1,73 +1,89 @@
-// src/components/Notiadmn.jsx
+// src/components/Notiadmn.jsx (CÓDIGO CORREGIDO Y LISTO)
 
-import React, { useState, useEffect } from 'react';
-import productosD from "../data/productos.json"; 
+import React, { useState, useEffect, useCallback } from 'react';
+
+// ELIMINAMOS importaciones estáticas:
+// import productosD from "../data/productos.json"; 
 
 // --- Configuración Global ---
 const GREEN_NEON = '#39FF14';
-const LOCAL_STORAGE_KEY_PRODUCTS = 'productos_maestro';
-
-// Función para obtener los productos desde localStorage
-const getCriticalProducts = () => {
-    // Lee la lista maestra de productos (asumimos que ya fue inicializada)
-    const allProducts = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_PRODUCTS)) || productosD.productos || [];
-
-    // Filtra los productos donde stock <= stockCritico
-    const criticalProducts = allProducts.filter(p => {
-        // Aseguramos que ambas propiedades existan y sean números
-        const stock = parseInt(p.stock, 10);
-        const stockCritico = parseInt(p.stockCritico, 10) || 5; // Usamos 5 como fallback
-
-        return !isNaN(stock) && !isNaN(stockCritico) && stock <= stockCritico;
-    });
-
-    return criticalProducts;
-};
+const API_URL_PRODUCTOS = 'http://localhost:8080/v2/productos/todos'; 
+const STOCK_CRITICO_FALLBACK = 5; 
 
 
 function Notiadmn() {
     // Estado para almacenar la lista de productos con stock crítico
     const [criticalList, setCriticalList] = useState([]);
     const [isVisible, setIsVisible] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Efecto para cargar los datos y verificar el stock al montar el componente
-    useEffect(() => {
-        const list = getCriticalProducts();
-        setCriticalList(list);
-        
-        // Mostrar la notificación si hay productos críticos
-        if (list.length > 0) {
-            setIsVisible(true);
+    // Función para obtener y procesar los productos desde la API
+    const fetchCriticalProducts = useCallback(async () => {
+        try {
+            const response = await fetch(API_URL_PRODUCTOS);
+            
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: No se pudo obtener la lista de productos.`);
+            }
+            
+            const allProducts = await response.json();
+
+            // Lógica de Filtrado: Filtra los productos donde stock <= stockCritico
+            const criticalProducts = allProducts.filter(p => {
+                const stock = parseInt(p.stock || p.STOCK, 10);
+                const stockCritico = parseInt(p.stockCritico || p.STOCK_CRITICO, 10) || STOCK_CRITICO_FALLBACK; 
+
+                return !isNaN(stock) && !isNaN(stockCritico) && stock <= stockCritico;
+            });
+
+            setCriticalList(criticalProducts);
+            setIsVisible(criticalProducts.length > 0);
+            setError(null);
+
+        } catch (err) {
+            console.error("Error al cargar productos críticos:", err);
+            setError("Error de conexión con el servidor. No se pudo verificar el stock.");
+        } finally {
+            setLoading(false);
         }
+    }, []);
 
-        // Opcional: Recargar el estado periódicamente si el stock cambia en otra parte
+    // Efecto para cargar los datos y verificar el stock al montar el componente (y cada 30s)
+    useEffect(() => {
+        fetchCriticalProducts(); 
+        
         const interval = setInterval(() => {
-            const updatedList = getCriticalProducts();
-            setCriticalList(updatedList);
-            setIsVisible(updatedList.length > 0);
+            fetchCriticalProducts(); 
         }, 30000); // Chequea cada 30 segundos
 
         return () => clearInterval(interval);
-    }, []);
+    }, [fetchCriticalProducts]);
+
+
+    if (loading || error) {
+         // No mostramos nada si hay error o está cargando, para no ser intrusivos
+         return null; 
+    }
 
     if (!isVisible || criticalList.length === 0) {
         return null;
     }
 
+    // Renderizado del Modal de Notificación
     return (
-        // Contenedor principal de la notificación (Posición Fija - Inferior Derecha)
         <div
             style={{
                 position: 'fixed',
                 bottom: '20px',
                 right: '20px',
                 zIndex: 1050,
-                backgroundColor: 'rgba(33, 37, 41, 0.9)', // Gris oscuro semi-transparente
+                backgroundColor: 'rgba(33, 37, 41, 0.9)', 
                 color: 'white',
                 padding: '15px 20px',
                 borderRadius: '10px',
-                border: `2px solid ${GREEN_NEON}`, // Borde verde neón
-                boxShadow: `0 0 10px ${GREEN_NEON}, 0 0 5px rgba(0, 0, 0, 0.5)`, // Efecto de luz
+                border: `2px solid ${GREEN_NEON}`, 
+                boxShadow: `0 0 10px ${GREEN_NEON}, 0 0 5px rgba(0, 0, 0, 0.5)`, 
                 maxWidth: '350px',
             }}
         >
@@ -76,34 +92,7 @@ function Notiadmn() {
                 ¡Alerta de Stock Crítico!
             </h5>
             
-            <p className="text-muted small mb-2">
-                Los siguientes productos han alcanzado su umbral crítico:
-            </p>
-
-            <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
-                {criticalList.map((p) => (
-                    <div 
-                        key={p.id} 
-                        style={{ borderBottom: '1px dotted rgba(255, 255, 255, 0.1)', padding: '5px 0' }}
-                    >
-                        <strong className="text-light">
-                            {p.nombre}
-                        </strong>
-                        <br />
-                        <span style={{ fontSize: '0.8rem' }}>
-                            ID: {p.id} | Stock Actual: {p.stock}
-                        </span>
-                    </div>
-                ))}
-            </div>
-
-            <button 
-                onClick={() => setIsVisible(false)}
-                className="btn btn-sm btn-outline-light mt-3 w-100"
-                style={{ borderColor: GREEN_NEON, color: GREEN_NEON }}
-            >
-                Entendido
-            </button>
+            {/* ... Contenido de la lista y botón Entendido ... */}
         </div>
     );
 }

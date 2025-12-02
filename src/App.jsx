@@ -31,7 +31,7 @@ import Carro from "./pages/Carro";
 import Boleta from "./pages/Boleta";
 import Perfil from "./pages/Perfil";
 import ProteccionUser from "./components/ProteccionUser";
-
+import homeadmin from "./pages/homeadmin";
 function Layout() {
   const location = useLocation();
   const [carritoOpen, setCarritoOpen] = useState(false);
@@ -254,6 +254,7 @@ function Layout() {
       />
 
       <Routes>
+      
         <Route
           path="/"
           element={
