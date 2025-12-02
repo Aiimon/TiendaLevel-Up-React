@@ -32,6 +32,14 @@ import Boleta from "./pages/Boleta";
 import Perfil from "./pages/Perfil";
 import ProteccionUser from "./components/ProteccionUser";
 import HomeAdmin from "./pages/HomeAdmin";
+import PerfilAdmin from "./pages/PerfilAdmin";
+import CategoriaAdmin from "./pages/CategoriaAdmin";
+import EditarProducto from "./pages/EditarProducto";
+import EditarUser from "./pages/EditarUser";
+import NuevoProducto from "./pages/NuevoProducto";
+import NuevoUsuario from "./pages/NuevoUsuario";
+import Productosadmin from "./pages/Productosadmin";
+import Usuariosadmin from "./pages/Usuariosadmin";
 
 function Layout() {
   const location = useLocation();
@@ -259,6 +267,14 @@ function Layout() {
           path="/homeadmin"
           element={<HomeAdmin usuario={usuario} />}
         />
+        <Route path="/perfiladmin" element={<PerfilAdmin />} />
+      <Route path="/categoria_admin" element={<CategoriaAdmin />} />
+      <Route path="/editarproducto" element={<EditarProducto />} />
+      <Route path="/editaruser" element={<EditarUser />} />
+      <Route path="/nuevoproducto" element={<NuevoProducto />} />
+      <Route path="/nuevousuario" element={<NuevoUsuario />} />
+      <Route path="/productosadmin" element={<Productosadmin />} />
+      <Route path="/usuariosadmin" element={<Usuariosadmin />} />
         <Route
           path="/"
           element={
