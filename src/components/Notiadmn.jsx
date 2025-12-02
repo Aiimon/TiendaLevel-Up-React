@@ -7,7 +7,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 // --- Configuración Global ---
 const GREEN_NEON = '#39FF14';
-const API_URL_PRODUCTOS = 'http://localhost:8080/v2/productos/todos'; 
+const API_URL_PRODUCTOS = 'http://localhost:8082/v2/productos/todos'; 
 const STOCK_CRITICO_FALLBACK = 5; 
 
 
