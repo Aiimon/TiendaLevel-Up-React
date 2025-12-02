@@ -1,12 +1,8 @@
-// src/components/DashboardContent.jsx
-
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 const API_BASE_URL = "http://localhost:8082/v2"; // Puerto correcto
 const STOCK_CRITICO = 5;
-
-// ---------------- COMPONENTES ----------------
 
 const MetricCard = ({ title, value, icon, detail, color, textColor }) => (
   <div className="col-lg-4 col-md-6 mb-4">
@@ -39,8 +35,6 @@ const FeatureCard = ({ title, id, icon, desc, path }) => (
     </div>
   </Link>
 );
-
-// ---------------- MAIN COMPONENT ----------------
 
 function DashboardContent() {
   const [productos, setProductos] = useState([]);
@@ -83,7 +77,7 @@ function DashboardContent() {
     fetchData();
   }, [fetchData]);
 
-  // ----------- MÉTRICAS -----------
+  // METRICAS
   const totalProductos = productos.length;
   const inventarioActual = productos.reduce(
     (sum, p) => sum + (p.stock ?? p.STOCK ?? 0),
