@@ -5,8 +5,8 @@
 // Definir la URL del backend según el entorno
 const BACKEND_URL =
   import.meta.env.MODE === "development"
-    ? "http://localhost:8082" // Backend local
-    : "https://tiendalevelup-springboot-production.up.railway.app"; // Backend en Railway
+    ? "http://localhost:8082"         // Backend local
+    : "https://tiendalevelup.netlify.app"; // Frontend en Netlify
 
 // Endpoints
 export const API_USUARIOS = `${BACKEND_URL}/v2/usuarios`;
