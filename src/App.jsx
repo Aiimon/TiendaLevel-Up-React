@@ -256,10 +256,9 @@ function Layout() {
 
       <Routes>
         <Route
-  path="/homeadmin"
-  element={<HomeAdmin usuario={usuario} />}
-/>
-      
+          path="/homeadmin"
+          element={<HomeAdmin usuario={usuario} />}
+        />
         <Route
           path="/"
           element={
@@ -295,16 +294,7 @@ function Layout() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/eventos" element={<Eventos />} />
         <Route path="/soporte" element={<Soporte usuario={usuario} />} />
-        <Route
-          path="/detalles/:id"
-          element={
-            <Detalles
-              productos={productos}
-              usuario={usuario}
-              onAgregarCarrito={handleAgregarCarrito}
-            />
-          }
-        />
+        <Route path="/detalles" element={<Detalles usuario={usuario} onAgregarCarrito={handleAgregarCarrito} />} />
         <Route
           path="/carro"
           element={

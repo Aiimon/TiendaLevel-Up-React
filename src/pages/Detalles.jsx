@@ -1,53 +1,50 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Especificacion from "../components/Especificacion";
 import Resenia from "../components/Resenia";
 import Footer from "../components/Footer";
 import ReseniaForm from "../components/ReseniaForm";
-import { getProductoPorId } from "../utils/apihelper";
 
 export default function Detalles({ usuario, onAgregarCarrito }) {
-  const { id } = useParams();
+  const location = useLocation();
+  const productoId = location.state?.productoId; // viene de navigate
   const [producto, setProducto] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [stock, setStock] = useState(0);
   const [resenias, setResenias] = useState([]);
+  const [stock, setStock] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // Traer producto desde la API
   useEffect(() => {
+    if (!productoId) return;
+
     const fetchProducto = async () => {
       try {
-        const p = await getProductoPorId(id);
+        // 1️⃣ Obtener producto
+        const resProducto = await fetch(`/v2/productos/buscar/id/${productoId}`);
+        if (!resProducto.ok) throw new Error("Producto no encontrado");
+        const p = await resProducto.json();
         setProducto(p);
+        setStock(p.stock);
 
-        // Stock inicial
-        const stockLS = localStorage.getItem(`stock_${p.id}`);
-        setStock(stockLS !== null ? Number(stockLS) : p.stock);
-
-        // Cargar reseñas del producto desde localStorage
-        const todasResenias = JSON.parse(localStorage.getItem("resenias")) || [];
-        const filtradas = todasResenias.filter(r => r.productoId === p.id);
-
-        // Eliminar duplicados por email + fecha + productoId
-        const únicas = filtradas.filter((r, index, arr) => {
-          return arr.findIndex(item => item.email === r.email && item.fecha === r.fecha && item.productoId === r.productoId) === index;
-        });
-
-        setResenias(únicas);
+        // 2️⃣ Obtener reseñas
+        const resResenias = await fetch(`/v2/resenias/producto/${p.id}`);
+        if (resResenias.ok) {
+          const resData = await resResenias.json();
+          setResenias(resData);
+        }
       } catch (error) {
-        console.error("Error al cargar producto:", error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducto();
-  }, [id]);
+  }, [productoId]);
 
   if (loading) return <p>Cargando producto...</p>;
   if (!producto) return <p>Producto no encontrado</p>;
 
-  // Precio final considerando descuento y beneficio Duoc
+  // Precio final
   let precioFinal = producto.precio;
   const descuento = producto.descuento || 0;
   const tieneDescuento = descuento > 0 || usuario?.esDuoc;
@@ -58,34 +55,32 @@ export default function Detalles({ usuario, onAgregarCarrito }) {
   const handleAgregar = () => {
     if (stock <= 0) return;
     onAgregarCarrito(producto.id, 1);
-    setStock(prev => {
-      const nuevoStock = Math.max(prev - 1, 0);
-      localStorage.setItem(`stock_${producto.id}`, nuevoStock);
-      return nuevoStock;
-    });
+    setStock(prev => Math.max(prev - 1, 0));
   };
 
-  // Agregar reseña
-  const handleAgregarResenia = (resenaParcial) => {
+  // Agregar reseña a la base de datos
+  const handleAgregarResenia = async (resenaParcial) => {
     if (!usuario) return;
 
     const nuevaResena = {
-      ...resenaParcial,
-      productoId: producto.id,
-      producto: producto.nombre,
-      imagen: producto.imagen ? `/${producto.imagen.split("/").pop()}` : "/logo.png",
-      fecha: new Date().toISOString(),
+      producto: { id: producto.id },
+      usuario: { usuarioId: usuario.usuarioId },
+      texto: resenaParcial.texto,
+      calificacion: resenaParcial.calificacion
     };
 
-    const todasResenias = JSON.parse(localStorage.getItem("resenias")) || [];
-    todasResenias.push(nuevaResena);
-    localStorage.setItem("resenias", JSON.stringify(todasResenias));
-
-    const filtradas = todasResenias.filter(r => r.productoId === producto.id);
-    const únicas = filtradas.filter((r, index, arr) => {
-      return arr.findIndex(item => item.email === r.email && item.fecha === r.fecha && item.productoId === r.productoId) === index;
-    });
-    setResenias(únicas);
+    try {
+      const res = await fetch("/v2/resenias", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nuevaResena)
+      });
+      if (!res.ok) throw new Error("Error al enviar reseña");
+      const resCreada = await res.json();
+      setResenias(prev => [...prev, resCreada]);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const nombreArchivo = producto.imagen ? producto.imagen.split("/").pop() : "logo.png";
@@ -105,7 +100,7 @@ export default function Detalles({ usuario, onAgregarCarrito }) {
           </div>
           <div className="col-md-7">
             <h2 className="mb-1">{producto.nombre}</h2>
-            <p className="text-secondary mb-2">{producto.categoria}</p>
+            <p className="text-secondary mb-2">{producto.categoria?.nombre || ""}</p>
             <p>{producto.descripcion}</p>
 
             <Especificacion detalles={producto.detalles} />
