@@ -1,153 +1,216 @@
-import React, { useState, useEffect } from 'react';
-import productosD from "../data/productos.json"; 
+import React, { useState, useEffect, useCallback } from 'react'; 
+// ELIMINAMOS TODA DEPENDENCIA DE JSON Y LÓGICA OBSOLETA
+// import productosD from "../data/productos.json"; 
+// const LOCAL_STORAGE_KEY_PRODUCTS = 'productos_maestro';
+// const getAllUniqueCategories = () => { /* ... */ };
 
-// --- Configuración Global ---
-const LOCAL_STORAGE_KEY_PRODUCTS = 'productos_maestro';
 
-// Función para obtener todas las categorías únicas
-const getAllUniqueCategories = () => {
-    // 1. Iniciar con las categorías definidas en el array 'categorias' del JSON
-    const categoriesSet = new Set(productosD.categorias || []);
-    
-    // 2. Agregar categorías de los productos actualmente en localStorage/maestro
-    const allProducts = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_PRODUCTS)) || productosD.productos || [];
-
-    allProducts.forEach(p => {
-        if (p.categoria && typeof p.categoria === 'string' && p.categoria.trim() !== '') {
-            categoriesSet.add(p.categoria.trim());
-        }
-    });
-
-    // 3. Convertir el Set a un Array de objetos para la tabla
-    return Array.from(categoriesSet).map((name, index) => ({
-        // El ID se mantiene internamente para manejar la edición y la clave de React
-        id: name.replace(/\s/g, '').toUpperCase().substring(0, 5) + `-${index + 1}`,
-        nombre: name
-    }));
-};
+// --- Configuración API ---
+const API_BASE_URL = 'http://localhost:8080/v2/categorias'; // URL base de categorías
 
 
 function CategoriasContent() { 
-    
-    const [categories, setCategories] = useState([]);
+    
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    useEffect(() => {
-        setCategories(getAllUniqueCategories());
+    // 1. FUNCIÓN DE LECTURA (READ ALL)
+    const fetchCategories = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await fetch(`${API_BASE_URL}/todas`); // GET: /v2/categorias/todas
+            
+            if (!response.ok) {
+                throw new Error("Error al obtener las categorías.");
+            }
+            const data = await response.json();
+            
+            // Asumimos que la API devuelve un array de objetos { id: ID, nombre: NOMBRE }
+            setCategories(data); 
+        } catch (err) {
+            console.error("Error cargando categorías:", err);
+            setError("No se pudo conectar al servidor para obtener las categorías.");
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
-    // Funciones de acción simuladas
-    const handleCreateCategory = () => {
-        const newCatName = prompt("Introduce el nombre de la nueva categoría:");
-        if (newCatName && newCatName.trim() !== '') {
-            console.log(`[SIMULACIÓN] Creando nueva categoría: ${newCatName}`);
-            
-            const newId = newCatName.replace(/\s/g, '').toUpperCase().substring(0, 5) + `-${Date.now()}`;
-            setCategories(prev => [...prev, { id: newId, nombre: newCatName.trim() }]);
-            
-            alert(`Simulación: Categoría "${newCatName.trim()}" agregada. (No persistente sin API/JSON de Categorías).`);
-        }
-    };
+    // Carga inicial
+    useEffect(() => {
+        fetchCategories();
+    }, [fetchCategories]);
 
-    const handleEditCategory = (id, currentName) => {
-        const newName = prompt(`Editar categoría: ${currentName}. Introduce el nuevo nombre:`, currentName);
-        
-        if (newName && newName.trim() !== currentName) {
-            console.log(`[SIMULACIÓN] Editando categoría ID ${id}: ${currentName} -> ${newName}`);
-            
-            setCategories(prev => 
-                prev.map(cat => (cat.id === id ? { ...cat, nombre: newName.trim() } : cat))
-            );
-            
-            alert(`Simulación: Categoría "${currentName}" editada a "${newName}".`);
-        }
-    };
+    // 2. FUNCIÓN DE CREACIÓN (CREATE - POST)
+    const handleCreateCategory = async () => {
+        const newCatName = prompt("Introduce el nombre de la nueva categoría:");
+        
+        if (newCatName && newCatName.trim() !== '') {
+            try {
+                const response = await fetch(`${API_BASE_URL}/crear`, { // POST: /v2/categorias/crear
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // El ID se genera en el backend. Solo enviamos el nombre.
+                    body: JSON.stringify({ nombre: newCatName.trim() }), 
+                });
 
-    const handleDeleteCategory = (id, name) => {
-        if (window.confirm(`¿Estás seguro de que deseas eliminar la categoría "${name}"? NOTA: Esto no eliminará los productos asociados en la simulación.`)) {
-            console.log(`[SIMULACIÓN] Eliminando categoría: ${name} (ID: ${id})`);
+                if (!response.ok) {
+                    const errorMsg = await response.text();
+                    throw new Error(`Fallo al crear la categoría: ${errorMsg}`);
+                }
 
-            // Filtramos la lista para quitar la categoría
-            setCategories(prev => prev.filter(cat => cat.id !== id));
-            
-            alert(`Simulación: Categoría "${name}" eliminada.`);
-        }
-    };
+                const createdCategory = await response.json();
 
-    return (
-        <div className="admin-content-wrapper p-4 flex-grow-1" style={{ backgroundColor: '#000000ff' }}>
-            
-            <h1 className="text-light h4 mb-1">Gestión de Categorías</h1>
-            <p className="text-muted mb-4">Listado de categorías extraídas de la lista maestra de productos.</p>
+                // Actualizar la lista con la categoría recién creada (que incluye su ID real)
+                setCategories(prev => [...prev, createdCategory]);
+                alert(`✅ Categoría "${createdCategory.nombre}" creada con ID ${createdCategory.id}.`);
 
-            {/* BARRA DE ACCIONES SUPERIOR */}
-            <div className="d-flex justify-content-end align-items-center mb-4">
+            } catch (err) {
+                console.error("Error al crear categoría:", err);
+                alert(`❌ Error al crear: ${err.message}`);
+            }
+        }
+    };
+
+    // 3. FUNCIÓN DE EDICIÓN (UPDATE - PUT)
+    const handleEditCategory = async (id, currentName) => {
+        const newName = prompt(`Editar categoría: ${currentName}. Introduce el nuevo nombre:`, currentName);
+        
+        if (newName && newName.trim() !== currentName) {
+            try {
+                // PUT: /v2/categorias/actualizar/{id}
+                const response = await fetch(`${API_BASE_URL}/actualizar/${id}`, { 
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    // Enviamos solo el nuevo nombre en el body, el ID va en la URL.
+                    body: JSON.stringify({ nombre: newName.trim() }), 
+                });
+
+                if (response.status === 404) throw new Error("Categoría no encontrada.");
+                if (!response.ok) throw new Error("Fallo al actualizar la categoría.");
+
+                const updatedCategory = await response.json();
                 
-                {/* Botón Nueva Categoría */}
-                <button 
-                    onClick={handleCreateCategory}
-                    className="btn btn-lg text-white d-flex align-items-center fw-bold"
-                    style={{
-                        backgroundColor: '#28a745', 
-                        border: 'none',
-                    }}
-                >
-                    <i className="fas fa-plus-circle me-2"></i> 
-                    NUEVA CATEGORÍA
-                </button>
-            </div>
+                // Actualizar el estado local
+                setCategories(prev => 
+                    prev.map(cat => (cat.id === id ? updatedCategory : cat))
+                );
+                
+                alert(`✅ Categoría "${currentName}" editada a "${updatedCategory.nombre}".`);
 
-            {/* Tabla de Listado de Categorías */}
-            <div className="table-responsive" style={{ backgroundColor: '#212529', borderRadius: '8px', padding: '10px' }}>
-                <table className="table table-dark table-striped table-hover align-middle" style={{ backgroundColor: 'transparent' }}>
-                    
-                    <thead>
-                        <tr>
-                            <th scope="col" style={{ width: '70%' }}>Nombre de la Categoría</th>
-                            <th scope="col" style={{ width: '30%' }}>Acciones</th>
-                        </tr>
-                    </thead>
+            } catch (err) {
+                console.error("Error al editar categoría:", err);
+                alert(`❌ Error al editar: ${err.message}`);
+            }
+        }
+    };
 
-                    <tbody>
-                        {categories.length > 0 ? (
-                            categories.map((cat) => (
-                                <tr key={cat.id}> {/* Key de React usando el ID interno */}
-                                    <td>{cat.nombre}</td>
-                                    
-                                    {/* Columna de Acciones */}
-                                    <td>
-                                        <button 
-                                            onClick={() => handleEditCategory(cat.id, cat.nombre)} 
-                                            className="btn btn-sm btn-primary me-2"
-                                            title="Editar Categoría"
-                                        >
-                                            <i className="fas fa-edit"></i> 
-                                        </button>
+    // 4. FUNCIÓN DE ELIMINACIÓN (DELETE)
+    const handleDeleteCategory = async (id, name) => {
+        if (window.confirm(`¿Estás seguro de que deseas eliminar la categoría "${name}"? Esto afectará la base de datos SQL y cualquier producto asociado.`)) {
+            try {
+                // DELETE: /v2/categorias/eliminar/id/{id}
+                const response = await fetch(`${API_BASE_URL}/eliminar/id/${id}`, {
+                    method: 'DELETE',
+                });
+
+                // Si el producto fue eliminado, el servidor devuelve un 200 OK
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    // Un error 404 (Not Found) significa que la categoría no existe.
+                    throw new Error(errorText || "Fallo al eliminar la categoría. Puede estar asociada a productos.");
+                }
+
+                // Eliminamos del estado local
+                setCategories(prev => prev.filter(cat => cat.id !== id));
+                alert(`✅ Categoría "${name}" eliminada.`);
+
+            } catch (err) {
+                console.error("Error al eliminar categoría:", err);
+                alert(`❌ Error al eliminar: ${err.message}`);
+            }
+        }
+    };
+
+
+    // 5. Renderizado
+    return (
+        <div className="admin-content-wrapper p-4 flex-grow-1" style={{ backgroundColor: '#000000ff' }}>
+            
+            <h1 className="text-light h4 mb-1">Gestión de Categorías</h1>
+            <p className="text-muted mb-4">Gestión completa de las categorías del catálogo.</p>
+
+            {loading && <p className="text-warning"><i className="fas fa-spinner fa-spin me-2"></i> Cargando categorías...</p>}
+            {error && <p className="alert alert-danger">{error}</p>}
+
+            {!loading && !error && (
+            <>
+                {/* BARRA DE ACCIONES SUPERIOR */}
+                <div className="d-flex justify-content-end align-items-center mb-4">
+                    <button 
+                        onClick={handleCreateCategory}
+                        className="btn btn-lg text-white d-flex align-items-center fw-bold"
+                        style={{ backgroundColor: '#28a745', border: 'none' }}
+                    >
+                        <i className="fas fa-plus-circle me-2"></i> NUEVA CATEGORÍA
+                    </button>
+                </div>
+
+                {/* Tabla de Listado de Categorías */}
+                <div className="table-responsive" style={{ backgroundColor: '#212529', borderRadius: '8px', padding: '10px' }}>
+                    <table className="table table-dark table-striped table-hover align-middle" style={{ backgroundColor: 'transparent' }}>
+                        
+                        <thead>
+                            <tr>
+                                <th scope="col" style={{ width: '10%' }}>ID</th>
+                                <th scope="col" style={{ width: '60%' }}>Nombre de la Categoría</th>
+                                <th scope="col" style={{ width: '30%' }}>Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {categories.length > 0 ? (
+                                categories.map((cat) => (
+                                    <tr key={cat.id}> 
+                                        <th>{cat.id}</th> {/* Mostramos el ID real de la base de datos */}
+                                        <td>{cat.nombre}</td>
                                         
-                                        {/* BOTÓN BORRAR AGREGADO */}
-                                        <button 
-                                            onClick={() => handleDeleteCategory(cat.id, cat.nombre)} 
-                                            className="btn btn-sm btn-danger"
-                                            title="Eliminar Categoría"
-                                        >
-                                            <i className="fas fa-trash-alt"></i> 
-                                        </button>
+                                        {/* Columna de Acciones */}
+                                        <td>
+                                            <button 
+                                                onClick={() => handleEditCategory(cat.id, cat.nombre)} 
+                                                className="btn btn-sm btn-primary me-2"
+                                                title="Editar Categoría"
+                                            >
+                                                <i className="fas fa-edit"></i> 
+                                            </button>
+                                            
+                                            <button 
+                                                onClick={() => handleDeleteCategory(cat.id, cat.nombre)} 
+                                                className="btn btn-sm btn-danger"
+                                                title="Eliminar Categoría"
+                                            >
+                                                <i className="fas fa-trash-alt"></i> 
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="3" className="text-center text-muted p-3">
+                                        No se encontraron categorías.
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="2" className="text-center text-muted p-3">
-                                    No se encontraron categorías.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </>
+            )}
             
-           
         </div>
-    );
+    );
 }
 
 export default CategoriasContent;
