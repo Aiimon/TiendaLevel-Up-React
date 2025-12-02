@@ -44,7 +44,7 @@ function Categoria({ usuario, onAgregarCarrito, productos }) {
   }, []);
 
   const handleAgregar = (producto) => {
-    if (!usuario?.id) {
+    if (!usuario?.usuarioId) {
       setMensaje("🔒 Debes iniciar sesión para agregar productos al carrito.");
       return;
     }
@@ -53,7 +53,7 @@ function Categoria({ usuario, onAgregarCarrito, productos }) {
       return;
     }
 
-    onAgregarCarrito(producto.id, 1);
+    onAgregarCarrito(producto); // <- enviar el objeto completo
     setMensaje(`✅ Se agregó "${producto.nombre}" al carrito.`);
     setTimeout(() => setMensaje(""), 3000);
   };

@@ -58,7 +58,7 @@ export default function ProductoCard({ producto, usuario = {}, onAgregarCarrito 
           <button
             className="btn btn-accent flex-grow-1"
             onClick={() => onAgregarCarrito(id)}
-            disabled={stock === 0}
+            disabled={stock === 0} // Deshabilita si no hay stock
           >
             <i className="bi bi-cart3 me-1"></i>
             {stock === 0 ? "Agotado" : "Agregar"}

@@ -3,33 +3,18 @@ import Hero from "../components/Hero";
 import Card from "../components/Card";
 import Carrito from "../components/Carrito";
 import Footer from "../components/Footer";
-import { getProductos } from "../utils/apihelper";
 
-function Home({ carritoOpen, setCarritoOpen, cantidad, setCantidad, onAgregarCarrito }) {
-  const [productos, setProductos] = useState([]);
+function Home({ productos: productosProp, carritoOpen, setCarritoOpen, carrito, onAgregarCarrito }) {
   const [cargando, setCargando] = useState(true);
 
+  // Filtrar solo productos destacados cada vez que cambian los productos de Layout
+  const productosDestacados = productosProp
+    .filter((p) => Boolean(p.destacado))
+    .slice(0, 3);
+
   useEffect(() => {
-    const fetchProductos = async () => {
-      try {
-        const todos = await getProductos();
-
-        // Filtrar solo productos destacados y tomar solo 3
-        const destacados = todos
-          .filter((p) => Boolean(p.destacado))
-          .slice(0, 3);
-
-        setProductos(destacados);
-        console.log("Productos destacados:", destacados);
-      } catch (error) {
-        console.error("Error al cargar productos destacados:", error);
-      } finally {
-        setCargando(false);
-      }
-    };
-
-    fetchProductos();
-  }, []);
+    setCargando(false);
+  }, [productosProp]);
 
   return (
     <>
@@ -60,22 +45,17 @@ function Home({ carritoOpen, setCarritoOpen, cantidad, setCantidad, onAgregarCar
 
         {cargando ? (
           <p className="text-center">Cargando productos...</p>
-        ) : productos.length === 0 ? (
+        ) : productosDestacados.length === 0 ? (
           <p className="text-center">No hay productos destacados disponibles.</p>
         ) : (
           <Card
-            productosDestacados={productos}
-            setCantidad={setCantidad}
+            productosDestacados={productosDestacados}
             onAgregarCarrito={onAgregarCarrito}
           />
         )}
       </section>
 
-      <Carrito
-        open={carritoOpen}
-        setOpen={setCarritoOpen}
-        cantidad={cantidad}
-      />
+      <Carrito open={carritoOpen} setOpen={setCarritoOpen} carrito={carrito} />
 
       <Footer />
     </>

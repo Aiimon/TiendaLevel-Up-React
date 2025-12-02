@@ -9,13 +9,9 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
 
   const contenedorRef = useRef(null);
 
-  // Crear lista de categorías única y siempre incluir "Todas"
-  const categoriasUnicas = [
-    { id: "todas", nombre: "Todas" },
-    ...[...new Map(categorias.map(c => [c.nombre, c])).values()].filter(c => c.nombre !== "Todas")
-  ];
+  // Eliminar duplicados de categorías por nombre
+  const categoriasUnicas = [...new Map(categorias.map(c => [c.nombre, c])).values()];
 
-  // Función de filtrado
   const aplicarFiltros = () => {
     const filtros = {
       q: q.trim(),
@@ -26,7 +22,6 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
     onFilter(filtros);
   };
 
-  // Limpiar filtros
   const limpiarFiltros = () => {
     setQ("");
     setCat("Todas");
@@ -35,12 +30,6 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
     onFilter({ q: "", cat: "Todas", min: 0, max: Infinity });
   };
 
-  // Filtrar automáticamente cuando cambian los inputs
-  useEffect(() => {
-    aplicarFiltros();
-  }, [q, cat, min, max]);
-
-  // Cerrar buscador al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (contenedorRef.current && !contenedorRef.current.contains(event.target)) {
@@ -85,11 +74,14 @@ export default function BuscadorAvanzado({ categorias = [], onFilter }) {
               value={cat}
               onChange={(e) => setCat(e.target.value)}
             >
-              {categoriasUnicas.map(c => (
-                <option key={c.id} value={c.nombre}>
-                  {c.nombre}
-                </option>
-              ))}
+              <option value="Todas">Todas</option>
+              {categoriasUnicas
+                .filter((c) => c.nombre !== "Todas")
+                .map((c) => (
+                  <option key={c.id} value={c.nombre}>
+                    {c.nombre}
+                  </option>
+                ))}
             </select>
           </div>
 

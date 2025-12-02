@@ -1,10 +1,22 @@
 import { useNavigate } from "react-router-dom";
 
-function CarritoSidebar({ abierto, cerrar, carrito = [], onActualizarCantidad }) {
+function CarritoSidebar({ abierto, cerrar, carrito = [], onActualizarCantidad, onEliminarItem }) {
   const navigate = useNavigate();
 
-  const totalProductos = carrito.reduce((acc, p) => acc + p.cantidad, 0);
-  const totalPrecio = carrito.reduce((acc, p) => {
+  // Normalizar items del carrito, agregando productoId para consistencia
+  const carritoNormalizado = carrito.map((p) => ({
+    id: p.id,
+    productoId: p.productoId ?? p.id,
+    nombre: p.nombre || p.producto?.nombre || "Desconocido",
+    precio: p.precio ?? p.producto?.precio ?? 0,
+    descuento: p.descuento ?? p.producto?.descuento ?? 0,
+    stock: p.stock ?? p.producto?.stock ?? 0,
+    cantidad: p.cantidad ?? 0,
+    imagen: p.imagen || p.producto?.imagen || "/placeholder.png",
+  }));
+
+  const totalProductos = carritoNormalizado.reduce((acc, p) => acc + p.cantidad, 0);
+  const totalPrecio = carritoNormalizado.reduce((acc, p) => {
     const precioFinal = p.descuento
       ? Math.round(p.precio * (1 - p.descuento / 100))
       : p.precio;
@@ -47,7 +59,7 @@ function CarritoSidebar({ abierto, cerrar, carrito = [], onActualizarCantidad })
           transition: "transform 0.3s ease",
           transform: abierto ? "translateX(0)" : "translateX(100%)"
         }}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h5>Carrito</h5>
@@ -56,23 +68,21 @@ function CarritoSidebar({ abierto, cerrar, carrito = [], onActualizarCantidad })
           </button>
         </div>
 
-        {carrito.length === 0 ? (
+        {carritoNormalizado.length === 0 ? (
           <p>Tu carrito está vacío</p>
         ) : (
           <>
-            {carrito.map(p => {
+            {carritoNormalizado.map((p) => {
               const precioFinal = p.descuento
                 ? Math.round(p.precio * (1 - p.descuento / 100))
                 : p.precio;
-              const stockMax = p.stock + p.cantidad;
-              const srcImagen = p.imagen.startsWith("/")
-                ? p.imagen
-                : `/${p.imagen}`;
+
+              const stockMax = p.stock;
 
               return (
                 <div key={p.id} className="d-flex align-items-center justify-content-between mb-3">
                   <img
-                    src={srcImagen}
+                    src={p.imagen.startsWith("/") ? p.imagen : `/${p.imagen}`}
                     alt={p.nombre}
                     style={{ width: 50, height: 50, objectFit: "contain", marginRight: 10 }}
                   />
@@ -81,21 +91,21 @@ function CarritoSidebar({ abierto, cerrar, carrito = [], onActualizarCantidad })
                     <div className="d-flex align-items-center mt-1 gap-2">
                       <button
                         className="btn btn-sm btn-outline-light"
-                        onClick={() => onActualizarCantidad(p.id, p.cantidad - 1)}
+                        onClick={() => onActualizarCantidad(p.productoId, p.cantidad - 1)}
                       >
                         -
                       </button>
                       <span>{p.cantidad}</span>
                       <button
                         className="btn btn-sm btn-outline-light"
-                        onClick={() => onActualizarCantidad(p.id, p.cantidad + 1)}
+                        onClick={() => onActualizarCantidad(p.productoId, p.cantidad + 1)}
                         disabled={p.cantidad >= stockMax}
                       >
                         +
                       </button>
                       <button
                         className="btn btn-sm btn-danger"
-                        onClick={() => onActualizarCantidad(p.id, 0)}
+                        onClick={() => onEliminarItem(p.productoId)}
                       >
                         🗑
                       </button>

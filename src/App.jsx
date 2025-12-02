@@ -73,15 +73,40 @@ function Layout() {
     fetchData();
   }, []);
 
-  // Cargar carrito desde backend cuando hay usuario
+  // Normalizar carrito
+  const normalizarCarrito = (items, productosAPI) =>
+    items.map(item => {
+      const prod = item.producto || productosAPI.find(p => p.id === item.productoId || p.id === item.id) || {};
+      return {
+        ...item,
+        productoId: item.productoId ?? item.id ?? prod.id,
+        producto: prod,
+        nombre: item.nombre || prod.nombre || 'Desconocido',
+        precio: item.precio ?? prod.precio ?? 0,
+        descuento: item.descuento ?? prod.descuento ?? 0,
+        stock: item.stock ?? prod.stock ?? 0,
+        cantidad: item.cantidad ?? 0,
+        imagen: item.imagen || prod.imagen || '/placeholder.png'
+      };
+    });
+
+  // Cargar carrito
   useEffect(() => {
     if (usuario) {
       const fetchCarrito = async () => {
         try {
-          const c = await obtenerCarrito(usuario.id);
-          setCarrito(c.items || []);
-        } catch (error) {
-          console.error("Error al obtener carrito:", error);
+          const carritoData = await obtenerCarrito(usuario.usuarioId);
+          const productosAPI = await getProductos();
+
+          const items = Array.isArray(carritoData)
+            ? carritoData
+            : Array.isArray(carritoData?.items)
+              ? carritoData.items
+              : [];
+
+          setCarrito(normalizarCarrito(items, productosAPI));
+        } catch (err) {
+          console.error("Error al obtener carrito:", err);
           setCarrito([]);
         }
       };
@@ -91,44 +116,86 @@ function Layout() {
     }
   }, [usuario]);
 
-  // Agregar producto al carrito
+  // Agregar al carrito
   const handleAgregarCarrito = async (producto) => {
     if (!usuario) return alert("Debes iniciar sesión para agregar al carrito");
+    if (producto.stock <= 0) return alert("El producto está agotado");
 
     try {
-      const carritoActualizado = await agregarAlCarrito(usuario.id, producto.id, 1);
-      setCarrito(carritoActualizado.items || []);
+      const carritoActualizado = await agregarAlCarrito(usuario.usuarioId, producto.id, 1);
+      const productosAPI = await getProductos();
+      const items = carritoActualizado.items || [...carrito, { ...producto, cantidad: 1 }];
 
-      // Ajustar stock local
+      setCarrito(normalizarCarrito(items, productosAPI));
+
+      // Reducir stock local
       setProductos(prev =>
         prev.map(p => p.id === producto.id ? { ...p, stock: p.stock - 1 } : p)
       );
     } catch (error) {
       console.error("Error agregando al carrito:", error);
+      alert("No se pudo agregar el producto al carrito");
     }
   };
 
-  // Actualizar cantidad en carrito
-  const actualizarCantidadCarrito = async (itemId, cantidad) => {
+  // Actualizar cantidad
+  const actualizarCantidadCarrito = async (productoId, nuevaCantidad) => {
     try {
-      const carritoActualizado = await actualizarItemCarrito(usuario.id, itemId, cantidad);
-      setCarrito(carritoActualizado.items || []);
+      const itemPrev = carrito.find(p => p.productoId === productoId);
+      if (!itemPrev) return;
+
+      if (nuevaCantidad < 1) {
+        // Si la cantidad baja a 0, eliminamos el producto
+        return eliminarItemDelCarrito(productoId);
+      }
+
+      const carritoActualizado = await actualizarItemCarrito(usuario.usuarioId, productoId, nuevaCantidad);
+
+      const diff = nuevaCantidad - itemPrev.cantidad;
+      setProductos(prev =>
+        prev.map(p =>
+          p.id === productoId ? { ...p, stock: p.stock - diff } : p
+        )
+      );
+
+      setCarrito(normalizarCarrito(carritoActualizado.items || carrito, productos));
     } catch (error) {
       console.error("Error al actualizar cantidad:", error);
     }
   };
 
-  // Eliminar item del carrito
-  const eliminarItemDelCarrito = async (itemId) => {
+  // Eliminar item del carrito y actualizar stock en productos
+  const eliminarItemDelCarrito = async (productoId) => {
     try {
-      const carritoActualizado = await eliminarItemCarrito(usuario.id, itemId);
-      setCarrito(carritoActualizado.items || []);
+      const itemEliminado = carrito.find(p => p.productoId === productoId);
+      if (!itemEliminado) return;
+
+      // Primero devolvemos stock en el estado productos
+      setProductos(prev =>
+        prev.map(p =>
+          p.id === productoId ? { ...p, stock: p.stock + itemEliminado.cantidad } : p
+        )
+      );
+
+      // Llamamos al backend para eliminar el item
+      const carritoActualizado = await eliminarItemCarrito(usuario.usuarioId, productoId);
+
+      // Normalizamos carrito usando el stock actualizado
+      setCarrito(prevCarrito =>
+        normalizarCarrito(
+          carritoActualizado.items || prevCarrito.filter(p => p.productoId !== productoId),
+          productos.map(p =>
+            p.id === productoId ? { ...p, stock: p.stock + itemEliminado.cantidad } : p
+          )
+        )
+      );
+
     } catch (error) {
       console.error("Error al eliminar item:", error);
     }
   };
 
-  // Filtrado de productos
+  // Filtrar productos
   const [productosFiltrados, setProductosFiltrados] = useState([]);
   const handleFiltrarProductos = ({ q, cat, min, max }) => {
     const filtrados = productos.filter(p => {
@@ -140,13 +207,24 @@ function Layout() {
     setProductosFiltrados(filtrados);
   };
 
-  // Rutas donde no mostrar navbar
   const hideNavbarRoutes = ["/checkout", "/boleta"];
   const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
   const shouldShowBotonWsp = shouldShowNavbar;
 
-  // Mostrar buscador solo en /categoria y /ofertas
   const mostrarBuscador = location.pathname.startsWith("/categoria") || location.pathname.startsWith("/ofertas");
+
+  // useEffect para sincronizar stock en las cards automáticamente
+  useEffect(() => {
+    setProductos(prev =>
+      prev.map(p => {
+        const carritoItem = carrito.find(c => c.productoId === p.id);
+        if (carritoItem) {
+          return { ...p, stock: p.stock }; // stock ya actualizado
+        }
+        return p;
+      })
+    );
+  }, [carrito]);
 
   return (
     <>
