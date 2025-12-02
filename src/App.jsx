@@ -33,7 +33,7 @@ import Perfil from "./pages/Perfil";
 import ProteccionUser from "./components/ProteccionUser";
 import HomeAdmin from "./pages/HomeAdmin";
 import PerfilAdmin from "./pages/PerfilAdmin";
-import CategoriaAdmin from "./pages/CategoriaAdmin";
+import CategoriaAdmin from "./pages/Categoria_admin";
 import EditarProducto from "./pages/EditarProducto";
 import EditarUser from "./pages/EditarUser";
 import NuevoProducto from "./pages/NuevoProducto";
