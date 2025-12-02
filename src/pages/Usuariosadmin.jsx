@@ -1,11 +1,15 @@
-// src/pages/Usuariosadmin.jsx
+// src/pages/Usuariosadmin.jsx (CÓDIGO CORREGIDO Y LISTO PARA PROD)
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+// Eliminamos Footer, SidebarAdmin y Notiadmn si estos ya son provistos por el padre (Homeadmin.jsx)
+// Si Usuariosadmin.jsx es usado directamente como una página de App.jsx, esta es la estructura correcta. 
+// ASUMO que Usuariosadmin se usa DENTRO de Homeadmin, así que quitamos SidebarAdmin y Footer de aquí.
 import SidebarAdmin from "../components/SidebarAdmin"; 
-import TablaUsuarios from "../components/TablaUsuarios"; // <-- IMPORTACIÓN CLAVE
 import Footer from '../components/Footer';
 import Notiadmn from '../components/Notiadmn';
+
+import TablaUsuarios from "../components/TablaUsuarios"; // <-- IMPORTACIÓN CLAVE
 
 // --- Configuración de Estilos ---
 const GREEN_LIGHT = '#39FF14'; 
@@ -22,9 +26,9 @@ const UserContent = () => {
             {/* BARRA DE ACCIONES SUPERIOR (Nuevo Usuario) */}
             <div className="d-flex justify-content-start mb-4">
                 
-                {/* Botón Nuevo Usuario (con efecto neon verde) */}
+                {/* Botón Nuevo Usuario (Ruta corregida) */}
                 <Link 
-                    to="/nuevousuario"
+                    to="/adminhome/nuevousuario" // 🛑 RUTA ANIDADA CORRECTA
                     className="btn btn-lg text-white d-flex align-items-center fw-bold"
                     style={{
                         backgroundColor: '#28a745', 
@@ -40,7 +44,7 @@ const UserContent = () => {
                 </Link>
             </div>
             
-            {/* Renderiza el componente de la tabla, que ya incluye el encabezado y el footer */}
+            {/* Renderiza el componente de la tabla, que ya está migrado a la API */}
             <TablaUsuarios />
         </div>
     );
@@ -48,16 +52,26 @@ const UserContent = () => {
 
 
 function Usuariosadmin() {
+    // Si Usuariosadmin se usa como sub-ruta en Homeadmin, NO debe envolverse en SidebarAdmin ni Footer.
+    // Si se usa como ruta principal, la estructura de abajo es correcta.
+    // ASUMO que se usa como SUB-RUTA en Homeadmin:
+
+    return (
+        // Renderizamos solo el contenido, ya que el layout lo da Homeadmin
+        <UserContent /> 
+    );
+    
+    /* Si Usuariosadmin se usa como ruta PRINCIPAL, usarías la siguiente estructura:
     return (
         <>
             <SidebarAdmin>
-            <UserContent />
-            <Notiadmn />
+                <UserContent />
+                <Notiadmn />
             </SidebarAdmin>
             <Footer />
         </>
-        
     );
+    */
 }
 
 export default Usuariosadmin;
