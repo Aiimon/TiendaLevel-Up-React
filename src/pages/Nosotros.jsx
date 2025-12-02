@@ -1,7 +1,17 @@
+import { useEffect, useState } from "react";
 import CarritoSidebar from "../components/CarritoSidebar";
 import Footer from "../components/Footer";
+import { getImagenesPorTipo } from "../utils/apihelper";
 
 function Nosotros({ carritoOpen, setCarritoOpen }) {
+  const [imagenes, setImagenes] = useState([]);
+
+  useEffect(() => {
+    getImagenesPorTipo("nosotros")
+      .then((data) => setImagenes(data))
+      .catch((err) => console.error("Error cargando imágenes:", err));
+  }, []);
+
   return (
     <>
       {/* Sección Historia */}
@@ -19,28 +29,24 @@ function Nosotros({ carritoOpen, setCarritoOpen }) {
         <div className="container">
           <h2 className="section-title mb-4">Nuestro Equipo</h2>
           <div className="row g-4">
-            <div className="col-md-4">
-              <div className="card team-card h-100 text-center">
-                <div className="team-card-img-container">
-                  <img src="/Integrante1.png" alt="Aimon Medina" />
-                </div>
-                <div className="card-body">
-                  <h5 className="card-title">Aimon Medina</h5>
-                  <p className="text-secondary">Vistas del cliente</p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-4">
-              <div className="card team-card h-100 text-center">
-                <div className="team-card-img-container">
-                  <img src="/Integrante2.jpg" alt="Diego Alarcon" />
-                </div>
-                <div className="card-body">
-                  <h5 className="card-title">Diego Alarcon</h5>
-                  <p className="text-secondary">Vista Administrador</p>
+            {imagenes.map((img) => (
+              <div key={img.id} className="col-md-4">
+                <div className="card team-card h-100 text-center">
+                  <div className="team-card-img-container">
+                    <img
+                      src={img.url} // URL desde la base de datos
+                      alt={img.nombre}
+                      className="img-fluid"
+                      onError={(e) => { e.target.src = "/img/fallback.png"; }}
+                    />
+                  </div>
+                  <div className="card-body">
+                    <h5 className="card-title">{img.nombre}</h5>
+                    <p className="text-secondary">{img.descripcion}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>

@@ -13,9 +13,8 @@ export default function ProductoCard({ producto, usuario = {}, onAgregarCarrito 
   }
   const precioFinal = esDuoc ? Math.round(precioConDescuento * 0.8) : precioConDescuento;
 
-  // Obtenemos la imagen desde public/
-  const nombreArchivo = imagen.split("/").pop();
-  const imgSrc = `/${nombreArchivo}`; // busca directamente en public/
+  // Imagen directa desde la DB (url completa)
+  const imgSrc = imagen || "/img/default.png";
 
   return (
     <div className="card h-100 shadow-sm d-flex flex-column position-relative">
@@ -27,7 +26,7 @@ export default function ProductoCard({ producto, usuario = {}, onAgregarCarrito 
       <div className="card-body p-3 d-flex flex-column">
         {/* Nombre y categoría */}
         <h5 className="card-title">{nombre}</h5>
-        <p className="text-secondary mb-2">{categoria}</p>
+        <p className="text-secondary mb-2">{categoria?.nombre || "Sin categoría"}</p>
 
         {/* Precio */}
         <p className="price mb-2">
@@ -37,9 +36,7 @@ export default function ProductoCard({ producto, usuario = {}, onAgregarCarrito 
                 ${precio.toLocaleString()}
               </span>{" "}
               <span className="text-danger">${precioFinal.toLocaleString()}</span>
-              {descuento > 0 && (
-                <span className="badge bg-danger ms-2">-{descuento}%</span>
-              )}
+              {descuento > 0 && <span className="badge bg-danger ms-2">-{descuento}%</span>}
             </>
           ) : (
             <>${precio.toLocaleString()}</>
@@ -60,7 +57,7 @@ export default function ProductoCard({ producto, usuario = {}, onAgregarCarrito 
         <div className="d-flex gap-2 mt-auto">
           <button
             className="btn btn-accent flex-grow-1"
-            onClick={onAgregarCarrito}
+            onClick={() => onAgregarCarrito(id)}
             disabled={stock === 0}
           >
             <i className="bi bi-cart3 me-1"></i>

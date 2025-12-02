@@ -5,18 +5,40 @@
 const API_USUARIOS = `/v2/usuarios`;
 const API_PRODUCTOS = `/v2/productos`;
 const API_CATEGORIAS = `/v2/categorias`;
-const API_CARRITO = `/carrito`;
+const API_CARRITO = `/v2/carrito`;
+const API_BOLETAS = `/v2/boletas`;
+const API_IMAGENES = `/v2/imagenes`;
 
-// Función helper para agregar headers de autenticación si existe token
+// Helper para headers con JWT si existe
 const getHeaders = () => {
-  const token = localStorage.getItem("token"); // token JWT si lo tienes
+  const token = localStorage.getItem("token");
   return {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 };
 
-// USUARIOS
+// IMAGENES
+
+// Obtener todas las imágenes
+export const getImagenes = async () => {
+  const resp = await fetch(`${API_IMAGENES}/todas`, { headers: getHeaders() });
+  return resp.ok ? resp.json() : Promise.reject("Error al obtener imágenes");
+};
+
+// Obtener imágenes por tipo (ej: 'nosotros', 'evento', 'logo')
+export const getImagenesPorTipo = async (tipo) => {
+  const resp = await fetch(`${API_IMAGENES}/tipo/${tipo}`, { headers: getHeaders() });
+  return resp.ok ? resp.json() : Promise.reject(`Error al obtener imágenes tipo ${tipo}`);
+};
+
+// Obtener imagen por ID
+export const getImagenPorId = async (id) => {
+  const resp = await fetch(`${API_IMAGENES}/${id}`, { headers: getHeaders() });
+  return resp.ok ? resp.json() : Promise.reject("Imagen no encontrada");
+};
+
+// USUARIOS 
 
 // Login
 export const loginUsuario = async (email, password) => {
@@ -25,11 +47,10 @@ export const loginUsuario = async (email, password) => {
     headers: getHeaders(),
     body: JSON.stringify({ email, password }),
   });
-  if (resp.ok) return resp.json();
-  else return Promise.reject("Error de login");
+  return resp.ok ? resp.json() : Promise.reject("Error de login");
 };
 
-// Crear un usuario
+// Crear usuario
 export const crearUsuario = async (data) => {
   const resp = await fetch(`${API_USUARIOS}/crear`, {
     method: "POST",
@@ -55,25 +76,22 @@ export const getUsuarios = async () => {
   return resp.ok ? resp.json() : Promise.reject("Error al obtener usuarios");
 };
 
-// Buscar usuario por ID
+// Buscar usuario
 export const getUsuarioPorId = async (usuarioId) => {
   const resp = await fetch(`${API_USUARIOS}/buscar/id/${usuarioId}`, { headers: getHeaders() });
   return resp.ok ? resp.json() : Promise.reject("Usuario no encontrado");
 };
 
-// Buscar usuario por email
 export const getUsuarioPorEmail = async (email) => {
   const resp = await fetch(`${API_USUARIOS}/buscar/email/${email}`, { headers: getHeaders() });
-  return resp.ok ? resp.json() : null;
+  return resp.ok ? resp.json() : Promise.reject("Usuario no encontrado");
 };
 
-// Buscar usuario por RUT
 export const getUsuarioPorRut = async (rut) => {
   const resp = await fetch(`${API_USUARIOS}/buscar/rut/${rut}`, { headers: getHeaders() });
   return resp.ok ? resp.json() : Promise.reject("Usuario no encontrado");
 };
 
-// Buscar usuario por nombre
 export const getUsuarioPorNombre = async (nombre) => {
   const resp = await fetch(`${API_USUARIOS}/buscar/nombre/${nombre}`, { headers: getHeaders() });
   return resp.ok ? resp.json() : Promise.reject("Usuario no encontrado");
@@ -89,7 +107,7 @@ export const updateUsuario = async (data) => {
   return resp.ok ? resp.json() : Promise.reject("Error al actualizar usuario");
 };
 
-// Eliminar usuario por ID
+// Eliminar usuario
 export const deleteUsuario = async (usuarioId) => {
   const resp = await fetch(`${API_USUARIOS}/eliminar/id/${usuarioId}`, {
     method: "DELETE",
@@ -98,7 +116,6 @@ export const deleteUsuario = async (usuarioId) => {
   return resp.ok ? true : Promise.reject("Error al eliminar usuario");
 };
 
-// Eliminar usuario por RUT
 export const deleteUsuarioPorRut = async (rut) => {
   const resp = await fetch(`${API_USUARIOS}/eliminar/rut/${rut}`, {
     method: "DELETE",
@@ -193,7 +210,7 @@ export const deleteCategoria = async (id) => {
   return resp.ok ? true : Promise.reject("Error al eliminar categoría");
 };
 
-// CARRITO  
+// CARRITO 
 
 export const obtenerCarrito = async (usuarioId) => {
   const resp = await fetch(`${API_CARRITO}/${usuarioId}`, { headers: getHeaders() });
@@ -214,4 +231,40 @@ export const vaciarCarrito = async (usuarioId) => {
     headers: getHeaders(),
   });
   return resp.ok ? true : Promise.reject("Error al vaciar carrito");
+};
+
+export const actualizarItemCarrito = async (usuarioId, itemId, cantidad) => {
+  const resp = await fetch(`${API_CARRITO}/${usuarioId}/item/${itemId}?cantidad=${cantidad}`, {
+    method: "PUT",
+    headers: getHeaders(),
+  });
+  return resp.ok ? resp.json() : Promise.reject("Error al actualizar cantidad del item");
+};
+
+export const eliminarItemCarrito = async (usuarioId, itemId) => {
+  const resp = await fetch(`${API_CARRITO}/${usuarioId}/item/${itemId}`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  });
+  return resp.ok ? resp.json() : Promise.reject("Error al eliminar item del carrito");
+};
+
+// BOLETAS 
+
+export const generarBoleta = async (usuarioId) => {
+  const resp = await fetch(`${API_BOLETAS}/generar/${usuarioId}`, {
+    method: "POST",
+    headers: getHeaders(),
+  });
+  return resp.ok ? resp.json() : Promise.reject("Error al generar boleta");
+};
+
+export const getBoletaPorId = async (id) => {
+  const resp = await fetch(`${API_BOLETAS}/${id}`, { headers: getHeaders() });
+  return resp.ok ? resp.json() : Promise.reject("Boleta no encontrada");
+};
+
+export const getBoletasPorUsuario = async (usuarioId) => {
+  const resp = await fetch(`${API_BOLETAS}/usuario/${usuarioId}`, { headers: getHeaders() });
+  return resp.ok ? resp.json() : Promise.reject("Error al obtener historial de boletas");
 };

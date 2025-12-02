@@ -1,20 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RegistroForm from "../components/RegistroForm";
 import LoginForm from "../components/LoginForm";
+import { getImagenesPorTipo } from "../utils/apihelper";// Tu helper para traer imágenes
 
 function Auth() {
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [logoUrl, setLogoUrl] = useState("/logo.png"); // fallback por si falla
 
   const abrirLogin = () => {
     setShowLogin(true);
   };
 
+  useEffect(() => {
+    // Traemos la imagen de tipo 'logo' desde la base de datos
+    getImagenesPorTipo("logo")
+      .then(data => {
+        if (data.length > 0) setLogoUrl(data[0].url);
+      })
+      .catch(err => console.error("Error cargando logo:", err));
+  }, []);
+
   return (
     <section className="banner-auth">
       <div className="banner-left d-flex flex-column justify-content-center align-items-center text-center">
         <img
-          src="/logo.png"
+          src={logoUrl}
           alt="Logo Level-Up Gamer"
           className="mb-4"
           style={{ maxWidth: "500px" }}
