@@ -207,7 +207,16 @@ function Navbar({ cantidad, abrirCarrito, usuario }) {
                   ) : (
                     <>
                       <Link to="/perfil" className="dropdown-item text-white p-2 hover-neon" onClick={() => setUsuarioOpen(false)}>Perfil</Link>
-                      {usuarioActual?.rol === "admin" && <Link to="/homeadmin" className="dropdown-item text-white p-2 hover-neon" onClick={() => setUsuarioOpen(false)}>Dashboard Admin</Link>}
+                      {usuarioActual?.rol?.toLowerCase() === "admin" && (
+                        <Link
+                          to="/homeadmin"
+                          className="dropdown-item text-white p-2 hover-neon"
+                          onClick={() => setUsuarioOpen(false)}
+                        >
+                          Dashboard Admin
+                        </Link>
+                      )}
+
                       <button className="dropdown-item text-white p-2 hover-neon w-100 text-start" onClick={() => {
                         const carritoLS = JSON.parse(localStorage.getItem("carrito")) || [];
                         carritoLS.forEach((item) => {
