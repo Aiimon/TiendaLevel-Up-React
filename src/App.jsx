@@ -31,7 +31,7 @@ import Carro from "./pages/Carro";
 import Boleta from "./pages/Boleta";
 import Perfil from "./pages/Perfil";
 import ProteccionUser from "./components/ProteccionUser";
-import HomeAdmin from "./pages/HomeAdmin";
+import HomeAdmin from "./pages/Homeadmin";
 import PerfilAdmin from "./pages/Perfiladmin";
 import CategoriaAdmin from "./pages/Categoria_Admin";
 import EditarProducto from "./pages/EditarProducto";
@@ -40,6 +40,7 @@ import NuevoProducto from "./pages/NuevoProducto";
 import NuevoUsuario from "./pages/NuevoUsuario";
 import Productosadmin from "./pages/Productosadmin";
 import Usuariosadmin from "./pages/Usuariosadmin";
+import Homeadmin from "./pages/Homeadmin";
 
 function Layout() {
   const location = useLocation();
@@ -265,7 +266,7 @@ function Layout() {
       <Routes>
         <Route
           path="/homeadmin"
-          element={<HomeAdmin usuario={usuario} />}
+          element={<Homeadmin />}
         />
         <Route path="/perfiladmin" element={<PerfilAdmin />} />
       <Route path="/categoria_admin" element={<CategoriaAdmin />} />

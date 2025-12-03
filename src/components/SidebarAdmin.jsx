@@ -37,11 +37,11 @@ export const StockNotification = ({ products }) => {
 export const Sidebar = () => {
     const navItems = [
         { name: 'Dashboard',  path: '/homeadmin' }, 
-        { name: 'Órdenes', path: '/homeadmin/ordenes' },
-        { name: 'Productos', path: '/homeadmin/productosadmin' },
-        { name: 'Categorías', path: '/homeadmin/categoria_admin' },
-        { name: 'Usuarios', path: '/homeadmin/usuariosadmin' },
-        { name: 'Reportes', path: '/homeadmin/reporte' },
+        { name: 'Órdenes', path: '/ordenes' },
+        { name: 'Productos', path: '/productosadmin' },
+        { name: 'Categorías', path: '/categoria_admin' },
+        { name: 'Usuarios', path: '/usuariosadmin' },
+        { name: 'Reportes', path: '/reporte' },
     ];
     const [hoveredNav, setHoveredNav] = useState(null);
     const GREEN_LIGHT = '#39FF14'; 

@@ -1,10 +1,8 @@
-// src/pages/Usuariosadmin.jsx (CÓDIGO CORREGIDO Y LISTO PARA PROD)
+// src/pages/Usuariosadmin.jsx (CÓDIGO CON LAYOUT COMPLETO)
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-// Eliminamos Footer, SidebarAdmin y Notiadmn si estos ya son provistos por el padre (Homeadmin.jsx)
-// Si Usuariosadmin.jsx es usado directamente como una página de App.jsx, esta es la estructura correcta. 
-// ASUMO que Usuariosadmin se usa DENTRO de Homeadmin, así que quitamos SidebarAdmin y Footer de aquí.
+// Importamos los componentes del layout
 import SidebarAdmin from "../components/SidebarAdmin"; 
 import Footer from '../components/Footer';
 import Notiadmn from '../components/Notiadmn';
@@ -21,14 +19,17 @@ const UserContent = () => {
     const [isNewButtonHovered, setIsNewButtonHovered] = useState(false); 
 
     return (
-        <div className="admin-content-wrapper p-4 flex-grow-1" style={{ backgroundColor: '#000000ff' }}>
+        // Nota: Quitamos el estilo de fondo aquí, ya que SidebarAdmin o Homeadmin lo aplicarán al contenedor de contenido.
+        <div className="admin-content-wrapper p-4 flex-grow-1">
             
             {/* BARRA DE ACCIONES SUPERIOR (Nuevo Usuario) */}
             <div className="d-flex justify-content-start mb-4">
                 
-                {/* Botón Nuevo Usuario (Ruta corregida) */}
+                {/* Botón Nuevo Usuario (Ruta corregida para el layout anidado) */}
                 <Link 
-                    to="/adminhome/nuevousuario" // 🛑 RUTA ANIDADA CORRECTA
+                    // 🛑 Usamos la ruta completa si es ruta global, o la anidada si es sub-ruta.
+                    // Asumimos que la creación de un usuario es una sub-ruta del admin.
+                    to="/homeadmin/nuevousuario" 
                     className="btn btn-lg text-white d-flex align-items-center fw-bold"
                     style={{
                         backgroundColor: '#28a745', 
@@ -52,16 +53,7 @@ const UserContent = () => {
 
 
 function Usuariosadmin() {
-    // Si Usuariosadmin se usa como sub-ruta en Homeadmin, NO debe envolverse en SidebarAdmin ni Footer.
-    // Si se usa como ruta principal, la estructura de abajo es correcta.
-    // ASUMO que se usa como SUB-RUTA en Homeadmin:
-
-    return (
-        // Renderizamos solo el contenido, ya que el layout lo da Homeadmin
-        <UserContent /> 
-    );
-    
-    /* Si Usuariosadmin se usa como ruta PRINCIPAL, usarías la siguiente estructura:
+    // 🛑 ESTRUCTURA CORREGIDA: Renderizamos el layout completo para asegurar que el Sidebar y Footer aparezcan
     return (
         <>
             <SidebarAdmin>
@@ -71,7 +63,6 @@ function Usuariosadmin() {
             <Footer />
         </>
     );
-    */
 }
 
 export default Usuariosadmin;
