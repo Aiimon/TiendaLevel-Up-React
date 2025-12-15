@@ -19,12 +19,6 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
   const [telefono, setTelefono] = useState("");
   const [comunasDisponibles, setComunasDisponibles] = useState([]);
 
-  // --- ROL Y CAMPOS VENDEDOR ---
-  const [rolUsuario, setRolUsuario] = useState(""); // cliente | vendedor
-  const [nombreTienda, setNombreTienda] = useState("");
-  const [direccionTienda, setDireccionTienda] = useState("");
-  const [rutEmpresa, setRutEmpresa] = useState("");
-
   const [errores, setErrores] = useState({});
 
   // --- Actualizar comunas según región ---
@@ -56,11 +50,6 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
     region: val => val !== "" || "Debes seleccionar una región",
     comuna: val => val !== "" || "Debes seleccionar una comuna",
     telefono: val => val.length >= 9 || "El número debe tener mínimo 9 dígitos",
-    rolUsuario: val => val !== "" || "Debes seleccionar un rol",
-    // validaciones adicionales si es vendedor
-    nombreTienda: val => rolUsuario !== "vendedor" || val.trim() !== "" || "Debes ingresar el nombre de la tienda",
-    direccionTienda: val => rolUsuario !== "vendedor" || val.trim() !== "" || "Debes ingresar la dirección de la tienda",
-    rutEmpresa: val => rolUsuario !== "vendedor" || /^[0-9]{8}[0-9Kk]$/.test(val) || "RUT empresa inválido (9 caracteres)",
   };
 
   // --- Validación en tiempo real ---
@@ -97,10 +86,6 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
       case "region": setRegion(valor); break;
       case "comuna": setComuna(valor); break;
       case "telefono": setTelefono(valor); break;
-      case "rolUsuario": setRolUsuario(valor); break;
-      case "nombreTienda": setNombreTienda(valor); break;
-      case "direccionTienda": setDireccionTienda(valor); break;
-      case "rutEmpresa": setRutEmpresa(valor); break;
       default: break;
     }
   };
@@ -114,7 +99,7 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
 
     const campos = { 
       nombre, apellido, rut, email, password, confirmPassword,
-      fecha, region, comuna, telefono, rolUsuario, nombreTienda, direccionTienda, rutEmpresa
+      fecha, region, comuna, telefono
     };
 
     Object.keys(validarCampo).forEach(campo => {
@@ -142,13 +127,7 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
       fechaNacimiento: fecha,
       region,
       comuna,
-      telefono,
-      rol: rolUsuario,
-      vendedorData: rolUsuario === "vendedor" ? {
-        nombreTienda,
-        direccionTienda,
-        rutEmpresa
-      } : null
+      telefono
     };
 
     // Enviar al backend (Spring Boot)
@@ -200,10 +179,6 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
       setRegion(""); 
       setComuna(""); 
       setTelefono("");
-      setRolUsuario("");
-      setNombreTienda("");
-      setDireccionTienda("");
-      setRutEmpresa("");
       setErrores({});
 
     } catch (err) {
@@ -265,21 +240,6 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
         </span>
       </div>
 
-      {/* ROL */}
-      <div className="col-md-12">
-        <label className="form-label">Registrarme como</label>
-        <select
-          className={`form-select ${errores.rolUsuario ? "is-invalid" : (rolUsuario ? "is-valid" : "")}`}
-          value={rolUsuario}
-          onChange={e => handleChange("rolUsuario", e.target.value)}
-        >
-          <option value="">Seleccione un rol</option>
-          <option value="cliente">Cliente</option>
-          <option value="vendedor">Vendedor</option>
-        </select>
-        {errores.rolUsuario && <div className="text-danger">{errores.rolUsuario}</div>}
-      </div>
-
       {/* REGIÓN */}
       <div className="col-md-6">
         <label className="form-label">Región</label>
@@ -311,44 +271,6 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
         </select>
         {errores.comuna && <div className="text-danger">{errores.comuna}</div>}
       </div>
-
-      {/* CAMPOS VENDEDOR (solo si eligió vendedor) */}
-      {rolUsuario === "vendedor" && (
-        <>
-          <div className="col-md-6">
-            <label className="form-label">Nombre de la tienda</label>
-            <input
-              type="text"
-              className={`form-control ${errores.nombreTienda ? "is-invalid" : (nombreTienda ? "is-valid" : "")}`}
-              value={nombreTienda}
-              onChange={e => handleChange("nombreTienda", e.target.value)}
-            />
-            {errores.nombreTienda && <div className="text-danger">{errores.nombreTienda}</div>}
-          </div>
-
-          <div className="col-md-6">
-            <label className="form-label">Dirección de la tienda</label>
-            <input
-              type="text"
-              className={`form-control ${errores.direccionTienda ? "is-invalid" : (direccionTienda ? "is-valid" : "")}`}
-              value={direccionTienda}
-              onChange={e => handleChange("direccionTienda", e.target.value)}
-            />
-            {errores.direccionTienda && <div className="text-danger">{errores.direccionTienda}</div>}
-          </div>
-
-          <div className="col-md-6">
-            <label className="form-label">RUT de la empresa</label>
-            <input
-              type="text"
-              className={`form-control ${errores.rutEmpresa ? "is-invalid" : (rutEmpresa ? "is-valid" : "")}`}
-              value={rutEmpresa}
-              onChange={e => handleChange("rutEmpresa", e.target.value)}
-            />
-            {errores.rutEmpresa && <div className="text-danger">{errores.rutEmpresa}</div>}
-          </div>
-        </>
-      )}
 
       {/* FECHA */}
       <div className="col-md-6">
