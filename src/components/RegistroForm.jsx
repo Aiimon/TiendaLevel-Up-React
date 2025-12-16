@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
-import CryptoJS from "crypto-js";
 import regionesData from "../data/regiones.json";
 import Swal from "sweetalert2"; 
 import "sweetalert2/dist/sweetalert2.min.css"; 
 
-const claveSecreta = "miClaveFijaParaAES";
 
 export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
   const [nombre, setNombre] = useState("");
@@ -116,14 +114,13 @@ export default function RegistroForm({ onClose, onUsuarioChange, abrirLogin }) {
     }
 
     // Preparar datos para enviar al backend
-    const passwordEncriptada = CryptoJS.AES.encrypt(password, claveSecreta).toString();
 
     const nuevoUsuario = {
       nombre,
       apellido,
       rut,
       email,
-      password: passwordEncriptada,
+      password,
       fechaNacimiento: fecha,
       region,
       comuna,

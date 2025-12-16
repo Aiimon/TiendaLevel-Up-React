@@ -51,20 +51,40 @@ export const getImagenPorId = async (id) => {
 export const loginUsuario = async (email, password) => {
   const resp = await fetch(`${API_USUARIOS}/login`, {
     method: "POST",
-    headers: getHeaders(),
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify({ email, password }),
   });
-  return resp.ok ? resp.json() : Promise.reject("Error de login");
+
+  if (!resp.ok) {
+    throw new Error("Credenciales incorrectas");
+  }
+
+  const data = await resp.json();
+
+  // 🔐 GUARDAR JWT Y USUARIO
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+  return data.usuario;
 };
 
 // Crear usuario
 export const crearUsuario = async (data) => {
   const resp = await fetch(`${API_USUARIOS}/crear`, {
     method: "POST",
-    headers: getHeaders(),
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify(data),
   });
-  return resp.ok ? resp.json() : Promise.reject("Error al crear usuario");
+
+  if (!resp.ok) {
+    throw new Error("Error al crear usuario");
+  }
+
+  return await resp.json();
 };
 
 // Crear múltiples usuarios
